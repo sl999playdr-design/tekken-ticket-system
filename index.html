@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>Nゲージ整理券システム</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nゲージ運行モニター</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav><button onclick="location.href='staff.html'">スタッフ受付用画面へ</button></nav>
-
+    <nav class="top-nav"><button onclick="location.href='entry.html'" class="btn-entry">🎫 整理券を発行する</button></nav>
     <div class="lcd-panel">
-        <h1>ただいまの呼出番号</h1>
-        <div id="calling-now" style="font-size: 80px; color: #ffcc00; background: #333; padding: 20px; border-radius: 10px;">
-            確認中...
-        </div>
+        <div class="lcd-header"><span class="lcd-label">STATUS</span> ただいまの呼出番号</div>
+        <div id="calling-now" class="lcd-number">LOADING...</div>
+        <div class="lcd-footer"><marquee>【鉄道研究部】番号が呼ばれたら受付へお越しください。</marquee></div>
     </div>
-
-    <div class="info-panel">
-        <p>待ち組数: <span id="wait-count">0</span> 組</p>
-        <p>推定待ち時間: 約 <span id="wait-time">0</span> 分</p>
+    <div class="status-grid">
+        <div class="status-card"><div class="label">待ち組数</div><div class="value"><span id="wait-count">0</span>組</div></div>
+        <div class="status-card"><div class="label">推定待ち時間</div><div class="value"><span id="wait-time">0</span>分</div></div>
     </div>
-
     <script src="script.js"></script>
     <script>
         async function update() {
             const data = await fetchSheetData();
             const calling = data.filter(d => d.status === 'call').map(d => d.id).join(' / ');
             const waiting = data.filter(d => d.status === 'resep').length;
-
             document.getElementById('calling-now').innerText = calling || "お待ちください";
             document.getElementById('wait-count').innerText = waiting;
             document.getElementById('wait-time').innerText = waiting * 5;
         }
-        setInterval(update, 10000);
-        update();
+        setInterval(update, 10000); update();
     </script>
 </body>
 </html>
