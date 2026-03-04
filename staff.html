@@ -1,100 +1,44 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>【業務用】Nゲージ運行管理システム</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8"><title>管理コンソール</title><link rel="stylesheet" href="style.css">
 </head>
 <body class="staff-mode">
-    <header class="staff-header">
-        <h1>運行管理コンソール</h1>
-        <button onclick="location.href='index.html'" class="btn-secondary">来場者トップへ</button>
-    </header>
-
-    <main class="staff-grid">
-        <section class="panel control-panel">
-            <h2>🎫 新規整理券発行</h2>
-            <div class="form-group">
-                <label>割当車両:</label>
-                <select id="vehicle-select" class="large-select">
-                    <option value="E5系 はやぶさ">E5系 はやぶさ</option>
-                    <option value="E235系 山手線">E235系 山手線</option>
-                    <option value="N700S のぞみ">N700S のぞみ</option>
-                </select>
-            </div>
-            <div class="btn-group">
-                <button id="btn-issue-s" onclick="issueTicket('S')" class="btn-primary-s">特別(S) 発行</button>
-                <button id="btn-issue-a" onclick="issueTicket('A')" class="btn-primary-a">普通(A) 発行</button>
-            </div>
+    <header><h1>運行管理</h1><button onclick="location.href='index.html'">モニターへ</button></header>
+    <div class="staff-grid">
+        <section class="panel">
+            <h2>🎫 代行発行</h2>
+            <select id="v-select" class="large-select">
+                <option value="E5系">E5系</option><option value="E235系">E235系</option>
+            </select>
+            <button onclick="issue('S')" class="btn-primary-s">特別(S)発行</button>
+            <button onclick="issue('A')" class="btn-primary-a">普通(A)発行</button>
         </section>
-
-        <section class="panel list-panel">
-            <h2>📋 待機・呼出リスト <button onclick="refreshList()" class="btn-small">↻ 更新</button></h2>
-            <div id="admin-list" class="list-container">読込中...</div>
+        <section class="panel">
+            <h2>📋 呼出管理</h2>
+            <div id="list">読込中...</div>
         </section>
-    </main>
-
+    </div>
     <script src="script.js"></script>
     <script>
-        // 整理券の発行処理
-        async function issueTicket(type) {
-            const btnS = document.getElementById('btn-issue-s');
-            const btnA = document.getElementById('btn-issue-a');
-            const vehicle = document.getElementById('vehicle-select').value;
-            
-            // 二重送信防止
-            btnS.disabled = true; btnA.disabled = true;
-            btnS.innerText = "通信中...";
-
-            const response = await postToSheet({ action: 'issue', type: type, vehicle: vehicle });
-            
-            if (response && response.result === 'success') {
-                // 発行成功時、issued.htmlへ遷移（パラメータにIDと車両名を渡す）
-                location.href = `issued.html?id=${response.id}&v=${encodeURIComponent(vehicle)}`;
-            } else {
-                alert("発行に失敗しました。再試行してください。");
-                btnS.disabled = false; btnA.disabled = false;
-                btnS.innerText = "特別(S) 発行";
-            }
+        async function issue(t) {
+            const v = document.getElementById('v-select').value;
+            const res = await postToSheet({ action: 'issue', type: t, vehicle: v });
+            if(res.result === 'success') { alert("発行成功: " + res.id); refresh(); }
         }
-
-        // リストの描画処理
-        async function refreshList() {
+        async function refresh() {
             const data = await fetchSheetData();
-            const list = document.getElementById('admin-list');
-            
-            const activeData = data.filter(d => d.status === 'resep' || d.status === 'call');
-            
-            if(activeData.length === 0) {
-                list.innerHTML = "<p>待機中の来場者はいません。</p>";
-                return;
-            }
-
-            list.innerHTML = activeData.map(d => `
-                <div class="list-item ${d.status === 'call' ? 'calling-item' : ''}">
-                    <div class="item-info">
-                        <span class="ticket-id">${d.id}</span>
-                        <span class="ticket-vehicle">${d.vehicle}</span>
-                        <span class="status-badge ${d.status}">${d.status === 'call' ? '呼出中' : '待機中'}</span>
-                    </div>
-                    <div class="item-actions">
-                        ${d.status === 'resep' ? `<button onclick="changeStatus('${d.id}', 'call')" class="btn-action call">呼出</button>` : ''}
-                        <button onclick="changeStatus('${d.id}', 'end')" class="btn-action end">終了</button>
-                    </div>
+            const active = data.filter(d => d.status !== 'end');
+            document.getElementById('list').innerHTML = active.map(d => `
+                <div class="list-item">
+                    ${d.id} (${d.vehicle}) [${d.status}]
+                    <button onclick="upd('${d.id}','call')">呼出</button>
+                    <button onclick="upd('${d.id}','end')">終了</button>
                 </div>
             `).join('');
         }
-
-        // ステータス変更処理
-        async function changeStatus(id, status) {
-            await postToSheet({ action: 'update', id: id, status: status });
-            refreshList(); // 更新後に再描画
-        }
-
-        // 初回読み込み
-        refreshList();
-        // 10秒ごとにリストを自動更新（スタッフ側も最新状態を保つ）
-        setInterval(refreshList, 10000);
+        async function upd(id, s) { await postToSheet({ action:'update', id:id, status:s }); refresh(); }
+        refresh(); setInterval(refresh, 15000);
     </script>
 </body>
 </html>
