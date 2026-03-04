@@ -1,21 +1,21 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>Nゲージ運転体験 整理券</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <h1>Nゲージ運転体験 運行状況</h1>
-    </header>
-    <main>
-        <div id="status-board">
-            <p>ただいまの呼出番号</p>
-            <div id="current-number">準備中...</div>
-        </div>
-        <button onclick="location.href='staff.html'">受付（スタッフ用）へ</button>
-    </main>
-    <script src="script.js"></script>
-</body>
-</html>
+<div class="display">
+    <h1>ただいまの呼出番号</h1>
+    <div id="calling-now" style="font-size: 5rem; color: red;">確認中...</div>
+    <hr>
+    <p>待ち組数: <span id="wait-count">0</span>組</p>
+    <p>推定待ち時間: 約<span id="wait-time">0</span>分</p>
+</div>
+
+<script>
+async function updateDisplay() {
+    const data = await getData();
+    const calling = data.filter(d => d.status === 'call').map(d => d.id).join(', ');
+    const waiting = data.filter(d => d.status === 'resep').length;
+
+    document.getElementById('calling-now').innerText = calling || "なし";
+    document.getElementById('wait-count').innerText = waiting;
+    document.getElementById('wait-time').innerText = getWaitTime(waiting);
+}
+setInterval(updateDisplay, 10000); // 10秒ごとに更新
+updateDisplay();
+</script>
