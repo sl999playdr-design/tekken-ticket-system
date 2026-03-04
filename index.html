@@ -6,51 +6,41 @@
     <title>Nゲージ運行状況モニター</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ローディングオーバーレイのスタイル */
+        /* ローディングオーバーレイ（表示崩れ防止版） */
         #loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #4CAF50; /* 鉄道らしい緑色 */
+            width: 100vw;
+            height: 100vh;
+            background-color: #4CAF50; 
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; /* 垂直中央 */
+            align-items: center;     /* 水平中央 */
             z-index: 10000;
-            transition: opacity 0.8s ease; /* 消える時のアニメーション */
+            transition: opacity 0.6s ease;
         }
 
-        .train-track {
-            width: 200px;
-            height: 2px;
-            background: #eee;
-            position: relative;
-            margin-top: 20px;
+        .loading-content {
+            text-align: center;
         }
 
-        .mini-train {
-            font-size: 40px;
-            position: absolute;
-            bottom: 0;
-            animation: train-move 2s infinite linear;
+        .train-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: block;
         }
 
         .loading-msg {
             color: white;
-            font-family: sans-serif;
+            font-family: "Helvetica Neue", Arial, sans-serif;
             font-weight: bold;
-            margin-top: 10px;
-            letter-spacing: 2px;
+            font-size: 1.2rem;
+            letter-spacing: 0.1em;
         }
 
-        @keyframes train-move {
-            0% { left: -50px; }
-            100% { left: 200px; }
-        }
-
-        /* フェードアウト用のクラス */
+        /* 消える時のアニメーション用クラス */
         .fade-out {
             opacity: 0;
             pointer-events: none;
@@ -60,9 +50,10 @@
 <body class="viewer-mode">
 
     <div id="loading-overlay">
-        <div class="mini-train">🚃</div>
-        <div class="train-track"></div>
-        <div class="loading-msg">通信中...</div>
+        <div class="loading-content">
+            <div class="train-icon">🚃</div>
+            <div class="loading-msg">通信中...</div>
+        </div>
     </div>
 
     <nav class="top-nav">
@@ -81,12 +72,10 @@
                 <span class="lcd-main-title">ただいまの呼出番号</span>
             </div>
             
-            <div id="calling-now" class="lcd-number">
-                WAIT...
-            </div>
+            <div id="calling-now" class="lcd-number">準備中</div>
             
             <div class="lcd-footer">
-                <marquee scrollamount="5">【鉄道研究部】 整理券番号が呼ばれましたら、受付までお越しください。 ジオラマの安全運転にご協力をお願いします。</marquee>
+                <marquee scrollamount="5">【鉄道研究部】 整理券番号が呼ばれましたら、受付までお越しください。</marquee>
             </div>
         </div>
 
@@ -103,9 +92,7 @@
     </main>
 
     <script src="script.js"></script>
-    
     <script>
-        // 1. 履歴ボタンの表示（これは即座に実行）
         function initResumeButton() {
             const savedId = localStorage.getItem('my_ticket_id');
             const savedV = localStorage.getItem('my_ticket_v');
@@ -118,61 +105,47 @@
             }
         }
 
-        // 2. 履歴の有効チェック（データ取得後に実行）
-        function checkTicketValidity(data) {
-            const savedId = localStorage.getItem('my_ticket_id');
-            if (!savedId || data.length === 0) return;
-
-            const myTicket = data.find(d => d.id === savedId);
-            if (!myTicket || myTicket.status === 'end') {
-                localStorage.removeItem('my_ticket_id');
-                localStorage.removeItem('my_ticket_v');
-                document.getElementById('resume-btn').style.display = 'none';
-            }
-        }
-
-        // 3. 画面の更新とオーバーレイの消去
         async function updateDisplay() {
             try {
-                // GASからデータ取得
                 const data = await fetchSheetData();
                 
-                // オーバーレイを消す
+                // 通信成功したらオーバーレイを消す
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) {
                     overlay.classList.add('fade-out');
-                    setTimeout(() => overlay.remove(), 800);
+                    setTimeout(() => overlay.remove(), 600);
                 }
-
-                // 履歴チェック
-                checkTicketValidity(data);
 
                 // 呼出番号表示
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
-                const callingDisplay = document.getElementById('calling-now');
-                if (callingIds.length > 0) {
-                    callingDisplay.innerText = callingIds.join(' / ');
-                } else {
-                    callingDisplay.innerText = "お待ちください";
-                }
+                document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds.join(' / ') : "お待ちください";
 
-                // 待ち情報表示
+                // 待ち情報
                 const waitingCount = data.filter(d => d.status === 'resep').length;
                 document.getElementById('wait-count').innerText = waitingCount;
                 document.getElementById('wait-time').innerText = waitingCount * 5;
 
+                // 履歴有効チェック
+                const savedId = localStorage.getItem('my_ticket_id');
+                if (savedId) {
+                    const myTicket = data.find(d => d.id === savedId);
+                    if (!myTicket || myTicket.status === 'end') {
+                        localStorage.removeItem('my_ticket_id');
+                        localStorage.removeItem('my_ticket_v');
+                        document.getElementById('resume-btn').style.display = 'none';
+                    }
+                }
+
             } catch (e) {
-                console.error("更新エラー:", e);
-                // エラーでも一応オーバーレイは消して操作可能にする
+                console.error(e);
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) overlay.remove();
             }
         }
 
-        // 起動実行
         initResumeButton();
         updateDisplay();
-        setInterval(updateDisplay, 10000); // 10秒おきに最新情報へ
+        setInterval(updateDisplay, 10000);
     </script>
 </body>
 </html>
