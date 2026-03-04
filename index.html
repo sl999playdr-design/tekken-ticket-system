@@ -5,63 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nゲージ運行状況モニター</title>
     <link rel="stylesheet" href="style.css">
-    
-    <style>
-        /* 強制的に最前面に表示するスタイル */
-        #loading-layer {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background-color: #4CAF50 !important; /* 鉄道の緑 */
-            z-index: 99999 !important; /* 絶対に一番上 */
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            align-items: center !important;
-            transition: opacity 0.5s ease;
-            margin: 0;
-            padding: 0;
-        }
-
-        .loading-inner {
-            text-align: center;
-            color: white;
-            font-family: sans-serif;
-        }
-
-        .train-mark {
-            font-size: 80px;
-            line-height: 1;
-            margin-bottom: 20px;
-        }
-
-        .loading-text {
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 5px;
-        }
-
-        /* 画面が消える時のアニメーション */
-        .hidden-layer {
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-    </style>
 </head>
-<body class="viewer-mode" style="margin:0;">
-
-    <div id="loading-layer">
-        <div class="loading-inner">
-            <div class="train-mark">🚃</div>
-            <div class="loading-text">信号待ち</div>
-        </div>
-    </div>
+<body class="viewer-mode">
 
     <nav class="top-nav">
-        <button onclick="location.href='entry.html'" class="btn-entry">🎫 新規発行</button>
-        <button id="resume-btn" class="btn-entry" style="display:none; background:#2c3e50; margin-left:10px;">📄 自分の整理券を再表示</button>
+        <button onclick="location.href='entry.html'" class="btn-entry">
+            <span>🎫</span> 新規 整理券発行
+        </button>
+        <button id="resume-btn" class="btn-entry" style="display:none; background: #2c3e50; box-shadow: 0 4px 0 #1a252f; margin-left: 10px;">
+            <span>📄</span> 自分の整理券を再表示
+        </button>
     </nav>
 
     <main class="monitor-container">
@@ -70,71 +23,94 @@
                 <span class="lcd-label">STATUS</span>
                 <span class="lcd-main-title">ただいまの呼出番号</span>
             </div>
-            <div id="calling-now" class="lcd-number">準備中</div>
+            
+            <div id="calling-now" class="lcd-number">
+                読み込み中...
+            </div>
+            
             <div class="lcd-footer">
-                <marquee>【鉄道研究部】 整理券番号が呼ばれましたら、受付までお越しください。</marquee>
+                <marquee scrollamount="5">【鉄道研究部】 整理券番号が呼ばれましたら、受付までお越しください。 ジオラマの安全運転にご協力をお願いします。</marquee>
             </div>
         </div>
 
         <div class="status-grid">
             <div class="status-card">
                 <div class="label">待ち組数</div>
-                <div class="value"><span id="wait-count">0</span>組</div>
+                <div class="value"><span id="wait-count">0</span> <small>組</small></div>
             </div>
             <div class="status-card">
                 <div class="label">推定待ち時間</div>
-                <div class="value"><span id="wait-time">0</span>分</div>
+                <div class="value"><span id="wait-time">0</span> <small>分</small></div>
             </div>
         </div>
     </main>
 
     <script src="script.js"></script>
+    
     <script>
-        // ボタン復元
-        const savedId = localStorage.getItem('my_ticket_id');
-        if (savedId) {
-            const rb = document.getElementById('resume-btn');
-            rb.style.display = 'inline-block';
-            rb.onclick = () => location.href=`issued.html?id=${savedId}&v=${encodeURIComponent(localStorage.getItem('my_ticket_v'))}`;
+        // 1. ページ読み込み時に履歴ボタンをチェック
+        function initResumeButton() {
+            const savedId = localStorage.getItem('my_ticket_id');
+            const savedV = localStorage.getItem('my_ticket_v');
+            
+            if (savedId && savedV) {
+                const resumeBtn = document.getElementById('resume-btn');
+                resumeBtn.style.display = 'inline-block';
+                resumeBtn.onclick = function() {
+                    location.href = `issued.html?id=${savedId}&v=${encodeURIComponent(savedV)}`;
+                };
+            }
         }
 
+        // 2. データの状態を見て、終了した履歴を消去する
+        function checkTicketValidity(data) {
+            const savedId = localStorage.getItem('my_ticket_id');
+            if (!savedId) return;
+
+            const myTicket = data.find(d => d.id === savedId);
+            
+            // データが届いているのに自分のIDがない、またはステータスがendなら削除
+            if (data.length > 0) {
+                if (!myTicket || myTicket.status === 'end') {
+                    localStorage.removeItem('my_ticket_id');
+                    localStorage.removeItem('my_ticket_v');
+                    document.getElementById('resume-btn').style.display = 'none';
+                }
+            }
+        }
+
+        // 3. 画面全体の更新
         async function updateDisplay() {
             try {
-                // 通信開始
                 const data = await fetchSheetData();
                 
-                // --- ここでロード画面を消す ---
-                const layer = document.getElementById('loading-layer');
-                if (layer) {
-                    layer.classList.add('hidden-layer');
-                    // 0.5秒後に要素自体を消して、後ろのボタンを押せるようにする
-                    setTimeout(() => layer.style.display = 'none', 500);
+                // 履歴の有効性を確認
+                checkTicketValidity(data);
+
+                // 呼出中(call)の番号を表示
+                const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
+                const callingDisplay = document.getElementById('calling-now');
+                
+                if (callingIds.length > 0) {
+                    callingDisplay.innerText = callingIds.join(' / ');
+                } else {
+                    callingDisplay.innerText = "お待ちください";
                 }
 
-                // 表示更新
-                const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
-                document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds.join(' / ') : "お待ちください";
+                // 待機中(resep)の組数をカウント
                 const waitingCount = data.filter(d => d.status === 'resep').length;
                 document.getElementById('wait-count').innerText = waitingCount;
                 document.getElementById('wait-time').innerText = waitingCount * 5;
 
-                // 履歴有効チェック
-                if (savedId) {
-                    const myTicket = data.find(d => d.id === savedId);
-                    if (!myTicket || myTicket.status === 'end') {
-                        localStorage.removeItem('my_ticket_id');
-                        localStorage.removeItem('my_ticket_v');
-                        document.getElementById('resume-btn').style.display = 'none';
-                    }
-                }
             } catch (e) {
-                console.error(e);
-                document.getElementById('loading-layer').style.display = 'none';
+                console.error("更新エラー:", e);
             }
         }
 
+        // 実行開始
+        initResumeButton();
         updateDisplay();
-        setInterval(updateDisplay, 10000);
+        setInterval(updateDisplay, 10000); // 10秒おきに更新
     </script>
 </body>
 </html>
