@@ -1,4 +1,4 @@
-const API_URL = "ここに新しいGASのウェブアプリURLを貼り付け";
+const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
 
 async function fetchSheetData() {
     try {
