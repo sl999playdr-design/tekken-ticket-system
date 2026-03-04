@@ -6,27 +6,31 @@
     <title>マイ整理券 - 運行ナビ</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body { background: #f0f0f0; font-family: "Helvetica Neue", Arial, sans-serif; }
-        .nav-container { max-width: 500px; margin: 20px auto; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        /* 路線図のスタイル */
-        .route-map { position: relative; margin: 40px 0; padding-left: 50px; border-left: 8px solid #ccc; }
-        .station { position: relative; margin-bottom: 40px; list-style: none; }
-        .station::before {
-            content: ""; position: absolute; left: -59px; top: 5px;
-            width: 20px; height: 20px; background: white; border: 4px solid #999; border-radius: 50%; z-index: 2;
-        }
-        
-        /* 現在地の駅（自分） */
-        .station.current::before { border-color: #e67e22; background: #e67e22; animation: pulse 1.5s infinite; }
-        .station.current .station-name { color: #e67e22; font-weight: bold; font-size: 1.4rem; }
-        
-        /* 終点（運転台） */
-        .station.goal::before { border-color: #27ae60; border-radius: 0; transform: rotate(45deg); }
-        .station.goal { margin-bottom: 0; }
+        body { background: #f0f0f0; font-family: sans-serif; transition: background 0.3s; margin: 0; overflow-x: hidden; }
+        .nav-container { max-width: 500px; margin: 20px auto; padding: 20px; background: white; border-radius: 15px; position: relative; z-index: 2; }
 
-        .station-name { font-size: 1.1rem; color: #666; }
-        .wait-info { font-size: 0.8rem; color: #999; margin-top: 5px; }
+        /* 呼出時の背景点滅アニメーション */
+        @keyframes calling-flash {
+            0% { background-color: #ff9900; }
+            50% { background-color: #ffffff; }
+            100% { background-color: #ff9900; }
+        }
+        .is-calling-body {
+            animation: calling-flash 0.8s infinite;
+        }
+
+        /* 路線図スタイル */
+        .route-map { position: relative; margin: 40px 0 40px 60px; border-left: 8px solid #ccc; }
+        .station { position: relative; margin-bottom: 60px; padding-left: 20px; }
+        .station::before {
+            content: ""; position: absolute; left: -34px; top: 5px;
+            width: 20px; height: 20px; background: white; border: 4px solid #999; border-radius: 50%;
+        }
+        .station.current::before { border-color: #e67e22; background: #e67e22; animation: pulse 1.5s infinite; }
+        .station.goal::before { border-color: #27ae60; border-radius: 0; transform: rotate(45deg); }
+        
+        .station-name { font-size: 1.2rem; color: #444; font-weight: bold; }
+        .wait-info { font-size: 0.9rem; color: #888; }
 
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.7); }
@@ -34,84 +38,99 @@
             100% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0); }
         }
 
-        .ticket-info { text-align: center; border-bottom: 2px dashed #ddd; padding-bottom: 20px; margin-bottom: 20px; }
-        .v-name { background: #333; color: #fff; padding: 5px 15px; border-radius: 5px; display: inline-block; margin-top: 10px; }
+        /* 音声有効化ボタン */
+        #audio-unlock {
+            background: #27ae60; color: white; border: none; padding: 10px;
+            width: 100%; margin-bottom: 15px; border-radius: 5px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div class="nav-container">
-    <div class="ticket-info">
-        <div style="font-size: 0.9rem; color: #888;">YOUR TICKET</div>
-        <div id="disp-id" style="font-size: 3rem; font-weight: bold; line-height: 1;">---</div>
-        <div id="disp-v" class="v-name">---</div>
+    <button id="audio-unlock" onclick="unlockAudio()">🔔 通知音を有効にする</button>
+
+    <div style="text-align: center; border-bottom: 2px dashed #ddd; padding-bottom: 20px; margin-bottom: 20px;">
+        <div id="disp-id" style="font-size: 4rem; font-weight: bold;">---</div>
+        <div id="disp-v" style="background:#333; color:#fff; display:inline-block; padding:5px 15px;">---</div>
     </div>
 
-    <div id="route-area">
-        <div class="route-map">
-            <div id="calling-station" class="station" style="display:none;">
-                <div class="station-name">現在呼出中</div>
-                <div class="wait-info">受付までお越しください</div>
-            </div>
-
-            <div class="station current">
-                <div class="station-name">あなたの位置</div>
-                <div id="wait-count" class="wait-info">計算中...</div>
-            </div>
-
-            <div class="station goal">
-                <div class="station-name">運転台（乗車口）</div>
-                <div class="wait-info">出発進行！</div>
-            </div>
+    <div class="route-map">
+        <div id="stat-me" class="station current">
+            <div class="station-name">あなたの位置</div>
+            <div id="wait-count" class="wait-info">読込中...</div>
+        </div>
+        <div class="station goal">
+            <div class="station-name">運転台</div>
+            <div class="wait-info">出発進行</div>
         </div>
     </div>
-
-    <button onclick="location.href='index.html'" style="width:100%; padding:15px; background:#eee; border:none; border-radius:10px; cursor:pointer;">トップへ戻る</button>
 </div>
+
+<audio id="call-sound" src="call.mp3" preload="auto"></audio>
 
 <script src="script.js"></script>
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const myId = urlParams.get('id');
     const myV = urlParams.get('v');
-
     document.getElementById('disp-id').innerText = myId;
     document.getElementById('disp-v').innerText = myV;
+
+    let audioUnlocked = false;
+    let isCalled = false; // 二重再生防止用
+
+    function unlockAudio() {
+        const sound = document.getElementById('call-sound');
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            audioUnlocked = true;
+            document.getElementById('audio-unlock').style.display = 'none';
+        });
+    }
 
     async function updateStatus() {
         try {
             const data = await fetchSheetData();
             const myData = data.find(d => d.id === myId);
+            const body = document.body;
+            const sound = document.getElementById('call-sound');
 
-            // 1. もし自分のステータスが「call（呼出）」なら演出を変える
             if (myData && myData.status === 'call') {
-                document.querySelector('.station.current .station-name').innerText = "まもなく発車（受付へ！）";
-                document.querySelector('.station.current').style.animation = "pulse 0.5s infinite";
+                // 【呼出中！】
+                body.classList.add('is-calling-body');
+                document.querySelector('.station-name').innerText = "まもなく発車（受付へ！）";
+                
+                if (audioUnlocked && !isCalled) {
+                    sound.play(); // 音を鳴らす
+                    isCalled = true; 
+                }
+            } else {
+                body.classList.remove('is-calling-body');
+                isCalled = false;
             }
 
-            // 2. 自分の前に何人いるか計算（自分より先に登録された 'resep' の数）
+            // 待ち順計算
             const waitingList = data.filter(d => d.status === 'resep');
             const myIndex = waitingList.findIndex(d => d.id === myId);
-
             const infoText = document.getElementById('wait-count');
-            if (myIndex === -1) {
-                infoText.innerText = myData && myData.status === 'call' ? "順番が来ました！" : "リストに見当たりません";
-            } else {
+            
+            if (myIndex !== -1) {
                 infoText.innerText = `前に ${myIndex} 組お待ちです (約 ${myIndex * 5} 分)`;
+            } else if (myData && myData.status === 'call') {
+                infoText.innerText = "順番が来ました！";
             }
 
-            // 3. データから消えていたら警告（スタッフが終了させた場合など）
             if (!myData || myData.status === 'end') {
-                alert("この整理券は終了したか、無効になっています。");
+                alert("整理券の有効期限が終了しました。");
                 location.href = 'index.html';
             }
-
         } catch (e) { console.error(e); }
     }
 
+    setInterval(updateStatus, 10000);
     updateStatus();
-    setInterval(updateStatus, 15000); // 15秒ごとに更新
 </script>
-
 </body>
 </html>
