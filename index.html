@@ -16,7 +16,20 @@
             <span>📄</span> 自分の整理券を再表示
         </button>
     </nav>
-
+    
+    <nav class="top-nav" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <button onclick="location.href='entry.html'" class="btn-entry">
+                <span>🎫</span> 新規 整理券発行
+            </button>
+            <button id="resume-btn" class="btn-entry" style="display:none; background: #2c3e50; box-shadow: 0 4px 0 #1a252f; margin-left: 10px;">
+                <span>📄</span> 自分の再表示
+            </button>
+        </div>
+        <button onclick="location.href='staff.html'" style="background:none; border:none; color:#ccc; cursor:pointer; font-size:0.8rem;">
+            ⚙️ 管理
+        </button>
+    </nav>
     <main class="monitor-container">
         <div class="lcd-panel">
             <div class="lcd-header"><span class="lcd-label">STATUS</span> <span class="lcd-main-title">ただいまの呼出番号</span></div>
