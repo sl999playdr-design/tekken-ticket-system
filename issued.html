@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>あなたの整理券</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8"><title>整理券</title><link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="ticket">
-        <h2>あなたの整理券番号</h2>
-        <div id="my-number" style="font-size: 60px; font-weight: bold;">---</div>
-        <p id="my-vehicle"></p>
-        <p style="color: red;">※この画面をスクリーンショットしてください</p>
+<body class="ticket-page">
+    <div class="ticket-container">
+        <div class="ticket-header">N-GAUGE TICKET</div>
+        <div class="ticket-id" id="id">---</div>
+        <div class="ticket-vehicle" id="v">---</div>
+        <p>※この画面をスクリーンショットしてください。</p>
     </div>
-
+    <button onclick="location.href='index.html'">トップへ戻る</button>
     <script>
-        const params = new URLSearchParams(window.location.search);
-        document.getElementById('my-number').innerText = params.get('id');
-        // 車両名はstaff.htmlから渡すか、再度スプシから引くことも可能
+        const p = new URLSearchParams(window.location.search);
+        document.getElementById('id').innerText = p.get('id');
+        document.getElementById('v').innerText = p.get('v');
     </script>
 </body>
 </html>
