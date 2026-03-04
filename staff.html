@@ -1,44 +1,90 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8"><title>管理コンソール</title><link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スタッフ管理画面</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 認証前の画面を隠すためのスタイル */
+        body { display: none; } 
+        .call-btn { background: #e74c3c; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .end-btn { background: #7f8c8d; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .status-badge { padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
+        .status-resep { background: #f1c40f; color: #000; }
+        .status-call { background: #2ecc71; color: #fff; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity:1; } 50% { opacity:0.5; } 100% { opacity:1; } }
+    </style>
 </head>
 <body class="staff-mode">
-    <header><h1>運行管理</h1><button onclick="location.href='index.html'">モニターへ</button></header>
-    <div class="staff-grid">
-        <section class="panel">
-            <h2>🎫 代行発行</h2>
-            <select id="v-select" class="large-select">
-                <option value="E5系">E5系</option><option value="E235系">E235系</option>
-            </select>
-            <button onclick="issue('S')" class="btn-primary-s">特別(S)発行</button>
-            <button onclick="issue('A')" class="btn-primary-a">普通(A)発行</button>
-        </section>
-        <section class="panel">
-            <h2>📋 呼出管理</h2>
-            <div id="list">読込中...</div>
-        </section>
+    <div style="padding: 20px; background: #fff; border-bottom: 2px solid #ddd; display: flex; justify-content: space-between;">
+        <h2 style="margin:0;">スタッフ管理パネル</h2>
+        <button onclick="location.href='index.html'">ログアウト</button>
     </div>
+
+    <div id="staff-content" style="padding: 20px;">
+        <div class="panel">
+            <h3>予約・呼出リスト</h3>
+            <div id="staff-list">読み込み中...</div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
-        async function issue(t) {
-            const v = document.getElementById('v-select').value;
-            const res = await postToSheet({ action: 'issue', type: t, vehicle: v });
-            if(res.result === 'success') { alert("発行成功: " + res.id); refresh(); }
+        // --- 簡易パスワード認証 ---
+        const PIN = "0000";
+        const userPass = prompt("パスワードを入力してください");
+
+        if (userPass === PIN) {
+            document.body.style.display = "block"; // 正解なら表示
+        } else {
+            alert("パスワードが違います");
+            location.href = "index.html"; // 不正解なら戻す
         }
+
+        // --- 管理機能 ---
         async function refresh() {
-            const data = await fetchSheetData();
-            const active = data.filter(d => d.status !== 'end');
-            document.getElementById('list').innerHTML = active.map(d => `
-                <div class="list-item">
-                    ${d.id} (${d.vehicle}) [${d.status}]
-                    <button onclick="upd('${d.id}','call')">呼出</button>
-                    <button onclick="upd('${d.id}','end')">終了</button>
-                </div>
-            `).join('');
+            try {
+                const data = await fetchSheetData();
+                const list = document.getElementById('staff-list');
+                list.innerHTML = "";
+
+                // 終了(end)以外を表示
+                const activeData = data.filter(d => d.status !== 'end');
+
+                if(activeData.length === 0) {
+                    list.innerHTML = "現在、予約はありません。";
+                    return;
+                }
+
+                activeData.forEach(d => {
+                    const div = document.createElement('div');
+                    div.className = "list-item";
+                    div.innerHTML = `
+                        <div>
+                            <span class="status-badge status-${d.status}">${d.status === 'call' ? '呼出中' : '待機'}</span>
+                            <strong>${d.id}</strong> / ${d.vehicle}
+                        </div>
+                        <div>
+                            ${d.status === 'resep' ? 
+                                `<button class="call-btn" onclick="upd('${d.id}', 'call')">呼出</button>` : 
+                                `<button class="end-btn" onclick="upd('${d.id}', 'end')">終了</button>`
+                            }
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch (e) { console.error(e); }
         }
-        async function upd(id, s) { await postToSheet({ action:'update', id:id, status:s }); refresh(); }
-        refresh(); setInterval(refresh, 15000);
+
+        async function upd(id, s) {
+            if(!confirm(`番号 ${id} を ${s === 'call' ? '呼出' : '終了'} にしますか？`)) return;
+            await postToSheet({ action: 'update', id: id, status: s });
+            refresh();
+        }
+
+        setInterval(refresh, 10000);
+        refresh();
     </script>
 </body>
 </html>
