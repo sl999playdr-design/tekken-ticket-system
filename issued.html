@@ -1,1 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>あなたの整理券</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="ticket">
+        <h2>あなたの整理券番号</h2>
+        <div id="my-number" style="font-size: 60px; font-weight: bold;">---</div>
+        <p id="my-vehicle"></p>
+        <p style="color: red;">※この画面をスクリーンショットしてください</p>
+    </div>
 
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('my-number').innerText = params.get('id');
+        // 車両名はstaff.htmlから渡すか、再度スプシから引くことも可能
+    </script>
+</body>
+</html>
