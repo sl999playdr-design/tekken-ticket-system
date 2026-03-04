@@ -1,50 +1,80 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>受付入力</title><link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運転体験 受付入力</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="entry-mode">
-    <button onclick="location.href='index.html'">← 戻る</button>
-    <div class="selection-card">
-        <h2>運転体験 受付</h2>
-        <label>🚆 車両選択</label>
-        <select id="v-select" class="huge-select">
-            <option value="E5系 はやぶさ">E5系 はやぶさ</option>
-            <option value="E235系 山手線">E235系 山手線</option>
-            <option value="ドクターイエロー">923形 ドクターイエロー</option>
-        </select>
-        <div class="radio-group">
-            <input type="radio" id="s" name="t" value="S" checked><label for="s">特別運転台</label>
-            <input type="radio" id="a" name="t" value="A"><label for="a">普通運転台</label>
-        </div>
-        <button id="btn" onclick="issue()" class="btn-issue-main">発行する</button>
+    <div style="padding: 10px;">
+        <button onclick="location.href='index.html'" style="background:none; border:1px solid #ccc; cursor:pointer;">← 戻る</button>
     </div>
+
+    <div class="selection-card">
+        <header class="entry-header">
+            <h2 style="margin-top:0;">Nゲージ運転体験 受付</h2>
+            <p style="font-size:0.9rem; color:#666;">車両を選んで発行ボタンを押してください。</p>
+        </header>
+
+        <div class="form-group">
+            <label style="font-weight:bold; display:block; margin-bottom:10px;">🚆 運転する車両</label>
+            <select id="v-select" class="huge-select">
+                <option value="E5系 はやぶさ">E5系 はやぶさ</option>
+                <option value="E235系 山手線">E235系 山手線</option>
+                <option value="923形 ドクターイエロー">923形 ドクターイエロー</option>
+                <option value="N700S のぞみ">N700S のぞみ</option>
+            </select>
+        </div>
+
+        <div class="type-selector" style="margin-top:20px;">
+            <label style="font-weight:bold; display:block; margin-bottom:10px;">運転台の種類</label>
+            <div class="radio-group">
+                <input type="radio" id="s" name="t" value="S" checked>
+                <label for="s"><strong>特別運転台</strong><span>(マスコン操作)</span></label>
+                
+                <input type="radio" id="a" name="t" value="A">
+                <label for="a"><strong>普通運転台</strong><span>(簡易操作)</span></label>
+            </div>
+        </div>
+
+        <button id="btn" onclick="issue()" class="btn-issue-main">
+            整理券を発行する
+        </button>
+    </div>
+
     <script src="script.js"></script>
     <script>
-// entry.html 内の issue 関数を以下に書き換え
-async function issue() {
-    const b = document.getElementById('btn'); 
-    b.disabled = true; 
-    b.innerText = "発行中...";
-    const v = document.getElementById('v-select').value;
-    const t = document.querySelector('input[name="t"]:checked').value;
-    
-    const res = await postToSheet({ action: 'issue', type: t, vehicle: v });
-    
-    if(res.result === 'success') {
-        // --- ここから追加：ブラウザに保存 ---
-        localStorage.setItem('my_ticket_id', res.id);
-        localStorage.setItem('my_ticket_v', v);
-        // --- ここまで ---
-        
-        location.href = `issued.html?id=${res.id}&v=${encodeURIComponent(v)}`;
-    } else { 
-        alert("失敗"); 
-        b.disabled = false; 
-        b.innerText = "発行する"; 
-    }
-}
+        async function issue() {
+            const b = document.getElementById('btn'); 
+            const v = document.getElementById('v-select').value;
+            const t = document.querySelector('input[name="t"]:checked').value;
+
+            // ボタン無効化
+            b.disabled = true; 
+            b.innerText = "通信中...";
+
+            try {
+                const res = await postToSheet({ action: 'issue', type: t, vehicle: v });
+                
+                if(res.result === 'success') {
+                    // 【重要】ブラウザのメモリに番号と車両を保存する
+                    localStorage.setItem('my_ticket_id', res.id);
+                    localStorage.setItem('my_ticket_v', v);
+                    
+                    // 整理券表示画面へ移動
+                    location.href = `issued.html?id=${res.id}&v=${encodeURIComponent(v)}`;
+                } else {
+                    alert("発行に失敗しました。通信環境を確認してください。");
+                    b.disabled = false;
+                    b.innerText = "整理券を発行する";
+                }
+            } catch (e) {
+                alert("エラーが発生しました。");
+                b.disabled = false;
+                b.innerText = "整理券を発行する";
+            }
+        }
     </script>
 </body>
 </html>
