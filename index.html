@@ -11,7 +11,6 @@
             padding: 0;
             font-family: "Helvetica Neue", Arial, sans-serif;
             background-color: #fcfcfc;
-            color: #333;
         }
 
         header {
@@ -27,39 +26,56 @@
             display: block;
         }
 
-        /* --- 横並びメニュー（画面に収める） --- */
+        /* --- 路線図メニュー（重ね合わせ設定） --- */
         .navigation-section {
             background-color: #fff;
-            padding: 15px 10px;
+            padding: 20px 0;
             border-bottom: 2px solid #eee;
         }
 
-        .route-map-wrapper {
-            display: flex;
-            justify-content: space-around; /* ボタンを均等に配置 */
-            align-items: center;
-            max-width: 800px; /* PCで見ても広がりすぎないように制限 */
+        .route-map-container {
+            position: relative; /* ボタンの配置基準 */
+            width: 100%;
+            max-width: 600px;   /* 下地画像の幅に合わせて調整してください */
             margin: 0 auto;
+            line-height: 0;
         }
 
-        /* 各ボタンの設定 */
-        .station-link {
-            display: block;
-            width: 18%; /* 5つ並べて少し余白が残るサイズ */
-            transition: transform 0.1s;
-        }
-
-        .station-link img {
-            width: 100%; /* 親要素の18%に合わせる */
+        /* 下地の画像 */
+        .route-base-img {
+            width: 100%;
             height: auto;
             display: block;
         }
 
-        .station-link:active {
-            transform: scale(0.9);
+        /* 透過ボタンの共通設定 */
+        .station-link {
+            position: absolute;
+            top: 50%;           /* 縦位置の基本（上下中央） */
+            transform: translateY(-50%); /* 縦方向のズレを補正 */
+            width: 12%;         /* ボタンのサイズ（少し小さめに調整） */
+            transition: opacity 0.2s, transform 0.1s;
         }
 
-        /* --- メインコンテンツ --- */
+        .station-link img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ホバー・タップ時の演出 */
+        .station-link:hover { opacity: 0.8; }
+        .station-link:active { transform: translateY(-50%) scale(0.9); }
+
+        /* 各ボタンの横位置（％で指定。下地の駅番号の位置に合わせる） */
+        /* 下地の画像を見ながら数値を微調整してください */
+        .btn-01 { left: 5%; }
+        .btn-02 { left: 24%; }
+        .btn-03 { left: 43%; }
+        .btn-04 { left: 62%; }
+        .btn-05 { left: 81%; }
+
+        /* --- メインエリア --- */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -77,14 +93,6 @@
             border-left: 5px solid #e67e22;
             padding-left: 15px;
             margin-top: 0;
-            font-size: 1.2rem;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.8rem;
-            color: #888;
         }
     </style>
 </head>
@@ -95,25 +103,33 @@
 </header>
 
 <nav class="navigation-section">
-    <div class="route-map-wrapper">
-        <a href="#" class="station-link"><img src="description.png" alt="部活概要"></a>
-        <a href="#" class="station-link"><img src="notification.png" alt="お知らせ"></a>
-        <a href="#" class="station-link"><img src="activities.png" alt="活動紹介"></a>
-        <a href="#" class="station-link"><img src="media.png" alt="製作作品"></a>
-        <a href="monitor.html" class="station-link"><img src="N-gage.png" alt="運転体験"></a>
+    <div class="route-map-container">
+        <img src="menu-image.png" alt="路線図ベース" class="route-base-img">
+        
+        <a href="#" class="station-link btn-01">
+            <img src="description.png" alt="部活概要">
+        </a>
+        <a href="#" class="station-link btn-02">
+            <img src="notification.png" alt="お知らせ">
+        </a>
+        <a href="#" class="station-link btn-03">
+            <img src="activities.png" alt="活動紹介">
+        </a>
+        <a href="#" class="station-link btn-04">
+            <img src="media.png" alt="製作作品">
+        </a>
+        <a href="monitor.html" class="station-link btn-05">
+            <img src="N-gage.png" alt="運転体験">
+        </a>
     </div>
 </nav>
 
 <main class="container">
     <section>
         <h2>最新の運行情報</h2>
-        <p>ポータルサイトを公開しました。各ボタンから詳細をご覧いただけます。</p>
+        <p>路線図上の駅番号をタップして各コンテンツへ移動できます。</p>
     </section>
 </main>
-
-<div class="footer">
-    &copy; 名古屋中学校・高等学校 鉄道研究部
-</div>
 
 </body>
 </html>
