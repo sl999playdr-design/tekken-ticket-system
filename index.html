@@ -9,12 +9,11 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            font-family: "Helvetica Neue", Arial, sans-serif;
             background-color: #fcfcfc;
             color: #333;
         }
 
-        /* --- ヘッダー（今回は固定せず、スクロールさせる構成にしています） --- */
         header {
             width: 100%;
             line-height: 0;
@@ -28,64 +27,58 @@
             display: block;
         }
 
-        /* --- 路線図メニュー（常時表示・スマホ最適化） --- */
+        /* --- 横並びメニュー設定 --- */
         .navigation-section {
             background-color: #fff;
-            padding: 20px 0;
+            padding: 40px 0;
             border-bottom: 2px solid #eee;
+            /* 横に突き抜ける場合にスクロールできるように設定 */
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* 路線図の背景画像を置くコンテナ */
         .route-map-wrapper {
             position: relative;
-            width: 100%;
-            max-width: 500px; /* スマホで見やすい幅 */
-            margin: 0 auto;
+            /* ボタン5つ + 間隔(318px * 4) を考慮した幅を確保 */
+            /* ボタン1つの幅を仮に100pxとした場合、約1400px程度の領域になります */
+            display: flex;
+            align-items: center;
+            padding: 0 50px;
+            width: max-content; /* 中身に合わせて横幅を自動拡張 */
         }
 
-        /* ベースとなる路線図画像（文字だけの画像など） */
-        .route-map-base {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* 各駅のボタン（パーツ分けした画像を入れる場所） */
+        /* 各ボタンのリンク設定 */
         .station-link {
-            position: absolute;
-            left: 5%; /* 画像内の駅番号の位置に合わせて調整 */
-            width: 18%; /* ボタンの横幅 */
             display: block;
             transition: transform 0.1s;
+            flex-shrink: 0; /* 幅が縮まないように固定 */
+        }
+
+        /* 指定の318px間隔を空ける（最後のボタン以外） */
+        .station-link:not(:last-child) {
+            margin-right: 318px;
         }
 
         .station-link img {
-            width: 100%;
+            /* 画像のサイズはリポジトリの元サイズに従いますが、必要に応じて width で調整してください */
             height: auto;
+            display: block;
         }
 
         .station-link:active {
-            transform: scale(0.9); /* タップした時に少し凹む演出 */
+            transform: scale(0.9);
         }
-
-        /* 各駅の縦位置（画像に合わせて調整してください） */
-        .pos-01 { top: 9%; }
-        .pos-02 { top: 27%; }
-        .pos-03 { top: 46%; }
-        .pos-04 { top: 64%; }
-        .pos-05 { top: 83%; }
 
         /* --- メインコンテンツ --- */
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         section {
             background: #fff;
             padding: 25px;
-            margin-bottom: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
@@ -99,7 +92,6 @@
         .footer {
             text-align: center;
             padding: 20px;
-            font-size: 0.8rem;
             color: #888;
         }
     </style>
@@ -112,21 +104,19 @@
 
 <nav class="navigation-section">
     <div class="route-map-wrapper">
-        <img src="menu-image.png" alt="路線図" class="route-map-base">
-        
-        <a href="#" class="station-link pos-01">
+        <a href="#" class="station-link">
             <img src="description.png" alt="部活概要">
         </a>
-        <a href="#" class="station-link pos-02">
+        <a href="#" class="station-link">
             <img src="notification.png" alt="お知らせ">
         </a>
-        <a href="#" class="station-link pos-03">
+        <a href="#" class="station-link">
             <img src="activities.png" alt="活動紹介">
         </a>
-        <a href="#" class="station-link pos-04">
+        <a href="#" class="station-link">
             <img src="media.png" alt="製作作品">
         </a>
-        <a href="monitor.html" class="station-link pos-05">
+        <a href="monitor.html" class="station-link">
             <img src="N-gage.png" alt="運転体験">
         </a>
     </div>
@@ -135,7 +125,7 @@
 <main class="container">
     <section>
         <h2>最新の運行情報</h2>
-        <p>当サイトは鉄道研究部の活動をリアルタイムに伝えるポータルサイトです。</p>
+        <p>上のメニューを横にスクロールして各項目を選択してください。</p>
     </section>
 </main>
 
