@@ -8,7 +8,7 @@
         body {
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-            background-color: #f0f8ff; /* 淡い空色 */
+            background-color: #f0f8ff; 
             color: #333; overflow-x: hidden;
         }
 
@@ -16,15 +16,23 @@
             position: relative; width: 100%; line-height: 0;
             background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;
         }
-
         header img { width: 100%; height: auto; display: block; }
 
+        /* --- 開閉メニューエリア --- */
         .navigation-section {
             position: relative; background-color: #fff; border-bottom: 1px solid #eee; z-index: 500;
             margin-top: -155px; transition: margin-top 0.4s ease-in-out;
         }
-
         .navigation-section.is-open { margin-top: -5px; }
+
+        /* 言語切り替えボタン（メニューバー右端） */
+        .lang-selector {
+            position: absolute; right: 10px; top: 10px; z-index: 600;
+        }
+        .lang-selector select {
+            padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd;
+            background: #f9f9f9; font-size: 0.75rem; cursor: pointer;
+        }
 
         .route-map-container {
             position: relative; width: 95%; max-width: 700px;
@@ -34,14 +42,13 @@
         /* 路線図画像（さらに上へ調整） */
         .route-base-img {
             width: 100%; height: auto; display: block;
-            margin-top: -15px; 
+            margin-top: -22px; 
         }
 
         .station-group {
             position: absolute; top: 50%; transform: translateY(-50%);
             width: 10%; display: flex; flex-direction: column; align-items: center;
         }
-
         .station-label {
             position: absolute; bottom: 115%; width: max-content;
             font-size: 0.85rem; font-weight: bold; color: #333;
@@ -49,15 +56,10 @@
             background-color: rgba(255, 255, 255, 0.8);
             padding: 2px 6px; border-radius: 4px; z-index: 5;
         }
-
-        /* 路線図のボタン（元に戻しました） */
-        .station-link {
-            width: 100%; display: block; transition: 0.2s; cursor: pointer;
-        }
+        .station-link { width: 100%; display: block; transition: 0.2s; cursor: pointer; }
         .station-link img { width: 100%; height: auto; display: block; }
-        .station-link:hover { filter: brightness(1.2); transform: translateY(-2px); }
 
-        /* --- Now Here マーカー（文字をさらに下へ） --- */
+        /* Now Here */
         .now-here-marker {
             position: absolute; top: 100%; 
             display: flex; flex-direction: column; align-items: center; width: 100%;
@@ -65,21 +67,16 @@
         .triangle-red {
             width: 0; height: 0;
             border-left: 6px solid transparent; border-right: 6px solid transparent;
-            border-bottom: 8px solid #e74c3c;
-            margin-bottom: 6px; /* 三角形と文字の距離を広げました */
+            border-bottom: 8px solid #e74c3c; margin-bottom: 6px;
         }
-        .now-here-text { 
-            font-size: 0.6rem; font-weight: bold; color: #e74c3c; 
-            letter-spacing: 0.05em;
-        }
+        .now-here-text { font-size: 0.6rem; font-weight: bold; color: #e74c3c; }
 
         .pos-01 { left: 4%; } .pos-02 { left: 24.5%; } .pos-03 { left: 45%; } .pos-04 { left: 65.5%; } .pos-05 { left: 86%; }
 
-        /* --- メニュー出し入れボタン（背景を灰色に変更） --- */
+        /* 引き出しボタン */
         .menu-toggle-btn {
             position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
-            width: 70px; height: 35px; 
-            background-color: #f0f0f0; /* ここを灰色にしました */
+            width: 70px; height: 35px; background-color: #f0f0f0;
             border: 1px solid #ddd; border-top: none; border-radius: 0 0 12px 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.08); cursor: pointer;
             display: flex; justify-content: center; align-items: center; z-index: 501;
@@ -90,7 +87,7 @@
         }
         .is-open .toggle-icon { transform: rotate(180deg); }
 
-        /* --- メインコンテンツ --- */
+        /* コンテンツ */
         .container { max-width: 650px; margin: 55px auto 40px auto; padding: 20px; }
         .welcome-section {
             background: #fff; padding: 35px; border-radius: 12px;
@@ -115,6 +112,13 @@
 </header>
 
 <nav class="navigation-section" id="routeMenu">
+    <div class="lang-selector">
+        <select id="langSelect" onchange="switchLanguage()">
+            <option value="ja">Language: 日本語</option>
+            <option value="en">Language: English</option>
+        </select>
+    </div>
+
     <div class="route-map-container">
         <img src="menu-image.png" alt="路線図ベース" class="route-base-img">
         
@@ -155,11 +159,13 @@
 
 <main class="container">
     <article class="welcome-section">
-        <h2>名古屋中学校・高等学校 鉄道研究部へようこそ！</h2>
-        <p>本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。</p>
-        <p>学校説明会や文化祭で開催される「鉄道模型展示」の詳細は、上部メニューの<strong>「ジオラマ運転体験」</strong>より特設サイトをご覧ください。</p>
-        <p>皆様のご来場を、部員一同心よりお待ちしております。</p>
-        <span class="test-release-note">※当サイトは現在、試験公開中です。</span>
+        <h2 id="contentTitle">名古屋中学校・高等学校 鉄道研究部へようこそ！</h2>
+        <div id="contentText">
+            <p>本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。</p>
+            <p>学校説明会や文化祭で開催される「鉄道模型展示」の詳細は、上部メニューの<strong>「ジオラマ運転体験」</strong>より特設サイトをご覧ください。</p>
+            <p>皆様のご来場を、部員一同心よりお待ちしております。</p>
+        </div>
+        <span class="test-release-note" id="releaseNote">※当サイトは現在、試験公開中です。</span>
     </article>
 </main>
 
@@ -167,6 +173,31 @@
     function toggleMenu() {
         const menu = document.getElementById('routeMenu');
         menu.classList.toggle('is-open');
+    }
+
+    function switchLanguage() {
+        const lang = document.getElementById('langSelect').value;
+        const title = document.getElementById('contentTitle');
+        const text = document.getElementById('contentText');
+        const note = document.getElementById('releaseNote');
+
+        if (lang === 'en') {
+            title.innerText = "Welcome to Nagoya Jr. & Sr. High School Railway Research Club!";
+            text.innerHTML = `
+                <p>On this site, we provide information about our club activities and the latest event updates.</p>
+                <p>For details on "Railway Model Exhibits" held during school orientations and cultural festivals, please visit our special site via the <strong>"Diorama Experience"</strong> in the top menu.</p>
+                <p>All of our members are looking forward to your visit!</p>
+            `;
+            note.innerText = "*This site is currently in beta/testing phase.";
+        } else {
+            title.innerText = "名古屋中学校・高等学校 鉄道研究部へようこそ！";
+            text.innerHTML = `
+                <p>本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。</p>
+                <p>学校説明会や文化祭で開催される「鉄道模型展示」の詳細は、上部メニューの<strong>「ジオラマ運転体験」</strong>より特設サイトをご覧ください。</p>
+                <p>皆様のご来場を、部員一同心よりお待ちしております。</p>
+            `;
+            note.innerText = "※当サイトは現在、試験公開中です。";
+        }
     }
 </script>
 
