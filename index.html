@@ -11,87 +11,71 @@
             padding: 0;
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
             background-color: #fcfcfc;
-            overflow-x: hidden;
+            color: #333;
         }
 
-        /* --- ヘッダー --- */
+        /* --- ヘッダー（今回は固定せず、スクロールさせる構成にしています） --- */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             line-height: 0;
             background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         header img {
             width: 100%;
             height: auto;
             display: block;
-            cursor: pointer;
         }
 
-        /* --- 路線図メニュー --- */
-        #route-menu {
-            position: fixed;
-            left: 0;
-            width: 100%;
-            background-color: rgba(255, 255, 255, 0.98);
-            z-index: 999;
-            overflow: hidden;
-            transition: max-height 0.4s ease-in-out, opacity 0.3s;
+        /* --- 路線図メニュー（常時表示・スマホ最適化） --- */
+        .navigation-section {
+            background-color: #fff;
+            padding: 20px 0;
+            border-bottom: 2px solid #eee;
         }
 
-        #route-menu.closed {
-            max-height: 0;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #route-menu.open {
-            max-height: 100vh;
-            opacity: 1;
-        }
-
+        /* 路線図の背景画像を置くコンテナ */
         .route-map-wrapper {
             position: relative;
             width: 100%;
-            max-width: 500px; 
+            max-width: 500px; /* スマホで見やすい幅 */
             margin: 0 auto;
-            padding: 20px 0;
         }
 
-        .route-map-img {
+        /* ベースとなる路線図画像（文字だけの画像など） */
+        .route-map-base {
             width: 100%;
             height: auto;
             display: block;
         }
 
-        /* 透明なボタン（駅番号の上に配置） */
-        .station-hotspot {
+        /* 各駅のボタン（パーツ分けした画像を入れる場所） */
+        .station-link {
             position: absolute;
-            left: 5%;         
-            width: 18%;       
-            height: 12%;      
-            background-color: rgba(255, 255, 255, 0); 
-            cursor: pointer;
-            border-radius: 50%;
-            transition: background-color 0.2s;
+            left: 5%; /* 画像内の駅番号の位置に合わせて調整 */
+            width: 18%; /* ボタンの横幅 */
+            display: block;
+            transition: transform 0.1s;
         }
 
-        .hotspot-01 { top: 9%; }
-        .hotspot-02 { top: 27%; }
-        .hotspot-03 { top: 46%; }
-        .hotspot-04 { top: 64%; }
-        .hotspot-05 { top: 83%; }
-
-        .station-hotspot:active {
-            background-color: rgba(230, 126, 34, 0.4); 
+        .station-link img {
+            width: 100%;
+            height: auto;
         }
 
-        /* --- コンテンツエリア --- */
+        .station-link:active {
+            transform: scale(0.9); /* タップした時に少し凹む演出 */
+        }
+
+        /* 各駅の縦位置（画像に合わせて調整してください） */
+        .pos-01 { top: 9%; }
+        .pos-02 { top: 27%; }
+        .pos-03 { top: 46%; }
+        .pos-04 { top: 64%; }
+        .pos-05 { top: 83%; }
+
+        /* --- メインコンテンツ --- */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -111,63 +95,53 @@
             padding-left: 15px;
             margin-top: 0;
         }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: #888;
+        }
     </style>
 </head>
 <body>
 
-<header id="header">
-    <img src="header-img.png" alt="鉄研ヘッダー" id="menu-trigger">
+<header>
+    <img src="header-img.png" alt="鉄研ヘッダー">
 </header>
 
-<nav id="route-menu" class="closed">
+<nav class="navigation-section">
     <div class="route-map-wrapper">
-        <img src="menu-image.png" alt="路線図メニュー" class="route-map-img">
+        <img src="menu-image.png" alt="路線図" class="route-map-base">
         
-        <a href="#" class="station-hotspot hotspot-01" title="部活概要"></a>
-        <a href="#" class="station-hotspot hotspot-02" title="お知らせ"></a>
-        <a href="#" class="station-hotspot hotspot-03" title="活動紹介"></a>
-        <a href="#" class="station-hotspot hotspot-04" title="製作作品"></a>
-        <a href="monitor.html" class="station-hotspot hotspot-05" title="運転体験"></a>
+        <a href="#" class="station-link pos-01">
+            <img src="description.png" alt="部活概要">
+        </a>
+        <a href="#" class="station-link pos-02">
+            <img src="notification.png" alt="お知らせ">
+        </a>
+        <a href="#" class="station-link pos-03">
+            <img src="activities.png" alt="活動紹介">
+        </a>
+        <a href="#" class="station-link pos-04">
+            <img src="media.png" alt="製作作品">
+        </a>
+        <a href="monitor.html" class="station-link pos-05">
+            <img src="N-gage.png" alt="運転体験">
+        </a>
     </div>
 </nav>
 
 <main class="container">
     <section>
-        <h2>鉄道研究部へようこそ</h2>
-        <p>上のヘッダーをタップして路線図メニューを開いてください。</p>
+        <h2>最新の運行情報</h2>
+        <p>当サイトは鉄道研究部の活動をリアルタイムに伝えるポータルサイトです。</p>
     </section>
 </main>
 
-<script>
-    function adjustLayout() {
-        const header = document.getElementById('header');
-        const menu = document.getElementById('route-menu');
-        const main = document.querySelector('main.container');
-        
-        const h = header.offsetHeight;
-        main.style.marginTop = (h + 20) + 'px';
-        menu.style.top = h + 'px';
-    }
-
-    const trigger = document.getElementById('menu-trigger');
-    const menu = document.getElementById('route-menu');
-
-    trigger.addEventListener('click', (e) => {
-        menu.classList.toggle('open');
-        menu.classList.toggle('closed');
-        e.stopPropagation();
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target) && !trigger.contains(e.target)) {
-            menu.classList.add('closed');
-            menu.classList.remove('open');
-        }
-    });
-
-    window.addEventListener('load', adjustLayout);
-    window.addEventListener('resize', adjustLayout);
-</script>
+<div class="footer">
+    &copy; 名古屋中学校・高等学校 鉄道研究部
+</div>
 
 </body>
 </html>
