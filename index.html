@@ -35,18 +35,34 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        /* --- スマホ向けのレスポンシブ設定 (画面幅600px以下) --- */
-        @media (max-width: 600px) {
-            header {
-                height: 70px; /* スマホでは高さを少し抑える */
-                /* 画像を横幅ピッタリに合わせ、横スクロールを防止 */
-                background-size: 100% auto; 
-            }
-            body {
-                /* ヘッダーが低くなった分、上の余白も詰める */
-                padding-top: 90px; 
-            }
+           /* --- スマホ向けのレスポンシブ設定 (画面幅600px以下) --- */
+    @media (max-width: 600px) {
+        header {
+            /* 高さを固定せず、中身（画像）の比率に合わせる */
+            height: auto; 
+            /* アスペクト比を維持。Canvaの画像が「横:縦 = 2560:200」なら「12.8 / 1」 */
+            /* もし画像がもっと縦長なら、ここを 4/1 や 5/1 などに調整してください */
+            aspect-ratio: 2560 / 200; 
+            
+            background-size: contain; /* 画像をはみ出させず全部見せる */
+            background-position: top center;
+            
+            /* 影が浮いて見える場合は少し薄くする */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+    
+        body {
+            /* headerを「height: auto」にすると正確な高さが固定されないため、
+               一番上の要素に大きなマージンを持たせるのが確実です。
+            */
+            padding-top: 0; 
+        }
+        
+        /* bodyの代わりに、最初のsectionに余白を作る */
+        main.container {
+            padding-top: 25vw; /* 画面幅に応じた余白（画像の高さ分） */
+        }
+    }
 
         /* --- コンテンツエリア --- */
         .container {
