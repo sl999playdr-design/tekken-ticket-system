@@ -8,185 +8,183 @@
         body {
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-            background-color: #f4f7f9; color: #333; overflow-x: hidden;
+            background-color: #f0f8ff; 
+            color: #333; overflow-x: hidden;
         }
 
-        /* --- ヘッダー --- */
         header {
             position: relative; width: 100%; line-height: 0;
             background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            z-index: 4000; /* 最前面 */
+            z-index: 2000; /* ヘッダーが最前面 */
         }
         header img { width: 100%; height: auto; display: block; }
 
-        /* --- メニューバー（スライド式） --- */
+        /* --- 修正ポイント：メニューバーを浮かせる --- */
         .navigation-section {
-            position: absolute; width: 100%;
-            background-color: #fff; border-bottom: 1px solid #eee; 
-            z-index: 3000; 
-            transform: translateY(-100%); 
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute; /* absoluteに変更して下のコンテンツに影響を与えないようにする */
+            width: 100%;
+            background-color: #fff; 
+            border-bottom: 1px solid #eee; 
+            z-index: 1000; 
+            transform: translateY(-100%); /* 画面外（上）に隠す */
+            transition: transform 0.4s ease-in-out;
         }
-        .navigation-section.is-open { transform: translateY(0); }
+        
+        /* 開いたとき：ヘッダーのすぐ下にスライド */
+        .navigation-section.is-open { 
+            transform: translateY(0); 
+        }
 
-        /* 改良版言語セレクター（国旗付き） */
-        .lang-ui-container {
-            position: absolute; right: 20px; top: 15px; z-index: 3100;
-            display: flex; gap: 8px; align-items: center;
-            background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .lang-selector {
+            position: absolute; right: 10px; top: 10px; z-index: 600;
         }
-        .lang-btn {
-            border: none; background: none; cursor: pointer; font-size: 1.2rem;
-            filter: grayscale(100%); transition: 0.3s; padding: 2px;
+        .lang-selector select {
+            padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd;
+            background: #f9f9f9; font-size: 0.75rem; cursor: pointer;
         }
-        .lang-btn.active { filter: grayscale(0%); transform: scale(1.2); }
-        .lang-btn:hover { filter: grayscale(0%); }
 
         .route-map-container {
             position: relative; width: 95%; max-width: 700px;
-            margin: 0 auto; padding: 60px 0 20px 0;
+            margin: 0 auto; padding: 60px 0 20px 0; line-height: 0;
         }
-        .route-base-img { width: 100%; height: auto; display: block; margin-top: -55px; }
 
-        /* 引き出しボタン（メニューに追従） */
+        .route-base-img {
+            width: 100%; height: auto; display: block;
+            margin-top: -55px; 
+        }
+
+        .station-group {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 10%; display: flex; flex-direction: column; align-items: center;
+        }
+        .station-label {
+            position: absolute; bottom: 125%; width: max-content;
+            font-size: 0.85rem; font-weight: bold; color: #333;
+            white-space: nowrap; pointer-events: none;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px; border-radius: 4px; z-index: 5;
+        }
+        .station-link { width: 100%; display: block; transition: 0.2s; cursor: pointer; }
+        .station-link img { width: 100%; height: auto; display: block; }
+
+        /* NOW HERE の文字位置を修正 */
+        .now-here-marker {
+            position: absolute; top: 110%; 
+            display: flex; flex-direction: column; align-items: center; width: 100%;
+        }
+        .triangle-red {
+            width: 0; height: 0;
+            border-left: 6px solid transparent; border-right: 6px solid transparent;
+            border-bottom: 8px solid #e74c3c; 
+            margin-bottom: 4px; /* さらに詰めました */
+        }
+        .now-here-text { 
+            font-size: 0.6rem; 
+            font-weight: bold; 
+            color: #e74c3c; 
+            white-space: nowrap;
+        }
+
+        .pos-01 { left: 4%; } .pos-02 { left: 24.5%; } .pos-03 { left: 45%; } .pos-04 { left: 65.5%; } .pos-05 { left: 86%; }
+
+        /* 引き出しボタン */
         .menu-toggle-btn {
-            position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 35px; background-color: #f0f0f0;
-            border: 1px solid #ddd; border-top: none; border-radius: 0 0 15px 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer;
-            display: flex; justify-content: center; align-items: center; z-index: 5000;
+            position: absolute; 
+            top: 100%; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 80px; height: 35px; 
+            background-color: #f0f0f0; 
+            border: 1px solid #ddd; border-top: none; 
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            cursor: pointer;
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 3000;
         }
         .toggle-icon {
-            width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
-            border-top: 12px solid #c0392b; transition: transform 0.4s ease;
+            width: 0; height: 0; 
+            border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-top: 12px solid #c0392b; 
+            transition: transform 0.4s ease;
         }
         .is-open .toggle-icon { transform: rotate(180deg); }
 
-        /* --- メインレイアウト（Z型） --- */
-        .main-content {
-            max-width: 1000px; margin: 80px auto; padding: 20px;
-            position: relative; z-index: 1;
+        /* --- 下のコンテンツ：位置を固定 --- */
+        .container { 
+            max-width: 650px; 
+            margin: 40px auto 40px auto; /* absolute化したのでmarginを調整 */
+            padding: 20px; 
+            position: relative;
+            z-index: 1; /* メニューより下の層にする */
+        }
+        .welcome-section {
+            background: #fff; padding: 35px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); line-height: 1.8;
+        }
+        .welcome-section h2 {
+            margin-top: 0; color: #c0392b; font-size: 1.3rem;
+            border-left: 5px solid #c0392b; padding-left: 15px; margin-bottom: 20px;
         }
 
-        .content-row {
-            display: flex; align-items: center; gap: 50px; margin-bottom: 80px;
-            opacity: 0; transform: translateY(20px); transition: 0.8s forwards;
-        }
-        .content-row.show { opacity: 1; transform: translateY(0); }
-        .content-row.reverse { flex-direction: row-reverse; }
-
-        .text-side { flex: 1.2; }
-        .image-side { flex: 1; }
-        .image-side img {
-            width: 100%; height: auto; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-
-        h2 {
-            color: #c0392b; border-left: 6px solid #c0392b;
-            padding-left: 15px; margin-bottom: 20px; font-size: 1.5rem;
-        }
-        p { line-height: 1.8; font-size: 1.05rem; }
-
-        @media (max-width: 768px) {
-            .content-row, .content-row.reverse { flex-direction: column; text-align: center; }
-            h2 { border-left: none; border-bottom: 3px solid #c0392b; padding-left: 0; display: inline-block; }
+        @media screen and (max-width: 480px) {
+            .station-label { font-size: 0.6rem; bottom: 110%; }
         }
     </style>
 </head>
 <body>
 
-<header><img src="header-img.png" alt="鉄研ヘッダー"></header>
+<header>
+    <img src="header-img.png" alt="鉄研ヘッダー">
+</header>
 
 <nav class="navigation-section" id="routeMenu">
-    <div class="lang-ui-container">
-        <button class="lang-btn active" onclick="switchLang('ja', this)" title="日本語">🇯🇵</button>
-        <button class="lang-btn" onclick="switchLang('en', this)" title="English">🇺🇸</button>
-        <button class="lang-btn" onclick="switchLang('zh', this)" title="简体中文">🇨🇳</button>
-        <button class="lang-btn" onclick="switchLang('ko', this)" title="한국어">🇰🇷</button>
+    <div class="lang-selector">
+        <select id="langSelect" onchange="switchLanguage()">
+            <option value="ja">Language: 日本語</option>
+            <option value="en">Language: English</option>
+        </select>
     </div>
 
     <div class="route-map-container">
-        <img src="menu-image.png" alt="路線図" class="route-base-img">
+        <img src="menu-image.png" alt="路線図ベース" class="route-base-img">
+        <div class="station-group pos-01">
+            <span class="station-label lang-target" data-ja="部活動について" data-en="About Us">部活動について</span>
+            <a href="index.html" class="station-link"><img src="description.png" alt="部活概要"></a>
+            <div class="now-here-marker">
+                <div class="triangle-red"></div>
+                <span class="now-here-text">NOW HERE</span>
+            </div>
         </div>
+        <div class="station-group pos-02"><span class="station-label lang-target" data-ja="お知らせ" data-en="News">お知らせ</span><a href="#" class="station-link"><img src="notification.png" alt="お知らせ"></a></div>
+        <div class="station-group pos-03"><span class="station-label lang-target" data-ja="活動紹介" data-en="Activities">活動紹介</span><a href="#" class="station-link"><img src="activities.png" alt="活動紹介"></a></div>
+        <div class="station-group pos-04"><span class="station-label lang-target" data-ja="作品紹介" data-en="Gallery">作品紹介</span><a href="#" class="station-link"><img src="media.png" alt="製作作品"></a></div>
+        <div class="station-group pos-05"><span class="station-label lang-target" data-ja="ジオラマ運転体験" data-en="Diorama">ジオラマ運転体験</span><a href="monitor.html" class="station-link"><img src="N-gage.png" alt="運転体験"></a></div>
+    </div>
 
     <button class="menu-toggle-btn" onclick="toggleMenu()">
         <div class="toggle-icon"></div>
     </button>
 </nav>
 
-<main class="main-content">
-    <section class="content-row show">
-        <div class="text-side">
-            <h2 class="lang-target" 
-                data-ja="名古屋中学校・高等学校 鉄道研究部へようこそ！" 
-                data-en="Welcome to Nagoya Railway Club!"
-                data-zh="欢迎来到名古屋中学/高中铁路研究部！"
-                data-ko="나고야 중학교·고등학교 철도 연구부에 오신 것을 환영합니다!">
-                名古屋中学校・高等学校 鉄道研究部へようこそ！
-            </h2>
-            <p class="lang-target" 
-               data-ja="本サイトでは、当部活動の最新情報やイベント情報を発信しています。鉄道模型展示の詳細は、メニューの「ジオラマ運転体験」をご覧ください。" 
-               data-en="This site provides the latest news about our activities. Check 'Diorama Experience' in the menu for event details."
-               data-zh="本网站提供有关我们活动的最新消息。有关活动的详情，请查看菜单中的“立体模型体验”。"
-               data-ko="본 사이트에서는 활동의 최신 정보를 전해드립니다. 이벤트 상세 정보는 메뉴의 '디오라마 운전 체험'을 확인해 주세요.">
-               本サイトでは、当部活動の最新情報やイベント情報を発信しています。鉄道模型展示の詳細は、メニューの「ジオラマ運転体験」をご覧ください。
-            </p>
+<main class="container">
+    <article class="welcome-section">
+        <h2 id="contentTitle">名古屋中学校・高等学校 鉄道研究部へようこそ！</h2>
+        <div id="contentText">
+            <p>本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。</p>
+            <p>学校説明会や文化祭で開催される「鉄道模型展示」の詳細は、上部メニューの<strong>「ジオラマ運転体験」</strong>より特設サイトをご覧ください。</p>
+            <p>皆様のご来場を、部員一同心よりお待ちしております。</p>
         </div>
-        <div class="image-side"><img src="club-photo1.png" alt="Club Photo"></div>
-    </section>
-
-    <section class="content-row reverse show">
-        <div class="text-side">
-            <h2 class="lang-target" 
-                data-ja="未来へ繋ぐ、鉄路と情熱" 
-                data-en="Connecting Passion to the Future"
-                data-zh="连接未来的铁路与激情"
-                data-ko="미래로 잇는 철길과 열정">
-                未来へ繋ぐ、鉄路と情熱
-            </h2>
-            <p class="lang-target" 
-               data-ja="私たちは模型製作から実車研究まで、鉄道の魅力を多角的に探究しています。文化祭での大型ジオラマは部員全員で作り上げる、一年間の集大成です。" 
-               data-en="We explore the charm of railways through model making and research. Our giant diorama at the school festival is the culmination of a year's work."
-               data-zh="我们通过模型制作和研究来探索铁路的魅力。我们在学校祭上的大型立体模型是一年工作的結晶。"
-               data-ko="저희는 모형 제작부터 실물 연구까지 철도의 매력을 다각도로 탐구하고 있습니다. 문화제에서 선보이는 대형 디오라마는 모든 부원이 함께 만드는 1년간의 집대성입니다.">
-               私たちは模型製作から実車研究まで、鉄道の魅力を多角的に探究しています。文化祭での大型ジオラマは部員全員で作り上げる、一年間の集大成です。
-            </p>
-        </div>
-        <div class="image-side"><img src="club-photo2.png" alt="Diorama Photo"></div>
-    </section>
+        <span class="test-release-note" id="releaseNote">※当サイトは現在、試験公開中です。</span>
+    </article>
 </main>
 
 <script>
     function toggleMenu() {
-        document.getElementById('routeMenu').classList.toggle('is-open');
+        const menu = document.getElementById('routeMenu');
+        menu.classList.toggle('is-open');
     }
-
-    function switchLang(lang, btn) {
-        // 全てのターゲット要素を翻訳
-        document.querySelectorAll('.lang-target').forEach(el => {
-            el.innerText = el.getAttribute(`data-${lang}`);
-        });
-
-        // ボタンの活性化状態を切り替え
-        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        // 必要に応じてlocalStorageに保存
-        localStorage.setItem('preferred_lang', lang);
-    }
-
-    // 初回読み込み時にスクロールアニメーションなどの処理
-    window.addEventListener('scroll', () => {
-        const rows = document.querySelectorAll('.content-row');
-        rows.forEach(row => {
-            const rect = row.getBoundingClientRect();
-            if (rect.top < window.innerHeight - 100) {
-                row.classList.add('show');
-            }
-        });
-    });
+    // switchLanguage関数などは省略
 </script>
 
 </body>
