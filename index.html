@@ -4,40 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鉄道研究部 ポータルサイト</title>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-        }
-      }
-    </script>
     <style>
-        body { margin: 0; padding: 0; background-color: #f0f8ff; overflow-x: hidden; }
-
-        /* --- 背景：赤い箱の描画エリア --- */
-        #webgl-canvas {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: -1; /* 一番奥 */
-            pointer-events: none;
+        body {
+            margin: 0; padding: 0;
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            background-color: #f8fbff; color: #333;
         }
 
         /* --- ヘッダー --- */
         header {
             position: relative; width: 100%; line-height: 0;
             background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-            z-index: 2000; /* メニューより上 */
+            z-index: 2000;
         }
         header img { width: 100%; height: auto; display: block; }
 
-        /* --- メニューバー本体 --- */
+        /* --- メニューバー --- */
         .navigation-section {
-            position: relative; 
-            background-color: #fff;
-            border-bottom: 1px solid #ddd; 
-            z-index: 1000; 
-            margin-top: -180px; /* 最初は隠す */
-            transition: margin-top 0.4s ease-in-out;
+            position: relative; background-color: #fff;
+            border-bottom: 1px solid #ddd; z-index: 1000;
+            margin-top: -180px; transition: margin-top 0.4s ease-in-out;
         }
         .navigation-section.is-open { margin-top: 0; }
 
@@ -47,117 +33,130 @@
         }
         .route-base-img { width: 100%; height: auto; display: block; margin-top: -45px; }
 
-        /* --- 【重要】出し入れボタン --- */
         .menu-toggle-btn {
-            position: absolute; 
-            bottom: -35px; /* メニューの下端から飛び出させる */
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 80px; height: 35px; 
-            background-color: #f0f0f0; 
-            border: 1px solid #ddd; border-top: none; 
-            border-radius: 0 0 15px 15px;
-            cursor: pointer; 
-            display: flex; justify-content: center; align-items: center;
-            z-index: 3000; /* 全ての要素より最前面に配置 */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 35px; background-color: #f0f0f0;
+            border: 1px solid #ddd; border-top: none; border-radius: 0 0 15px 15px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 3000;
         }
         .toggle-icon {
-            width: 0; height: 0; 
-            border-left: 10px solid transparent; border-right: 10px solid transparent;
-            border-top: 12px solid #c0392b; 
-            transition: transform 0.4s ease;
+            width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-top: 12px solid #c0392b; transition: transform 0.4s ease;
         }
         .is-open .toggle-icon { transform: rotate(180deg); }
 
-        /* コンテンツ */
-        .container { 
-            max-width: 600px; margin: 80px auto; padding: 20px;
-            position: relative; z-index: 100;
+        /* 言語セレクター（メニュー内） */
+        .lang-selector {
+            position: absolute; right: 10px; top: 10px; z-index: 1100;
         }
-        .welcome-section {
-            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        .lang-selector select { padding: 5px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.8rem; }
+
+        /* --- メインレイアウト：交互配置 --- */
+        .main-content {
+            max-width: 1000px; margin: 80px auto; padding: 0 20px;
+        }
+
+        .content-row {
+            display: flex; align-items: center; gap: 40px; margin-bottom: 100px;
+            flex-wrap: wrap; /* スマホ対応 */
+        }
+
+        /* 2段目は左右反転 */
+        .content-row.reverse { flex-direction: row-reverse; }
+
+        .text-side { flex: 1; min-width: 300px; }
+        .image-side { flex: 1; min-width: 300px; }
+        .image-side img {
+            width: 100%; height: auto; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #c0392b; border-left: 6px solid #c0392b;
+            padding-left: 15px; margin-bottom: 20px; font-size: 1.6rem;
+        }
+        p { line-height: 1.8; font-size: 1.05rem; margin-bottom: 15px; }
+
+        /* スマホ向け調整 */
+        @media (max-width: 768px) {
+            .content-row, .content-row.reverse { flex-direction: column; gap: 20px; }
+            .main-content { margin: 60px auto; }
         }
     </style>
 </head>
 <body>
 
-<canvas id="webgl-canvas"></canvas>
-
 <header><img src="header-img.png" alt="鉄研ヘッダー"></header>
 
 <nav class="navigation-section" id="routeMenu">
+    <div class="lang-selector">
+        <select id="langSelect" onchange="switchLanguage()">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+        </select>
+    </div>
     <div class="route-map-container">
         <img src="menu-image.png" alt="路線図" class="route-base-img">
-        <div style="position:absolute; left:45%; top:50%; width:10%;"><img src="activities.png" style="width:100%"></div>
     </div>
-    <button class="menu-toggle-btn" id="menuBtn">
-        <div class="toggle-icon" id="toggleIcon"></div>
-    </button>
+    <button class="menu-toggle-btn" id="menuBtn"><div class="toggle-icon"></div></button>
 </nav>
 
-<main class="container">
-    <article class="welcome-section">
-        <h2>鉄道研究部へようこそ！</h2>
-        <p>赤い箱が左右に見え、かつメニューボタン（赤い三角）がヘッダーの下に見えているはずです。</p>
-    </article>
+<main class="main-content">
+    <section class="content-row">
+        <div class="text-side">
+            <h2 class="lang-target" data-ja="名古屋中学校・高等学校 鉄道研究部へようこそ！" data-en="Welcome to Nagoya Junior & Senior High School Railway Club!">名古屋中学校・高等学校 鉄道研究部へようこそ！</h2>
+            <p class="lang-target" 
+               data-ja="本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。" 
+               data-en="On this site, we provide information about our club activities and the latest event information.">
+               本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。
+            </p>
+            <p class="lang-target" 
+               data-ja="詳細は、上部メニューの「ジオラマ運転体験」より特設サイトをご覧ください。皆様のご来場を、部員一同心よりお待ちしております。" 
+               data-en="For details, please visit the special site from 'Diorama Driving Experience' in the top menu. All our members are looking forward to your visit.">
+               詳細は、上部メニューの「ジオラマ運転体験」より特設サイトをご覧ください。皆様のご来場を、部員一同心よりお待ちしております。
+            </p>
+        </div>
+        <div class="image-side">
+            <img src="club-photo1.png" alt="部活動の様子">
+        </div>
+    </section>
+
+    <section class="content-row reverse">
+        <div class="text-side">
+            <h2 class="lang-target" data-ja="情熱を形にする、私たちの活動" data-en="Shaping Passion: Our Activities">情熱を形にする、私たちの活動</h2>
+            <p class="lang-target" 
+               data-ja="私たちは週3回、模型製作や実物鉄道の研究に励んでいます。特に文化祭で展示する巨大ジオラマは、1年かけて部員全員で作り上げる集大成です。" 
+               data-en="We work on model making and real railway research three times a week. In particular, the huge diorama exhibited at the school festival is the culmination of a year's work by all members.">
+               私たちは週3回、模型製作や実物鉄道の研究に励んでいます。特に文化祭で展示する巨大ジオラマは、1年かけて部員全員で作り上げる集大成です。
+            </p>
+            <p class="lang-target" 
+               data-ja="技術の継承だけでなく、鉄道を通じて地域の方々や他校との交流も大切にしています。切磋琢磨し合う仲間と共に、日々新しい挑戦を続けています。" 
+               data-en="In addition to passing down technical skills, we also value interaction with local people and other schools through railways. We continue to take on new challenges every day with our teammates.">
+               技術の継承だけでなく、鉄道を通じて地域の方々や他校との交流も大切にしています。切磋琢磨し合う仲間と共に、日々新しい挑戦を続けています。
+            </p>
+        </div>
+        <div class="image-side">
+            <img src="club-photo2.png" alt="ジオラマ製作の様子">
+        </div>
+    </section>
 </main>
 
 <script>
-    // メニュー開閉のJavaScript
+    // メニュー開閉
     const menuBtn = document.getElementById('menuBtn');
     const routeMenu = document.getElementById('routeMenu');
-    
     menuBtn.addEventListener('click', () => {
         routeMenu.classList.toggle('is-open');
     });
-</script>
 
-<script type="module">
-    import * as THREE from 'three';
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    // 照明
-    const light = new THREE.DirectionalLight(0xffffff, 1.5);
-    light.position.set(1, 1, 5);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-
-    // 赤い立方体（テスト用）
-    const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-    const material = new THREE.MeshPhongMaterial({ color: 0xc0392b });
-    const cubeL = new THREE.Mesh(geometry, material);
-    const cubeR = new THREE.Mesh(geometry, material);
-    scene.add(cubeL, cubeR);
-
-    camera.position.z = 5;
-
-    function animate() {
-        requestAnimationFrame(animate);
-        
-        // 画面の横幅に合わせて箱の位置を調整
-        const xPos = (window.innerWidth / window.innerHeight) * 2.5;
-        cubeL.position.x = -xPos;
-        cubeR.position.x = xPos;
-
-        cubeL.rotation.y += 0.01;
-        cubeR.rotation.y += 0.01;
-        
-        renderer.render(scene, camera);
+    // 言語切り替え機能
+    function switchLanguage() {
+        const lang = document.getElementById('langSelect').value;
+        const targets = document.querySelectorAll('.lang-target');
+        targets.forEach(el => {
+            el.innerText = el.getAttribute(`data-${lang}`);
+        });
     }
-    
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    animate();
 </script>
 
 </body>
