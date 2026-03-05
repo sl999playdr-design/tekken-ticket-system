@@ -7,39 +7,38 @@
     <script type="importmap">
       {
         "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
         }
       }
     </script>
     <style>
         body {
             margin: 0; padding: 0;
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-            background-color: #f0f8ff; color: #333;
-            overflow-x: hidden;
+            font-family: sans-serif;
+            background-color: #f0f8ff; overflow-x: hidden;
         }
 
-        /* --- WebGL Canvas: 背景として固定 --- */
+        /* --- 1. WebGL背景 (一番奥) --- */
         #webgl-canvas {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
-            z-index: -1; /* 全てのコンテンツの裏へ */
-            pointer-events: none; /* クリックを透過させる */
+            z-index: -1; /* コンテンツの裏側 */
+            pointer-events: none;
         }
 
+        /* --- 2. ヘッダー (最前面) --- */
         header {
             position: relative; width: 100%; line-height: 0;
-            background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000;
+            background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            z-index: 2000;
         }
         header img { width: 100%; height: auto; display: block; }
 
-        /* --- メニューバー --- */
+        /* --- 3. メニューバー (ヘッダーの下から出る) --- */
         .navigation-section {
             position: relative; background-color: #fff;
-            border-bottom: 1px solid #ddd; z-index: 500;
-            margin-top: -180px; 
+            border-bottom: 1px solid #ddd; z-index: 1000;
+            margin-top: -180px; /* 初期状態で隠す */
             transition: margin-top 0.4s ease-in-out;
         }
         .navigation-section.is-open { margin-top: 0; }
@@ -50,43 +49,34 @@
         }
         .route-base-img { width: 100%; height: auto; display: block; margin-top: -45px; }
 
+        /* 駅アイコンの配置 */
         .station-group {
             position: absolute; top: 50%; transform: translateY(-50%);
             width: 10%; display: flex; flex-direction: column; align-items: center;
         }
-        .pos-01 { left: 4%; } .pos-02 { left: 24.5%; } .pos-03 { left: 45%; } .pos-04 { left: 65.5%; } .pos-05 { left: 86%; }
+        .pos-01 { left: 4%; } .pos-05 { left: 86%; }
 
-        .station-label {
-            position: absolute; bottom: 120%; width: max-content;
-            font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.8);
-            padding: 2px 4px; border-radius: 4px;
-        }
-        .station-link img { width: 100%; height: auto; }
-
-        .now-here-marker { position: absolute; top: 100%; display: flex; flex-direction: column; align-items: center; }
-        .triangle-red { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #e74c3c; margin-bottom: 2px; }
-        .now-here-text { font-size: 0.6rem; font-weight: bold; color: #e74c3c; white-space: nowrap; }
-
+        /* 出し入れボタン */
         .menu-toggle-btn {
             position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
             width: 70px; height: 35px; background-color: #f0f0f0;
             border: 1px solid #ddd; border-top: none; border-radius: 0 0 12px 12px;
-            cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 501;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
         }
-        .toggle-icon { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #c0392b; transition: transform 0.4s ease; }
+        .toggle-icon {
+            width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
+            border-top: 10px solid #c0392b; transition: transform 0.4s ease;
+        }
         .is-open .toggle-icon { transform: rotate(180deg); }
 
-        /* --- コンテンツ --- */
+        /* --- 4. コンテンツ --- */
         .container { 
-            max-width: 600px; /* 3Dが見えるように少し幅を狭く */
-            margin: 60px auto 40px auto; 
-            padding: 20px; 
-            position: relative;
+            max-width: 600px; margin: 80px auto; padding: 20px;
+            position: relative; z-index: 100;
         }
         .welcome-section {
-            background: rgba(255, 255, 255, 0.9); /* 少し透かして3Dを馴染ませる */
-            padding: 30px; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); line-height: 1.8;
+            background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -100,92 +90,79 @@
     <div class="route-map-container">
         <img src="menu-image.png" alt="路線図" class="route-base-img">
         <div class="station-group pos-01">
-            <span class="station-label">部活動について</span>
-            <a href="index.html" class="station-link"><img src="description.png" alt="概要"></a>
-            <div class="now-here-marker">
-                <div class="triangle-red"></div>
-                <span class="now-here-text">NOW HERE</span>
-            </div>
+            <a href="index.html"><img src="description.png" style="width:100%"></a>
         </div>
         <div class="station-group pos-05">
-            <span class="station-label">ジオラマ運転体験</span>
-            <a href="monitor.html" class="station-link"><img src="N-gage.png" alt="運転体験"></a>
+            <a href="monitor.html"><img src="N-gage.png" style="width:100%"></a>
         </div>
     </div>
-    <button class="menu-toggle-btn" onclick="toggleMenu()"><div class="toggle-icon"></div></button>
+    <button class="menu-toggle-btn" id="menuBtn">
+        <div class="toggle-icon" id="toggleIcon"></div>
+    </button>
 </nav>
 
 <main class="container">
     <article class="welcome-section">
-        <h2>名古屋中学校・高等学校 鉄道研究部へようこそ！</h2>
-        <p>本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。</p>
-        <p>左右で回転しているのはテスト用の3Dオブジェクトです。本番ではここに電車のモデルが表示されます。</p>
-        <p>詳細は上部メニューよりご覧ください。皆様のご来場を心よりお待ちしております。</p>
+        <h2>鉄道研究部へようこそ！</h2>
+        <p>左右のスペースに3Dモデルを配置しました。</p>
+        <p>メニューバーが正常に動くことを確認してください。</p>
     </article>
 </main>
+
+<script>
+    const menuBtn = document.getElementById('menuBtn');
+    const routeMenu = document.getElementById('routeMenu');
+    
+    menuBtn.onclick = function() {
+        routeMenu.classList.toggle('is-open');
+    };
+</script>
 
 <script type="module">
     import * as THREE from 'three';
 
+    const canvas = document.getElementById('webgl-canvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), alpha: true, antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // ライティング
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(5, 5, 5);
-    scene.add(directionalLight);
+    // ライト
+    const light = new THREE.DirectionalLight(0xffffff, 1.5);
+    light.position.set(2, 2, 5);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-    // テストオブジェクト（赤い立方体）
-    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-    const material = new THREE.MeshPhongMaterial({ color: 0xc0392b, shininess: 100 });
-    
-    const objLeft = new THREE.Mesh(geometry, material);
-    const objRight = new THREE.Mesh(geometry, material);
-
-    scene.add(objLeft);
-    scene.add(objRight);
+    // 赤い箱
+    const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+    const material = new THREE.MeshPhongMaterial({ color: 0xc0392b });
+    const cubeL = new THREE.Mesh(geometry, material);
+    const cubeR = new THREE.Mesh(geometry, material);
+    scene.add(cubeL, cubeR);
 
     camera.position.z = 5;
 
-    // レンダリングループ
     function animate() {
         requestAnimationFrame(animate);
+        
+        // 画面幅に応じて位置を調整
+        const xPos = (window.innerWidth / window.innerHeight) * 2.2;
+        cubeL.position.x = -xPos;
+        cubeR.position.x = xPos;
 
-        // 左右の配置（レスポンシブ対応）
-        const aspect = window.innerWidth / window.innerHeight;
-        const responsiveX = aspect * 2.5; // 画面幅に合わせて位置を調整
-
-        objLeft.position.x = -responsiveX;
-        objRight.position.x = responsiveX;
-
-        // 回転アニメーション
-        objLeft.rotation.x += 0.01;
-        objLeft.rotation.y += 0.01;
-        objRight.rotation.y += 0.01;
-        objRight.rotation.z += 0.01;
-
+        cubeL.rotation.y += 0.01;
+        cubeR.rotation.y += 0.01;
+        
         renderer.render(scene, camera);
     }
-
-    // リサイズ対応
-    window.addEventListener('resize', () => {
+    
+    window.onresize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    };
 
     animate();
-</script>
-
-<script>
-    function toggleMenu() {
-        document.getElementById('routeMenu').classList.toggle('is-open');
-    }
 </script>
 
 </body>
