@@ -12,6 +12,7 @@
             color: #333; overflow-x: hidden;
         }
 
+        /* --- ヘッダー --- */
         header {
             position: relative; width: 100%; line-height: 0;
             background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
@@ -19,88 +20,114 @@
         }
         header img { width: 100%; height: auto; display: block; }
 
+        /* --- メニューバー（崩れ防止版） --- */
         .navigation-section {
-            position: absolute; width: 100%; background-color: #fff; 
-            border-bottom: 1px solid #eee; z-index: 1000; 
-            transform: translateY(-100%); transition: transform 0.4s ease-in-out;
+            position: absolute; 
+            width: 100%;
+            background-color: #fff; 
+            border-bottom: 2px solid #ddd; 
+            z-index: 1000; 
+            transform: translateY(-100%); 
+            transition: transform 0.4s ease-in-out;
+            visibility: hidden; /* 隠れている時は非表示 */
         }
-        .navigation-section.is-open { transform: translateY(0); }
-
-        /* --- 路線図・Now Here等のスタイル（前回通り） --- */
-        .route-map-container { position: relative; width: 95%; max-width: 700px; margin: 0 auto; padding: 60px 0 20px 0; }
-        .route-base-img { width: 100%; height: auto; display: block; margin-top: -55px; }
-        .station-group { position: absolute; top: 50%; transform: translateY(-50%); width: 10%; display: flex; flex-direction: column; align-items: center; }
-        .station-label { position: absolute; bottom: 125%; width: max-content; font-size: 0.85rem; font-weight: bold; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 4px; }
-        .station-link img { width: 100%; height: auto; display: block; }
         
-        .now-here-marker { position: absolute; top: 110%; display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .triangle-red { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #e74c3c; margin-bottom: 4px; }
-        .now-here-text { font-size: 0.6rem; font-weight: bold; color: #e74c3c; }
+        .navigation-section.is-open { 
+            transform: translateY(0); 
+            visibility: visible;
+        }
 
+        .route-map-container {
+            position: relative; 
+            width: 95%; 
+            max-width: 700px;
+            margin: 0 auto; 
+            padding: 50px 0 30px 0; /* 下に余白を確保 */
+        }
+
+        .route-base-img {
+            width: 100%; height: auto; display: block;
+            margin-top: -55px; 
+        }
+
+        /* 駅ボタンの配置 */
+        .station-group {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 10%; display: flex; flex-direction: column; align-items: center;
+        }
         .pos-01 { left: 4%; } .pos-02 { left: 24.5%; } .pos-03 { left: 45%; } .pos-04 { left: 65.5%; } .pos-05 { left: 86%; }
 
-        .menu-toggle-btn {
-            position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 35px; background-color: #f0f0f0; border: 1px solid #ddd; border-top: none; 
-            border-radius: 0 0 15px 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 3000;
+        /* マーカーと文字 */
+        .now-here-marker {
+            position: absolute; 
+            top: 100%; /* 画像のすぐ下 */
+            display: flex; flex-direction: column; align-items: center; 
+            width: 100%;
         }
-        .toggle-icon { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 12px solid #c0392b; transition: transform 0.4s ease; }
-        .is-open .toggle-icon { transform: rotate(180deg); }
+        .triangle-red {
+            width: 0; height: 0;
+            border-left: 6px solid transparent; border-right: 6px solid transparent;
+            border-bottom: 8px solid #e74c3c; 
+            margin-bottom: 4px; /* 詰めました */
+        }
+        .now-here-text { 
+            font-size: 0.6rem; font-weight: bold; color: #e74c3c; white-space: nowrap;
+        }
 
-        /* --- 修正：コンテンツの位置とフェードアニメーション --- */
+        /* 出し入れボタン */
+        .menu-toggle-btn {
+            position: absolute; 
+            top: 100%; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 35px; 
+            background-color: #f0f0f0; border: 1px solid #ddd; border-top: none; 
+            border-radius: 0 0 15px 15px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center; 
+            z-index: 3000;
+            visibility: visible; /* 常に表示 */
+        }
+
+        /* --- コンテンツ（位置固定 & フェード） --- */
         .container { 
             max-width: 650px; 
-            margin: 150px auto 100px auto; /* さらに下へ配置 */
+            margin: 180px auto 100px auto; /* 十分な距離を確保 */
             padding: 20px; 
-            position: relative;
-            z-index: 1;
-            /* 初期状態：透明・少し下に配置 */
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
-
-        /* 画面内に入った時のスタイル */
-        .container.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .container.is-visible { opacity: 1; transform: translateY(0); }
 
         .welcome-section {
             background: #fff; padding: 35px; border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); line-height: 1.8;
         }
-        .welcome-section h2 { margin-top: 0; color: #c0392b; border-left: 5px solid #c0392b; padding-left: 15px; }
-
     </style>
 </head>
 <body>
 
-<header>
-    <img src="header-img.png" alt="鉄研ヘッダー">
-</header>
+<header><img src="header-img.png" alt="鉄研ヘッダー"></header>
 
 <nav class="navigation-section" id="routeMenu">
     <div class="route-map-container">
         <img src="menu-image.png" alt="路線図ベース" class="route-base-img">
+        
         <div class="station-group pos-01">
-            <span class="station-label">部活動について</span>
-            <a href="index.html" class="station-link"><img src="description.png" alt="部活概要"></a>
-            <div class="now-here-marker"><div class="triangle-red"></div><span class="now-here-text">NOW HERE</span></div>
-        </div>
-        <div class="station-group pos-05">
-            <span class="station-label">ジオラマ運転体験</span>
-            <a href="monitor.html" class="station-link"><img src="N-gage.png" alt="運転体験"></a>
+            <a href="index.html" class="station-link"><img src="description.png" alt="概要"></a>
+            <div class="now-here-marker">
+                <div class="triangle-red"></div>
+                <span class="now-here-text">NOW HERE</span>
+            </div>
         </div>
         </div>
-    <button class="menu-toggle-btn" onclick="toggleMenu()"><div class="toggle-icon"></div></button>
+    <button class="menu-toggle-btn" onclick="toggleMenu()">
+        <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 12px solid #c0392b;"></div>
+    </button>
 </nav>
 
 <main class="container" id="fadeTarget">
     <article class="welcome-section">
         <h2>名古屋中学校・高等学校 鉄道研究部へようこそ！</h2>
         <p>本サイトでは、当部活の活動内容や最新のイベント情報を発信しています。</p>
-        <p>詳細は、上部メニューの<strong>「ジオラマ運転体験」</strong>よりご覧ください。</p>
         <p>皆様のご来場を、部員一同心よりお待ちしております。</p>
     </article>
 </main>
@@ -110,20 +137,12 @@
         document.getElementById('routeMenu').classList.toggle('is-open');
     }
 
-    // --- フェードイン・フェードアウトのロジック ---
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // 画面内に入ったらクラスを追加
-                entry.target.classList.add('is-visible');
-            } else {
-                // 画面から離れたらクラスを外す（フェードアウト）
-                entry.target.classList.remove('is-visible');
-            }
+            if (entry.isIntersecting) entry.target.classList.add('is-visible');
+            else entry.target.classList.remove('is-visible');
         });
-    }, {
-        threshold: 0.1 // 10%見えたら反応
-    });
+    }, { threshold: 0.1 });
 
     observer.observe(document.getElementById('fadeTarget'));
 </script>
