@@ -1,147 +1,74 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STAFF ONLY - 運行管理</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* 無骨なUIのための上書き設定 */
-        body { display: none; background: #222; color: #ddd; font-family: monospace; margin: 0; }
-        .staff-container { max-width: 800px; margin: 0 auto; padding: 10px; }
-        
-        /* セクション区切り */
-        .section { border: 1px solid #444; margin-bottom: 20px; background: #000; padding: 15px; }
-        .section-title { background: #444; color: #fff; padding: 5px 10px; font-size: 0.9rem; margin: -15px -15px 15px -15px; }
+<style>
+    /* 処理中を知らせる画面全体のレイヤー */
+    #loading-overlay {
+        display: none; /* 通常は隠しておく */
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.85); /* 画面を暗くする */
+        z-index: 9999;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Courier New', monospace;
+    }
 
-        /* 発行フォーム（装飾排除） */
-        .issue-form { display: flex; flex-wrap: wrap; gap: 10px; }
-        select, button, input { border: 1px solid #666; background: #333; color: #fff; padding: 10px; border-radius: 0 !important; font-size: 1rem; }
-        button { cursor: pointer; text-transform: uppercase; }
-        button:active { background: #555; }
-        .btn-call { background: #800; } /* 控えめな赤 */
-        .btn-end { background: #444; }
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #333;
+        border-top: 5px solid #f1c40f; /* 鉄道の警告色 */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
 
-        /* リスト表示 */
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .admin-table th, .admin-table td { border: 1px solid #444; padding: 8px; text-align: left; }
-        .admin-table th { background: #111; font-size: 0.8rem; }
-        
-        /* 呼出中行の強調 */
-        .row-calling { background: #221100; color: #ff9900; }
-    </style>
-</head>
-<body class="staff-mode">
+    .loading-text {
+        color: #f1c40f;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        animation: blink 1s step-end infinite;
+    }
 
-<div class="staff-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-weight: bold;">[ SYSTEM TERMINAL - STAFF ONLY ]</span>
-        <button onclick="location.href='index.html'" style="font-size: 0.7rem;">EXIT</button>
-    </div>
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes blink { 
+        0%, 100% { opacity: 1; } 
+        50% { opacity: 0; } 
+    }
+</style>
 
-    <div class="section">
-        <div class="section-title">QUICK ISSUE (新規発行)</div>
-        <div class="issue-form">
-            <select id="v-select">
-                <option value="E5系 はやぶさ">E5系 はやぶさ</option>
-                <option value="E235系 山手線">E235系 山手線</option>
-                <option value="923形 ドクターイエロー">923形 ドクターイエロー</option>
-                <option value="N700S のぞみ">N700S のぞみ</option>
-            </select>
-            <select id="t-select">
-                <option value="S">特別(S)</option>
-                <option value="A">普通(A)</option>
-            </select>
-            <button id="issue-btn" onclick="staffIssue()" style="background: #004400;">発行実行</button>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">RESERVATION LIST (予約・呼出管理)</div>
-        <div id="list-container">
-            </div>
-    </div>
+<div id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Communicating...</div>
+    <p style="color: #888; margin-top: 15px;">Accessing Spreadsheet Data</p>
 </div>
 
-<script src="script.js"></script>
 <script>
-    // --- 認証 ---
-    const PIN = "0000";
-    if (prompt("ENTER PIN") === PIN) {
-        document.body.style.display = "block";
-    } else {
-        location.href = "index.html";
-    }
+    async function handleCallRequest(button) {
+        // 1. 処理中画面を表示
+        const overlay = document.getElementById('loading-overlay');
+        overlay.style.display = 'flex';
 
-    // --- スタッフ側からの新規発行 ---
-    async function staffIssue() {
-        const btn = document.getElementById('issue-btn');
-        const v = document.getElementById('v-select').value;
-        const t = document.getElementById('t-select').value;
-        
-        btn.disabled = true;
-        btn.innerText = "WAIT...";
-        
         try {
-            const res = await postToSheet({ action: 'issue', type: t, vehicle: v });
-            if(res.result === 'success') {
-                alert("発行完了: " + res.id);
-                refresh();
-            }
-        } catch (e) { alert("ERROR"); }
-        
-        btn.disabled = false;
-        btn.innerText = "発行実行";
-    }
-
-    // --- リスト更新 ---
-    async function refresh() {
-        try {
-            const data = await fetchSheetData();
-            const container = document.getElementById('list-container');
+            // ここにスプレッドシートへの通信処理を書く
+            // fetch("https://script.google.com/...") など
             
-            // 終了分を除外
-            const activeData = data.filter(d => d.status !== 'end');
+            // --- 通信のシミュレーション（実際はここをfetchに置き換えます） ---
+            await new Promise(resolve => setTimeout(resolve, 3000)); 
+            // ---------------------------------------------------------
 
-            let html = `<table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>車両</th>
-                        <th>状態</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            activeData.forEach(d => {
-                const isCalling = d.status === 'call';
-                html += `<tr class="${isCalling ? 'row-calling' : ''}">
-                    <td>${d.id}</td>
-                    <td>${d.vehicle}</td>
-                    <td>${isCalling ? 'CALL' : '-'}</td>
-                    <td>
-                        ${!isCalling ? 
-                            `<button class="btn-call" onclick="upd('${d.id}', 'call')">呼出</button>` : 
-                            `<button class="btn-end" onclick="upd('${d.id}', 'end')">終了</button>`
-                        }
-                    </td>
-                </tr>`;
-            });
-
-            html += `</tbody></table>`;
-            container.innerHTML = activeData.length ? html : "NO DATA";
-
-        } catch (e) { console.error(e); }
+            // 通信成功後の処理
+            document.getElementById('currentStatus').innerText = "CALL";
+            document.getElementById('currentStatus').style.color = "#e74c3c"; // 赤に変更
+            
+        } catch (error) {
+            console.error("Communication error:", error);
+            alert("信号受信に失敗しました。");
+        } finally {
+            // 2. 処理が終わったら（成功しても失敗しても）画面を戻す
+            overlay.style.display = 'none';
+        }
     }
-
-    async function upd(id, s) {
-        await postToSheet({ action: 'update', id: id, status: s });
-        refresh();
-    }
-
-    setInterval(refresh, 10000);
-    refresh();
 </script>
-</body>
-</html>
