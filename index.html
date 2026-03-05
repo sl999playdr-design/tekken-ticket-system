@@ -14,7 +14,7 @@
             overflow-x: hidden;
         }
 
-        /* --- ヘッダー（画像をタップでメニュー開閉） --- */
+        /* --- ヘッダー --- */
         header {
             position: fixed;
             top: 0;
@@ -33,7 +33,7 @@
             cursor: pointer;
         }
 
-        /* --- 路線図メニュー（背景画像＋透明ボタン） --- */
+        /* --- 路線図メニュー --- */
         #route-menu {
             position: fixed;
             left: 0;
@@ -51,15 +51,14 @@
         }
 
         #route-menu.open {
-            max-height: 100vh; /* メニューを全画面許容に */
+            max-height: 100vh;
             opacity: 1;
         }
 
-        /* 画像とボタンを重ねるためのコンテナ */
         .route-map-wrapper {
             position: relative;
             width: 100%;
-            max-width: 500px; /* スマホで見やすい幅に制限 */
+            max-width: 500px; 
             margin: 0 auto;
             padding: 20px 0;
         }
@@ -73,25 +72,23 @@
         /* 透明なボタン（駅番号の上に配置） */
         .station-hotspot {
             position: absolute;
-            left: 5%;         /* 駅番号(NG)がある左側の位置 */
-            width: 18%;       /* タップしやすいように少し広めに設定 */
-            height: 12%;      /* 各駅の高さに合わせて調整 */
-            background-color: rgba(255, 255, 255, 0); /* 普段は透明 */
+            left: 5%;         
+            width: 18%;       
+            height: 12%;      
+            background-color: rgba(255, 255, 255, 0); 
             cursor: pointer;
             border-radius: 50%;
             transition: background-color 0.2s;
         }
 
-        /* 各駅の縦位置（top）を画像に合わせて微調整 */
         .hotspot-01 { top: 9%; }
         .hotspot-02 { top: 27%; }
         .hotspot-03 { top: 46%; }
         .hotspot-04 { top: 64%; }
         .hotspot-05 { top: 83%; }
 
-        /* タップ・ホバー時の反応 */
         .station-hotspot:active {
-            background-color: rgba(230, 126, 34, 0.4); /* 鉄研オレンジでフラッシュ */
+            background-color: rgba(230, 126, 34, 0.4); 
         }
 
         /* --- コンテンツエリア --- */
@@ -114,7 +111,6 @@
             padding-left: 15px;
             margin-top: 0;
         }
-
     </style>
 </head>
 <body>
@@ -125,7 +121,7 @@
 
 <nav id="route-menu" class="closed">
     <div class="route-map-wrapper">
-        <img src="https://r2.community.canvaslms.com/t5/image/serverpage/image-id/510065iB24330E32470783D/image-size/large?v=v2&px=999" alt="路線図メニュー" class="route-map-img">
+        <img src="menu-image.png" alt="路線図メニュー" class="route-map-img">
         
         <a href="#" class="station-hotspot hotspot-01" title="部活概要"></a>
         <a href="#" class="station-hotspot hotspot-02" title="お知らせ"></a>
@@ -139,12 +135,10 @@
     <section>
         <h2>鉄道研究部へようこそ</h2>
         <p>上のヘッダーをタップして路線図メニューを開いてください。</p>
-        <p>当部は実車研究、アーカイブ作成、そして運転体験会など多岐にわたる活動を行っています。</p>
     </section>
 </main>
 
 <script>
-    // 1. レイアウトの自動調整
     function adjustLayout() {
         const header = document.getElementById('header');
         const menu = document.getElementById('route-menu');
@@ -155,7 +149,6 @@
         menu.style.top = h + 'px';
     }
 
-    // 2. メニュー開閉
     const trigger = document.getElementById('menu-trigger');
     const menu = document.getElementById('route-menu');
 
@@ -165,7 +158,6 @@
         e.stopPropagation();
     });
 
-    // 3. メニュー以外をタップしたら閉じる
     document.addEventListener('click', (e) => {
         if (!menu.contains(e.target) && !trigger.contains(e.target)) {
             menu.classList.add('closed');
