@@ -3,94 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鉄道研究部 運転体験サイト</title>
+    <title>鉄道研究部 運転体験会</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .gate-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            text-align: center;
+        /* ヘッダー固定の基本設定 */
+        body {
+            margin: 0;
+            padding-top: 70px; /* ヘッダーの高さ分、中身を下げる */
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
         }
-        .gate-logo {
-            font-size: 4rem;
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #2c3e50; /* 鉄道らしい紺色 */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .header-logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .status-badge {
+            background: #27ae60;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* コンテンツエリア */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            border-left: 5px solid #e67e22;
+            padding-left: 15px;
             margin-bottom: 20px;
         }
-        .gate-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 40px;
-            border-bottom: 4px solid #e67e22;
-            display: inline-block;
-        }
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-        .gate-btn {
-            padding: 25px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-decoration: none;
-            color: white;
-            border-radius: 10px;
+
+        .hero-img {
+            width: 100%;
+            height: 250px;
+            background-color: #ddd;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 3rem;
         }
-        .gate-btn:active { transform: translateY(4px); box-shadow: none; }
-        
-        .btn-monitor { background: #2c3e50; } /* 紺色：モニター */
-        .btn-reserve { background: #e67e22; } /* オレンジ：予約 */
-        
-        .status-box {
+
+        /* 応募ボタンエリア */
+        .action-area {
+            text-align: center;
+            padding: 40px 0;
+            background: #f9f9f9;
+            border-radius: 15px;
             margin-top: 50px;
-            padding: 15px;
-            background: #fff;
-            border: 2px solid #ddd;
-            font-family: monospace;
+        }
+
+        .btn-main {
+            display: inline-block;
+            background-color: #e67e22;
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+        }
+
+        .btn-main:hover {
+            transform: scale(1.05);
+            background-color: #d35400;
         }
     </style>
 </head>
 <body>
 
-<div class="gate-container">
-    <div class="gate-logo">🚂</div>
-    <div class="gate-title">運転体験 管理システム</div>
+<header>
+    <div class="header-logo">鉄研 運転体験ナビ</div>
+    <div class="status-badge" id="header-status">運行中</div>
+</header>
 
-    <div class="menu-grid">
-        <a href="monitor.html" class="gate-btn btn-monitor">
-            📊 運行状況を確認する
-        </a>
+<main class="container">
+    <div class="hero-img">🚂</div>
 
-        <a href="entry.html" class="gate-btn btn-reserve">
-            🎫 整理券を発行する
-        </a>
+    <section>
+        <h2>運転体験会へようこそ</h2>
+        <p>
+            今年の鉄道研究部のテーマは「出発進行！君の手で動かす1/80の世界」です。<br>
+            本物のマスターコントローラー（マスコン）を使用して、精密な鉄道模型を運転することができます。
+            信号機や制限速度を守りながら、終着駅まで安全に列車を走らせましょう。
+        </p>
+    </section>
+
+    <section>
+        <h2>体験の流れ</h2>
+        <p>1. <strong>整理券発行：</strong> 下記のボタンから整理券を発行してください。</p>
+        <p>2. <strong>自由に見学：</strong> 待ち時間は他の展示を自由にご覧いただけます。</p>
+        <p>3. <strong>呼出通知：</strong> 順番が近づくとお手元のスマホでお知らせします。</p>
+        <p>4. <strong>受付へ：</strong> 通知が出たら、お早めに運転台受付までお越しください。</p>
+    </section>
+
+    <section>
+        <h2>注意事項</h2>
+        <ul>
+            <li>体験時間は一人あたり約5分間です。</li>
+            <li>順番時に不在の場合、次の方を優先させていただきます。</li>
+            <li>機材トラブルにより、一時中断する場合があります。</li>
+        </ul>
+    </section>
+
+    <div class="action-area">
+        <p id="quick-info">読み込み中...</p>
+        <a href="entry.html" class="btn-main">🎫 整理券を発行する</a>
+        <p style="margin-top: 15px;">
+            <a href="monitor.html" style="color: #666;">現在の運行状況を詳しく見る</a>
+        </p>
     </div>
-
-    <div class="status-box">
-        [ 運行ステータス ]<br>
-        <span id="quick-status">データ取得中...</span>
-    </div>
-</div>
+</main>
 
 <script src="script.js"></script>
 <script>
-    async function updateQuickStatus() {
+    // 待ち状況を簡易表示する機能
+    async function updateHomeStatus() {
         try {
             const data = await fetchSheetData();
             const waitCount = data.filter(d => d.status === 'resep').length;
-            const msg = waitCount === 0 ? "【良好】待ち時間なし" : `【混雑】${waitCount}組待ち（約${waitCount*5}分）`;
-            document.getElementById('quick-status').innerText = msg;
+            const info = document.getElementById('quick-info');
+            if (waitCount === 0) {
+                info.innerText = "【待ち時間なし】すぐに体験できます！";
+            } else {
+                info.innerText = `現在 ${waitCount} 組お待ちです（目安：約 ${waitCount * 5} 分）`;
+            }
         } catch (e) {
-            document.getElementById('quick-status').innerText = "オフライン";
+            document.getElementById('quick-info').innerText = "運行情報を取得できませんでした";
         }
     }
-    updateQuickStatus();
+    updateHomeStatus();
+    setInterval(updateHomeStatus, 15000);
 </script>
 
 </body>
