@@ -4,16 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鉄道研究部 運転体験会</title>
-    <link rel="stylesheet" href="style.css">
     <style>
+        /* --- 基本設定 --- */
         body {
             margin: 0;
             padding: 0;
-            font-family: sans-serif;
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
             background-color: #fcfcfc;
         }
 
-        /* --- 画像をそのまま100%で表示するヘッダー --- */
+        /* --- ヘッダー（画像100%表示） --- */
         header {
             position: fixed;
             top: 0;
@@ -21,25 +23,105 @@
             width: 100%;
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            /* 背景ではなく、画像として扱うためにラインを消す */
-            line-height: 0; 
+            line-height: 0;
+            background-color: #fff;
         }
 
         header img {
-            width: 100%;    /* 横幅を画面にピッタリ合わせる */
-            height: auto;   /* 高さは比率を維持して自動計算 */
+            width: 100%;
+            height: auto;
             display: block;
+            cursor: pointer; /* タップできることを示す */
         }
 
-        /* --- コンテンツの押し下げ設定 --- */
-        /* ヘッダー画像が読み込まれるまで高さが確定しないため、
-           JSで自動計算するか、多めに余白を取ります */
-        main.container {
+        /* --- 路線図風ナビゲーション --- */
+        #route-menu {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.98);
+            z-index: 999;
+            overflow: hidden;
+            /* アニメーション：高さと透明度を変化させる */
+            transition: max-height 0.4s ease-in-out, opacity 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* メニューが閉じている状態 */
+        #route-menu.closed {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* メニューが開いている状態 */
+        #route-menu.open {
+            max-height: 500px; /* 内容に合わせて十分な高さを確保 */
+            opacity: 1;
+        }
+
+        /* 路線図の縦線 */
+        .route-container {
+            padding: 30px 50px;
+        }
+
+        .route-line {
+            position: relative;
+            border-left: 6px solid #2c3e50; /* 路線の色（紺色） */
+            margin-left: 10px;
+            padding-left: 30px;
+        }
+
+        /* 各駅（メニュー項目） */
+        .station {
+            position: relative;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .station:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 駅の丸（ノード） */
+        .node {
+            position: absolute;
+            left: -43px; /* 線の中心に合わせる */
+            width: 18px;
+            height: 18px;
+            background-color: white;
+            border: 4px solid #e67e22; /* 駅のフチ（オレンジ） */
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        /* 駅名ボタン */
+        .station-btn {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: #f0f0f0;
+            padding: 12px 25px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+        }
+
+        .station-btn:hover {
+            background: #e67e22;
+            color: white;
+            border-color: #d35400;
+            transform: translateX(5px);
+        }
+
+        /* --- コンテンツエリア --- */
+        .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            /* 仮の余白（画像が読み込まれるまでの場所確保） */
-            margin-top: 15vw; 
         }
 
         section {
@@ -50,34 +132,57 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        h2 { border-left: 5px solid #e67e22; padding-left: 15px; margin-top: 0; }
-        .action-area { text-align: center; padding: 40px 20px; background: #f0f3f5; border-radius: 15px; }
-        .btn-main { display: inline-block; background-color: #e67e22; color: white; padding: 18px 35px; font-weight: bold; text-decoration: none; border-radius: 50px; }
+        h2 {
+            border-left: 5px solid #e67e22;
+            padding-left: 15px;
+            margin-top: 0;
+        }
+
+        .action-area {
+            text-align: center;
+            padding: 40px 20px;
+            background: #f0f3f5;
+            border-radius: 15px;
+        }
+
+        .btn-main {
+            display: inline-block;
+            background-color: #e67e22;
+            color: white;
+            padding: 18px 35px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <img src="header-img.png" alt="鉄研ヘッダー" id="menu-trigger" style="cursor: pointer;">
+<header id="header">
+    <img src="header-img.png" alt="鉄研ヘッダー" id="menu-trigger">
 </header>
 
 <nav id="route-menu" class="closed">
-    <div class="route-line">
-        <div class="station">
-            <div class="node"></div>
-            <a href="#" class="station-btn">ホーム（運行状況）</a>
-        </div>
-        <div class="station">
-            <div class="node"></div>
-            <a href="#" class="station-btn">運転体験のご案内</a>
-        </div>
-        <div class="station">
-            <div class="node"></div>
-            <a href="#" class="station-btn">部活紹介・展示一覧</a>
-        </div>
-        <div class="station">
-            <div class="node"></div>
-            <a href="#" class="station-btn">アクセス（校内マップ）</a>
+    <div class="route-container">
+        <div class="route-line">
+            <div class="station">
+                <div class="node"></div>
+                <a href="index.html" class="station-btn">本線：ホーム</a>
+            </div>
+            <div class="station">
+                <div class="node"></div>
+                <a href="entry.html" class="station-btn">予約線：整理券発行</a>
+            </div>
+            <div class="station">
+                <div class="node"></div>
+                <a href="monitor.html" class="station-btn">情報線：運行状況</a>
+            </div>
+            <div class="station">
+                <div class="node"></div>
+                <a href="#" class="station-btn">展示線：部活紹介</a>
+            </div>
         </div>
     </div>
 </nav>
@@ -85,37 +190,51 @@
 <main class="container">
     <section>
         <h2>運転体験会へようこそ</h2>
+        <p>ヘッダー画像をタップすると、メニュー（路線図）が表示されます。</p>
         <p>本物のマスターコントローラーを使用して、精密な鉄道模型を運転することができます。</p>
     </section>
 
     <div class="action-area">
-        <div id="quick-info">運行情報を読み込み中...</div>
+        <div id="quick-info" style="margin-bottom: 15px; font-weight: bold;">運行情報を読み込み中...</div>
         <a href="entry.html" class="btn-main">🎫 整理券を発行する</a>
     </div>
 </main>
 
-<script src="script.js"></script>
 <script>
-    // ヘッダーの高さに合わせてメインコンテンツの位置を自動調整する関数
+    // 1. ヘッダーの高さに合わせてメインコンテンツの位置を自動調整
     function adjustMainPadding() {
-        const headerHeight = document.querySelector('header').offsetHeight;
+        const headerHeight = document.getElementById('header').offsetHeight;
         document.querySelector('main.container').style.marginTop = (headerHeight + 20) + 'px';
+        // メニューの開始位置もヘッダーのすぐ下に合わせる
+        document.getElementById('route-menu').style.top = headerHeight + 'px';
     }
 
-    // 読み込み時と画面サイズ変更時に実行
+    // 2. メニューの開閉
+    const trigger = document.getElementById('menu-trigger');
+    const menu = document.getElementById('route-menu');
+
+    trigger.addEventListener('click', (e) => {
+        menu.classList.toggle('open');
+        menu.classList.toggle('closed');
+        e.stopPropagation(); // イベントの拡散を防ぐ
+    });
+
+    // メニュー以外をタップしたら閉じる
+    document.addEventListener('click', () => {
+        menu.classList.add('closed');
+        menu.classList.remove('open');
+    });
+
     window.addEventListener('load', adjustMainPadding);
     window.addEventListener('resize', adjustMainPadding);
 
-    // 運行状況の更新（既存のコード）
-    async function updateHomeStatus() {
-        try {
-            const data = await fetchSheetData();
-            const waitCount = data.filter(d => d.status === 'resep').length;
-            const info = document.getElementById('quick-info');
-            info.innerHTML = waitCount === 0 ? "🟢 待ち時間なし" : `🟡 現在 ${waitCount} 組待ち`;
-        } catch (e) {}
+    // 3. 運行状況取得（デモ用）
+    function updateStatus() {
+        const info = document.getElementById('quick-info');
+        info.innerHTML = "🟢 現在、待ち時間はありません";
+        info.style.color = "#27ae60";
     }
-    updateHomeStatus();
+    updateStatus();
 </script>
 
 </body>
