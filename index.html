@@ -25,7 +25,6 @@
         }
         .navigation-section.is-open { margin-top: -5px; }
 
-        /* 言語切り替えボタン（メニューバー右端） */
         .lang-selector {
             position: absolute; right: 10px; top: 10px; z-index: 600;
         }
@@ -39,10 +38,10 @@
             margin: 0 auto; padding: 40px 0 10px 0; line-height: 0;
         }
 
-        /* 路線図画像（さらに上へ調整） */
+        /* 路線図画像（指示通りさらに上へ） */
         .route-base-img {
             width: 100%; height: auto; display: block;
-            margin-top: -22px; 
+            margin-top: -45px; 
         }
 
         .station-group {
@@ -59,7 +58,7 @@
         .station-link { width: 100%; display: block; transition: 0.2s; cursor: pointer; }
         .station-link img { width: 100%; height: auto; display: block; }
 
-        /* Now Here */
+        /* --- Now Here（文字をさらに下へ） --- */
         .now-here-marker {
             position: absolute; top: 100%; 
             display: flex; flex-direction: column; align-items: center; width: 100%;
@@ -67,13 +66,14 @@
         .triangle-red {
             width: 0; height: 0;
             border-left: 6px solid transparent; border-right: 6px solid transparent;
-            border-bottom: 8px solid #e74c3c; margin-bottom: 6px;
+            border-bottom: 8px solid #e74c3c; 
+            margin-bottom: 18px; /* さらに間隔を広げました */
         }
         .now-here-text { font-size: 0.6rem; font-weight: bold; color: #e74c3c; }
 
         .pos-01 { left: 4%; } .pos-02 { left: 24.5%; } .pos-03 { left: 45%; } .pos-04 { left: 65.5%; } .pos-05 { left: 86%; }
 
-        /* 引き出しボタン */
+        /* 引き出しボタン（背景を灰色に） */
         .menu-toggle-btn {
             position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
             width: 70px; height: 35px; background-color: #f0f0f0;
@@ -123,7 +123,7 @@
         <img src="menu-image.png" alt="路線図ベース" class="route-base-img">
         
         <div class="station-group pos-01">
-            <span class="station-label">部活動について</span>
+            <span class="station-label lang-target" data-ja="部活動について" data-en="About Us">部活動について</span>
             <a href="index.html" class="station-link"><img src="description.png" alt="部活概要"></a>
             <div class="now-here-marker">
                 <div class="triangle-red"></div>
@@ -132,22 +132,22 @@
         </div>
 
         <div class="station-group pos-02">
-            <span class="station-label">お知らせ</span>
+            <span class="station-label lang-target" data-ja="お知らせ" data-en="News">お知らせ</span>
             <a href="#" class="station-link"><img src="notification.png" alt="お知らせ"></a>
         </div>
 
         <div class="station-group pos-03">
-            <span class="station-label">活動紹介</span>
+            <span class="station-label lang-target" data-ja="活動紹介" data-en="Activities">活動紹介</span>
             <a href="#" class="station-link"><img src="activities.png" alt="活動紹介"></a>
         </div>
 
         <div class="station-group pos-04">
-            <span class="station-label">作品紹介</span>
+            <span class="station-label lang-target" data-ja="作品紹介" data-en="Gallary">作品紹介</span>
             <a href="#" class="station-link"><img src="media.png" alt="製作作品"></a>
         </div>
 
         <div class="station-group pos-05">
-            <span class="station-label">ジオラマ運転体験</span>
+            <span class="station-label lang-target" data-ja="ジオラマ運転体験" data-en="Special Site">ジオラマ運転体験</span>
             <a href="monitor.html" class="station-link"><img src="N-gage.png" alt="運転体験"></a>
         </div>
     </div>
@@ -180,12 +180,19 @@
         const title = document.getElementById('contentTitle');
         const text = document.getElementById('contentText');
         const note = document.getElementById('releaseNote');
+        const targets = document.querySelectorAll('.lang-target');
 
+        // メニューバーの文字切り替え
+        targets.forEach(el => {
+            el.innerText = el.getAttribute('data-' + lang);
+        });
+
+        // メイン文章の切り替え
         if (lang === 'en') {
             title.innerText = "Welcome to Nagoya Jr. & Sr. High School Railway Research Club!";
             text.innerHTML = `
                 <p>On this site, we provide information about our club activities and the latest event updates.</p>
-                <p>For details on "Railway Model Exhibits" held during school orientations and cultural festivals, please visit our special site via the <strong>"Diorama Experience"</strong> in the top menu.</p>
+                <p>For details on "Railway Model Exhibits" held during school orientations and cultural festivals, please visit our special site via the <strong>"Special Site"</strong> in the menu above.</p>
                 <p>All of our members are looking forward to your visit!</p>
             `;
             note.innerText = "*This site is currently in beta/testing phase.";
