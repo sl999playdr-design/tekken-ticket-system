@@ -12,7 +12,7 @@
             background-color: #fcfcfc;
         }
 
-        /* --- ヘッダー（影と重なり） --- */
+        /* --- ヘッダー（影あり） --- */
         header {
             position: relative;
             width: 100%;
@@ -32,7 +32,7 @@
         .navigation-section {
             position: relative;
             background-color: #fff;
-            padding: 12px 0;
+            padding: 15px 0 5px 0; /* 下の余白を削って全体を上に */
             border-bottom: 1px solid #eee;
             z-index: 10;
         }
@@ -43,6 +43,8 @@
             max-width: 700px;
             margin: 0 auto;
             line-height: 0;
+            /* コンテナ自体を少し上に持ち上げる（必要に応じて調整） */
+            transform: translateY(-5px); 
         }
 
         .route-base-img {
@@ -54,7 +56,8 @@
         /* 透過ボタンとテキストを包むグループ */
         .station-group {
             position: absolute;
-            top: 50%;
+            /* 路線図に対してボタンを少し上に配置 (50% -> 48%) */
+            top: 48%; 
             transform: translateY(-50%);
             width: 10%; 
             display: flex;
@@ -62,10 +65,10 @@
             align-items: center;
         }
 
-        /* ボタンの上のテキストラベル */
+        /* 駅名ラベル（位置は据え置きつつ、ボタンとの距離を確保） */
         .station-label {
             position: absolute;
-            bottom: 125%; 
+            bottom: 135%; /* ボタンより少し離して視認性アップ */
             width: max-content;
             font-size: 0.85rem;
             font-weight: bold;
@@ -91,7 +94,7 @@
             display: block;
         }
 
-        /* ホバー動作（明るさと浮遊） */
+        /* ホバー動作 */
         .station-link:hover {
             filter: brightness(1.2);
             transform: translateY(-2px);
@@ -100,7 +103,8 @@
         /* --- 現在地マーカー（Now Here） --- */
         .now-here-marker {
             position: absolute;
-            top: 110%;
+            /* ボタンのすぐ下に配置 */
+            top: 105%; 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -116,33 +120,28 @@
         }
 
         .now-here-text {
-            margin-top: 5px; /* 三角形との間にスペース */
+            margin-top: 4px; 
             font-size: 0.6rem;
             font-weight: bold;
             color: #e74c3c;
             white-space: nowrap;
-            letter-spacing: 0.02em;
         }
 
-        /* 各駅の横位置（微調整済） */
+        /* 横位置（据え置き） */
         .pos-01 { left: 4%; }
         .pos-02 { left: 24.5%; }
         .pos-03 { left: 45%; }
         .pos-04 { left: 65.5%; }
         .pos-05 { left: 86%; }
 
-        /* --- スマホ向けのサイズ調整 --- */
+        /* --- スマホ調整 --- */
         @media screen and (max-width: 480px) {
             .station-label {
-                font-size: 0.55rem; /* スマホでは文字を小さく */
-                bottom: 110%;
+                font-size: 0.55rem;
+                bottom: 120%;
             }
             .now-here-text {
                 font-size: 0.5rem;
-                margin-top: 3px;
-            }
-            .navigation-section {
-                padding: 8px 0;
             }
         }
 
@@ -150,7 +149,7 @@
         .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px;
         }
 
         section {
@@ -212,7 +211,7 @@
 <main class="container">
     <section>
         <h2>最新の運行情報</h2>
-        <p>ポータルサイトを公開しました。路線図の各駅を選択して詳細をご覧ください。</p>
+        <p>ポータルサイトを公開しました。</p>
     </section>
 </main>
 
