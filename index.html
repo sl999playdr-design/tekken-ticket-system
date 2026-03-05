@@ -6,166 +6,102 @@
     <title>鉄道研究部 ポータルサイト</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-            background-color: #fcfcfc;
-            color: #333;
-            overflow-x: hidden;
+            background-color: #fcfcfc; color: #333; overflow-x: hidden;
         }
 
-        /* --- ヘッダー --- */
         header {
-            position: relative;
-            width: 100%;
-            line-height: 0;
-            background-color: #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
+            position: relative; width: 100%; line-height: 0;
+            background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;
         }
 
-        header img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
+        header img { width: 100%; height: auto; display: block; }
 
-        /* --- 開閉メニューエリア --- */
         .navigation-section {
-            position: relative;
-            background-color: #fff;
-            border-bottom: 1px solid #eee;
-            z-index: 500;
-            /* 隠す量を微調整 */
-            margin-top: -155px; 
-            transition: margin-top 0.4s ease-in-out;
-            padding-bottom: 0; /* 下の余白をカット */
+            position: relative; background-color: #fff; border-bottom: 1px solid #eee; z-index: 500;
+            margin-top: -155px; transition: margin-top 0.4s ease-in-out;
         }
 
-        .navigation-section.is-open {
-            margin-top: -10px; /* 開いたときも少し上に寄せる */
-        }
+        .navigation-section.is-open { margin-top: -5px; }
 
         .route-map-container {
-            position: relative;
-            width: 95%;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 30px 0 0 0; /* 上の余白を調整 */
-            line-height: 0;
-            /* 路線図全体を均等に上に移動 */
-            transform: translateY(-5px); 
+            position: relative; width: 95%; max-width: 700px;
+            margin: 0 auto; padding: 40px 0 10px 0; line-height: 0;
         }
 
+        /* 路線図画像だけをさらに少し上に */
         .route-base-img {
-            width: 100%;
-            height: auto;
-            display: block;
+            width: 100%; height: auto; display: block;
+            margin-top: -8px; 
         }
 
-        /* --- ステーション要素 --- */
         .station-group {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 10%; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 10%; display: flex; flex-direction: column; align-items: center;
         }
 
         .station-label {
-            position: absolute;
-            bottom: 110%; 
-            width: max-content;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #333;
-            white-space: nowrap;
+            position: absolute; bottom: 115%; width: max-content;
+            font-size: 0.85rem; font-weight: bold; color: #333;
+            white-space: nowrap; pointer-events: none;
             background-color: rgba(255, 255, 255, 0.8);
-            padding: 2px 6px;
-            border-radius: 4px;
-            z-index: 5;
+            padding: 2px 6px; border-radius: 4px; z-index: 5;
         }
 
-        .station-link { width: 100%; display: block; transition: 0.2s; cursor: pointer; }
+        /* ボタンの背景を灰色にして見やすく */
+        .station-link {
+            width: 100%; display: block; transition: 0.2s; cursor: pointer;
+            background-color: #eeeeee; /* 薄い灰色 */
+            border-radius: 50%; /* 正円にする */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         .station-link img { width: 100%; height: auto; display: block; }
-        .station-link:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .station-link:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
+        /* --- Now Here マーカー（位置を少し上へ） --- */
         .now-here-marker {
-            position: absolute;
-            top: 105%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            position: absolute; top: 102%; /* 105%から引き上げ */
+            display: flex; flex-direction: column; align-items: center; width: 100%;
         }
         .triangle-red {
             width: 0; height: 0;
             border-left: 6px solid transparent; border-right: 6px solid transparent;
             border-bottom: 8px solid #e74c3c;
         }
-        .now-here-text { font-size: 0.6rem; font-weight: bold; color: #e74c3c; margin-top: 3px; }
+        .now-here-text { font-size: 0.6rem; font-weight: bold; color: #e74c3c; margin-top: 2px; }
 
         .pos-01 { left: 4%; } .pos-02 { left: 24.5%; } .pos-03 { left: 45%; } .pos-04 { left: 65.5%; } .pos-05 { left: 86%; }
 
-        /* --- 開閉ボタン（位置調整） --- */
+        /* --- 開閉ボタン --- */
         .menu-toggle-btn {
-            position: absolute;
-            bottom: -35px; /* ボタンも少し上に */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px; height: 35px;
-            background-color: #fff;
-            border: 1px solid #eee; border-top: none;
-            border-radius: 0 0 12px 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
-            cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 501;
+            position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
+            width: 70px; height: 35px; background-color: #fff;
+            border: 1px solid #eee; border-top: none; border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08); cursor: pointer;
+            display: flex; justify-content: center; align-items: center; z-index: 501;
         }
-
         .toggle-icon {
-            width: 0; height: 0;
-            border-left: 8px solid transparent; border-right: 8px solid transparent;
-            border-top: 10px solid #c0392b;
-            transition: transform 0.4s ease;
+            width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
+            border-top: 10px solid #c0392b; transition: transform 0.4s ease;
         }
-
         .is-open .toggle-icon { transform: rotate(180deg); }
 
         /* --- メインコンテンツ --- */
-        .container {
-            max-width: 650px;
-            margin: 50px auto 40px auto; /* メニューとの距離を最適化 */
-            padding: 20px;
-        }
-
+        .container { max-width: 650px; margin: 50px auto 40px auto; padding: 20px; }
         .welcome-section {
-            background: #fff;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            line-height: 1.8;
+            background: #fff; padding: 35px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); line-height: 1.8;
         }
-
         .welcome-section h2 {
-            margin-top: 0;
-            color: #c0392b;
-            font-size: 1.3rem;
-            border-left: 5px solid #c0392b;
-            padding-left: 15px;
-            margin-bottom: 20px;
+            margin-top: 0; color: #c0392b; font-size: 1.3rem;
+            border-left: 5px solid #c0392b; padding-left: 15px; margin-bottom: 20px;
         }
-
-        .test-release-note {
-            display: block; margin-top: 30px;
-            font-size: 0.8rem; color: #999; text-align: right;
-        }
+        .test-release-note { display: block; margin-top: 30px; font-size: 0.8rem; color: #999; text-align: right; }
 
         @media screen and (max-width: 480px) {
             .station-label { font-size: 0.6rem; bottom: 102%; }
             .navigation-section { margin-top: -125px; }
-            .welcome-section h2 { font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -209,7 +145,7 @@
         </div>
     </div>
 
-    <button class="menu-toggle-btn" onclick="toggleMenu()" title="メニュー開閉">
+    <button class="menu-toggle-btn" onclick="toggleMenu()">
         <div class="toggle-icon"></div>
     </button>
 </nav>
