@@ -3,85 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>スタッフ管理パネル - 鉄道研究部</title>
+    <title>STAFF CONTROL PANEL / 鉄道研究部</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ページ全体の基本背景 */
-        body { background-color: #1a1a1a; color: white; padding: 20px; font-family: sans-serif; }
-        
-        /* ステータス表示エリア */
-        .admin-panel { border: 2px solid #f1c40f; padding: 20px; border-radius: 10px; text-align: center; }
-        #currentStatus { font-size: 2rem; font-weight: bold; color: #2ecc71; margin: 20px 0; }
-        
-        /* 操作ボタン */
-        .btn-call { background: #e74c3c; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 5px; }
+        /* ベースのデザイン */
+        body {
+            background-color: #000; /* 黒背景 */
+            color: #fff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        /* 処理中レイヤー（提供いただいたコード） */
+        h1 {
+            border-bottom: 2px solid #f1c40f;
+            padding-bottom: 10px;
+            font-size: 1.5rem;
+            color: #f1c40f;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .status-box {
+            background: #111;
+            border: 1px solid #333;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        #currentStatus {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2ecc71; /* 初期は緑 */
+        }
+
+        .btn-call {
+            background: #f1c40f;
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-call:hover {
+            opacity: 0.8;
+        }
+
+        /* --- あなたのお気に入りのローディングレイアウト --- */
         #loading-overlay {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.85); z-index: 9999;
-            flex-direction: column; justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             font-family: 'Courier New', monospace;
         }
+
         .loading-spinner {
-            width: 50px; height: 50px; border: 5px solid #333;
-            border-top: 5px solid #f1c40f; border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #333;
+            border-top: 5px solid #f1c40f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
+
         .loading-text {
-            color: #f1c40f; font-size: 1.5rem; font-weight: bold;
-            text-transform: uppercase; letter-spacing: 3px;
+            color: #f1c40f;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
             animation: blink 1s step-end infinite;
         }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
+        /* 戻るボタン */
+        .btn-back {
+            margin-top: 30px;
+            background: none;
+            border: 1px solid #444;
+            color: #888;
+            padding: 5px 15px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<div class="admin-panel">
-    <h1>スタッフ管理パネル</h1>
-    <p>現在の呼出ステータス:</p>
-    <div id="currentStatus">WAITING</div>
-    
-    <button class="btn-call" onclick="handleCallRequest(this)">次の番号を呼ぶ (CALL)</button>
-    <br><br>
-    <button onclick="location.href='monitor.html'" style="color: #888; background: none; border: 1px solid #444; padding: 5px 10px; cursor: pointer;">モニターに戻る</button>
-</div>
+    <h1>運行管理システム：スタッフパネル</h1>
 
-<div id="loading-overlay">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Communicating...</div>
-    <p style="color: #888; margin-top: 15px;">Accessing Spreadsheet Data</p>
-</div>
+    <div class="status-box">
+        <p style="color: #888;">現在の呼出ステータス</p>
+        <div id="currentStatus">READY</div>
+        
+        <button class="btn-call" onclick="handleCallRequest(this)">
+            SIGNAL CALL
+        </button>
+    </div>
 
-<script src="script.js"></script>
+    <button class="btn-back" onclick="location.href='monitor.html'">
+        モニター表示に戻る
+    </button>
 
-<script>
-    async function handleCallRequest(button) {
-        const overlay = document.getElementById('loading-overlay');
-        overlay.style.display = 'flex';
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Communicating...</div>
+        <p style="color: #888; margin-top: 15px;">Accessing Spreadsheet Data</p>
+    </div>
 
-        try {
-            // ここに実際のスプレッドシート更新処理を入れる
-            // 例: await updateSheetStatus('call'); 
-            
-            // 通信のシミュレーション（3秒待機）
-            await new Promise(resolve => setTimeout(resolve, 3000)); 
+    <script src="script.js"></script>
 
-            // 表示の更新
-            document.getElementById('currentStatus').innerText = "CALLING...";
-            document.getElementById('currentStatus').style.color = "#e74c3c";
-            
-        } catch (error) {
-            console.error("Communication error:", error);
-            alert("通信に失敗しました。");
-        } finally {
-            overlay.style.display = 'none';
+    <script>
+        async function handleCallRequest(button) {
+            // 1. 処理中画面を表示
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex';
+
+            try {
+                // --- 通信処理（実際はGASのURLを叩く処理をここに追加） ---
+                // 例: await fetch("GASのURL");
+                
+                // シミュレーション用（3秒待機）
+                await new Promise(resolve => setTimeout(resolve, 3000)); 
+                // ---------------------------------------------------------
+
+                // 通信成功後の処理
+                const statusLabel = document.getElementById('currentStatus');
+                statusLabel.innerText = "CALLING";
+                statusLabel.style.color = "#e74c3c"; // 赤に変更
+                
+            } catch (error) {
+                console.error("Communication error:", error);
+                alert("信号受信に失敗しました。");
+            } finally {
+                // 2. 処理が終わったら画面を戻す
+                overlay.style.display = 'none';
+            }
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
