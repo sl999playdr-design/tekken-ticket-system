@@ -9,8 +9,8 @@
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, sans-serif;
             background-color: #f0f8ff; color: #333;
-            /* 固定ヘッダーの高さに合わせて調整 */
-            padding-top: 160px; 
+            /* 固定エリアの高さに合わせて調整 */
+            padding-top: 170px; 
         }
 
         /* --- ヘッダー・ナビ固定コンテナ --- */
@@ -27,19 +27,19 @@
         }
         header img { width: 100%; height: auto; display: block; }
 
-        /* --- ナビゲーション（黒枠・直角デザイン） --- */
+        /* --- ナビゲーション（額縁フレームデザイン） --- */
         .navigation-section {
             display: flex;
             justify-content: center;
             background-color: #fff;
-            padding: 5px 0; /* 上下に少し余白 */
+            padding: 10px 0; /* 上下の余白 */
         }
 
         .button-grid {
             display: flex;
-            width: 100%; /* 横幅いっぱい */
-            max-width: 100%; 
-            gap: 0; /* ボタン同士を密着させる（隙間が必要なら数px設定） */
+            width: 98%; /* 画面端に少し余裕を持たせる（好みで100%でもOK） */
+            max-width: 1200px; 
+            gap: 8px; /* フレーム同士の隙間 */
         }
 
         .nav-button {
@@ -48,28 +48,28 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            /* 黒い細めの枠（直角） */
-            border: 1px solid #000; 
-            margin-left: -1px; /* 隣り合う枠線が太くならないように重ねる */
+            
+            /* --- フレームの設定 --- */
+            border: 1.5px solid #333; /* 「細すぎない」絶妙な太さの黒枠 */
             background-color: #fff;
-            aspect-ratio: 3 / 1; /* ボタンの縦横比を固定 */
-            overflow: hidden;
-            transition: background-color 0.2s;
-        }
-
-        /* 最初のボタンの左枠を維持 */
-        .nav-button:first-child {
-            margin-left: 0;
+            aspect-ratio: 2.5 / 1; /* フレームの形を少しゆったりめに */
+            
+            /* 画像とフレームの間の隙間を作る */
+            padding: 8px; 
+            
+            box-sizing: border-box;
+            transition: all 0.2s ease;
         }
 
         .nav-button:hover {
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
+            border-color: #c0392b; /* ホバー時に鉄研カラーの赤に */
         }
 
         .nav-button img {
             width: 100%;
             height: 100%;
-            /* 画像全体をボタン内に収め、切れないようにする */
+            /* フレーム内での画像の見え方を調整（隙間を維持して全体表示） */
             object-fit: contain; 
             display: block;
         }
@@ -90,8 +90,10 @@
             font-weight: bold; color: #c0392b; font-size: 1.5rem; display: block; text-align: center; margin: 25px 0;
         }
 
-        @media (max-width: 600px) {
-            body { padding-top: 120px; }
+        @media (max-width: 768px) {
+            body { padding-top: 130px; }
+            .button-grid { gap: 4px; }
+            .nav-button { padding: 4px; border-width: 1px; }
         }
     </style>
 </head>
