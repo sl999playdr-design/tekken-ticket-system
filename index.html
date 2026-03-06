@@ -14,7 +14,7 @@
             overflow-x: hidden;
         }
 
-        /* --- 固定ヘッダー・ナビ（デザイン維持） --- */
+        /* --- 固定ヘッダー・ナビ（既存デザイン） --- */
         .fixed-top-container {
             position: fixed; top: 0; left: 0; width: 100%; z-index: 5000;
             background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -33,51 +33,99 @@
         .nav-button:hover { opacity: 0.8; }
         .nav-button img { width: 100%; height: auto; display: block; }
 
+        /* --- 【新規】右端の収納式言語メニュー --- */
+        .language-sidebar {
+            position: fixed;
+            top: 200px; /* 右端ちょっと上 */
+            right: -120px; /* 初期状態は隠しておく（ボタンだけ出す） */
+            display: flex;
+            align-items: center;
+            z-index: 6000;
+            transition: right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        /* 開いている時の状態 */
+        .language-sidebar.is-open {
+            right: 0;
+        }
+
+        /* 切り替えボタン（タブ） */
+        .lang-tab {
+            width: 45px;
+            height: 100px;
+            background-color: #c0392b; /* 鉄研カラー */
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8px 0 0 8px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+            writing-mode: vertical-rl; /* 縦書き */
+            font-size: 14px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* 言語リスト本体 */
+        .lang-menu {
+            width: 120px;
+            background-color: #fff;
+            border: 2px solid #c0392b;
+            border-right: none;
+            padding: 10px 0;
+            box-shadow: -2px 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .lang-menu a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .lang-menu a:hover {
+            background-color: #fceae8;
+            color: #c0392b;
+        }
+
         /* --- メインコンテンツ --- */
         .container { max-width: 1100px; margin: 80px auto; padding: 0 30px; }
         .section-row { display: flex; align-items: center; gap: 70px; margin-bottom: 220px; }
         .section-row.reverse { flex-direction: row-reverse; }
-
         .text-content { flex: 1.3; }
-        
-        /* 【タイトル】アニメーションを削除し、常に表示される状態に */
-        .text-content h2 {
-            color: #c0392b; 
-            font-size: 2.2rem;
-            border-left: 8px solid #c0392b; 
-            padding-left: 20px; 
-            margin-bottom: 30px;
-            /* 演出を削除しました */
-        }
-
+        .text-content h2 { color: #c0392b; font-size: 2.2rem; border-left: 8px solid #c0392b; padding-left: 20px; margin-bottom: 30px; }
         .text-content p { line-height: 2; font-size: 1.3rem; margin-bottom: 1.8em; }
-
         .image-content { flex: 1; }
-        .image-content img {
-            width: 100%; height: auto; border-radius: 4px; display: block;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        }
+        .image-content img { width: 100%; height: auto; border-radius: 4px; display: block; box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
 
-        /* セクション全体のフェードイン（本文と画像用） */
         .fade-in {
-            opacity: 0;
-            transform: translateY(40px);
+            opacity: 0; transform: translateY(40px);
             transition: opacity 1s ease-out, transform 1s ease-out;
             visibility: hidden;
         }
-        .fade-in.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-            visibility: visible;
-        }
+        .fade-in.is-visible { opacity: 1; transform: translateY(0); visibility: visible; }
 
         @media (max-width: 768px) {
             body { padding-top: 110px; }
             .section-row { margin-bottom: 120px; gap: 40px; flex-direction: column !important; }
+            .language-sidebar { top: auto; bottom: 20px; } /* スマホでは邪魔にならないよう下に */
         }
     </style>
 </head>
 <body>
+
+<div class="language-sidebar" id="langSidebar">
+    <div class="lang-tab" onclick="toggleLang()">LANGUAGE ◀</div>
+    <div class="lang-menu">
+        <a href="#">日本語</a>
+        <a href="#">English</a>
+        <a href="#">Deutsch</a>
+        <a href="#">Français</a>
+    </div>
+</div>
 
 <div class="fixed-top-container">
     <header><img src="header-img.png" alt="鉄研ヘッダー"></header>
@@ -111,23 +159,34 @@
 </main>
 
 <script>
-    // リロード時に強制的に一番上に戻す
+    // 言語メニューの開閉
+    function toggleLang() {
+        const sidebar = document.getElementById('langSidebar');
+        const tab = document.querySelector('.lang-tab');
+        sidebar.classList.toggle('is-open');
+        
+        // ボタンの矢印向きを変える演出
+        if (sidebar.classList.contains('is-open')) {
+            tab.innerText = 'LANGUAGE ▶';
+        } else {
+            tab.innerText = 'LANGUAGE ◀';
+        }
+    }
+
+    // リロード時にトップへ
     window.onbeforeunload = function () {
         window.scrollTo(0, 0);
     };
 
-    // スクロール監視の設定（一度表示されたら消さない設定）
+    // フェードイン
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('is-visible');
-                // 一度表示されたら監視を解除（リセットしない）
                 observer.unobserve(entry.target);
             }
         });
-    }, { 
-        threshold: 0.15 
-    });
+    }, { threshold: 0.15 });
 
     document.querySelectorAll('.fade-in').forEach(el => { observer.observe(el); });
 </script>
