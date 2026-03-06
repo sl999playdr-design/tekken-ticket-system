@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>運行情報表示器 - LED Monitor</title>
+    <title>鉄研模型特設サイト</title>
     <style>
+        /* サイト全体：白背景 */
         body {
             background-color: #ffffff;
             color: #333;
@@ -17,7 +18,7 @@
             position: relative;
         }
 
-        /* ⚙管理ボタン */
+        /* ⚙管理ボタン（右上・日本語） */
         .admin-link {
             position: absolute;
             top: 15px;
@@ -28,7 +29,9 @@
             padding: 5px 12px;
             font-size: 0.85rem;
             border-radius: 4px;
+            transition: 0.2s;
         }
+        .admin-link:hover { background: #f0f0f0; }
 
         /* LCD発車標本体 */
         .lcd-board {
@@ -38,11 +41,10 @@
             border-radius: 8px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             overflow: hidden;
-            margin-top: 50px;
-            position: relative; /* 網掛けの基準点 */
+            margin-top: 60px;
         }
 
-        /* グレーの上部エリア */
+        /* 発車標の上側グレーエリア（網をかけない） */
         .lcd-upper-gray {
             background: #3c3f41;
             padding: 20px 30px;
@@ -54,13 +56,13 @@
         .lcd-upper-gray .main-jp { font-size: 2.2rem; font-weight: bold; color: #fff; }
         .lcd-upper-gray .sub-en { font-size: 1.1rem; color: #bbb; }
 
-        /* LED表示エリア（網掛けを適用する範囲） */
-        .led-display-container {
-            position: relative;
+        /* --- LED表示部（ここだけに網をかける） --- */
+        .led-inner-container {
+            position: relative; /* 網の基準 */
             background: #000;
         }
 
-        /* 網掛けレイヤー (amikake.png) */
+        /* 網掛けレイヤー（LED表示部のみに重なる） */
         .led-mask {
             position: absolute;
             top: 0;
@@ -69,34 +71,75 @@
             height: 100%;
             background-image: url('amikake.png');
             background-repeat: repeat;
-            background-size: 4px; /* つぶつぶの大きさに合わせて調整してください */
-            pointer-events: none; /* 下の文字選択などを邪魔しない */
+            background-size: 12px; /* 3倍サイズ */
+            pointer-events: none; /* 下の要素を触れるようにする */
             z-index: 10;
-            opacity: 0.4; /* 網の濃さを調整（0.3〜0.6くらいがおすすめ） */
+            opacity: 0.6; /* 網の濃さ */
         }
 
-        /* 各種表示項目 */
-        .lcd-header { display: flex; padding: 10px 0; border-bottom: 1px solid #222; }
-        .h-col { font-size: 0.9rem; color: #aaa; text-align: center; font-weight: bold; }
+        /* ヘッダー（項目名） */
+        .lcd-header {
+            display: flex;
+            background: #111;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+        .h-col { font-size: 0.9rem; color: #999; text-align: center; font-weight: bold; }
 
-        .lcd-main-row { display: flex; height: 120px; align-items: center; padding: 0 10px; }
+        /* データ表示エリア（LED風） */
+        .lcd-main-row {
+            display: flex;
+            height: 120px;
+            align-items: center;
+            padding: 0 10px;
+            position: relative;
+        }
+
         .col-type { width: 20%; display: flex; justify-content: center; }
-        .type-box { font-size: 2.2rem; font-weight: bold; color: #ff9d00; letter-spacing: 4px; }
-        .col-wait { width: 20%; font-size: 3.5rem; color: #ff9d00; text-align: center; font-weight: bold; }
-        .col-time { width: 20%; font-size: 3.5rem; text-align: center; font-weight: bold; }
-        .col-id   { width: 40%; font-size: 4.5rem; color: #ff9d00; text-align: center; font-family: 'Consolas', monospace; }
-
-        .time-normal { color: #00ff00; }
-        .time-crowded { color: #ff9d00; }
-        .time-heavy { color: #ff3300; }
-
-        .lcd-footer { height: 60px; display: flex; align-items: center; border-top: 2px solid #222; }
-        marquee { font-size: 1.8rem; color: #ff9d00; font-weight: bold; }
-
-        .btn-issue {
-            margin-top: 40px; width: 320px; padding: 20px; background: #008542; color: #fff;
-            text-align: center; text-decoration: none; font-size: 1.5rem; font-weight: bold; border-radius: 60px;
+        .type-box { 
+            font-size: 2.2rem; 
+            font-weight: bold; 
+            color: #ff9d00; 
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px rgba(255, 157, 0, 0.8); /* 発光エフェクト */
         }
+
+        .col-wait { width: 20%; font-size: 3.5rem; color: #ff9d00; text-align: center; font-weight: bold; text-shadow: 0 0 10px rgba(255, 157, 0, 0.8); }
+        .col-time { width: 20%; font-size: 3.5rem; text-align: center; font-weight: bold; }
+        .col-id   { width: 40%; font-size: 4.5rem; color: #ff9d00; text-align: center; font-family: 'Consolas', monospace; text-shadow: 0 0 10px rgba(255, 157, 0, 0.8); }
+
+        /* 待ち時間の3段階カラー（発光付き） */
+        .time-normal { color: #00ff00; text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); }
+        .time-crowded { color: #ff9d00; text-shadow: 0 0 10px rgba(255, 157, 0, 0.8); }
+        .time-heavy { color: #ff3300; text-shadow: 0 0 10px rgba(255, 51, 0, 0.8); }
+
+        /* 下部テロップエリア */
+        .lcd-footer {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            border-top: 2px solid #222;
+            overflow: hidden;
+        }
+        marquee { font-size: 1.8rem; color: #ff9d00; font-weight: bold; text-shadow: 0 0 5px rgba(255, 157, 0, 0.5); }
+
+        /* 整理券ボタン（中央下） */
+        .btn-issue {
+            margin-top: 50px;
+            display: block;
+            width: 320px;
+            padding: 20px;
+            background: #008542;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 60px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+        .btn-issue:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
@@ -109,7 +152,7 @@
             <span class="sub-en">Next Train</span>
         </div>
 
-        <div class="led-display-container">
+        <div class="led-inner-container">
             <div class="led-mask"></div> <div class="lcd-header">
                 <div class="h-col" style="width: 20%;">種別</div>
                 <div class="h-col" style="width: 20%;">待ち組数</div>
@@ -118,14 +161,16 @@
             </div>
 
             <div class="lcd-main-row">
-                <div class="col-type"><div class="type-box">体験</div></div>
-                <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1.2rem;">組</small></div>
-                <div class="col-time" id="time-display"><span id="wait-time">0</span><small style="font-size:1.2rem;">分</small></div>
+                <div class="col-type">
+                    <div class="type-box">体験</div>
+                </div>
+                <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1.2rem; margin-left:5px;">組</small></div>
+                <div class="col-time" id="time-display"><span id="wait-time">0</span><small style="font-size:1.2rem; margin-left:5px;">分</small></div>
                 <div class="col-id" id="calling-now">---</div>
             </div>
 
             <div class="lcd-footer">
-                <marquee id="telop-text" scrollamount="10">運行情報を取得中...</marquee>
+                <marquee id="telop-text" scrollamount="10">運行システムに接続しています...</marquee>
             </div>
         </div>
     </div>
@@ -133,12 +178,14 @@
     <a href="entry.html" class="btn-issue">整理券を発行する</a>
 
     <script>
-        // API処理は以前と同様
         const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
+
         async function updateMonitor() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
+
+                // 待ち組数
                 const waitList = data.filter(d => d.status === 'resep');
                 const count = waitList.length;
                 const minutes = count * 5;
@@ -146,20 +193,29 @@
                 document.getElementById('wait-count').innerText = count;
                 document.getElementById('wait-time').innerText = minutes;
 
+                // 待ち時間のカラー変更
                 const timeEl = document.getElementById('time-display');
                 timeEl.classList.remove('time-normal', 'time-crowded', 'time-heavy');
                 if (minutes >= 30) timeEl.classList.add('time-heavy');
                 else if (minutes >= 15) timeEl.classList.add('time-crowded');
                 else timeEl.classList.add('time-normal');
 
+                // 呼出番号
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
                 document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
 
+                // テロップ取得
                 const mRes = await fetch(API_URL + "?sheet=master");
                 const mData = await mRes.json();
-                if (mData.telop) document.getElementById('telop-text').innerText = mData.telop;
-            } catch (e) { console.error(e); }
+                if (mData.telop) {
+                    document.getElementById('telop-text').innerText = mData.telop;
+                }
+
+            } catch (e) {
+                console.error("Fetch error:", e);
+            }
         }
+
         setInterval(updateMonitor, 10000);
         updateMonitor();
     </script>
