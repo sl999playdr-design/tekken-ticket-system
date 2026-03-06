@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>運行情報表示器 - LCD Monitor</title>
     <style>
-        /* サイト全体：白背景 */
         body {
             background-color: #ffffff;
             color: #333;
@@ -18,7 +17,7 @@
             position: relative;
         }
 
-        /* 右上の管理ボタン（日本語） */
+        /* 右上の管理ボタン */
         .admin-link {
             position: absolute;
             top: 15px;
@@ -29,103 +28,105 @@
             padding: 5px 12px;
             font-size: 0.85rem;
             border-radius: 4px;
-            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        .admin-link:hover { background: #f0f0f0; }
 
-        /* 発車標の上の文字 */
-        .display-title {
-            margin-top: 60px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .display-title .main-jp { font-size: 1.8rem; font-weight: bold; color: #1a1a1a; display: block; }
-        .display-title .sub-en { font-size: 0.9rem; color: #666; display: block; }
-
-        /* LCD発車標本体（小田急風） */
+        /* LCD発車標本体 */
         .lcd-board {
             width: 95vw;
             max-width: 1000px;
-            background: #1a1c23; /* 深い紺・黒 */
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            background: #000; /* 全体的に黒 */
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             overflow: hidden;
-            padding: 15px;
-            box-sizing: border-box;
+            margin-top: 50px;
         }
+
+        /* 発車標の上側グレーエリア */
+        .lcd-upper-gray {
+            background: #3c3f41;
+            padding: 20px 30px;
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+            border-bottom: 2px solid #000;
+        }
+        .lcd-upper-gray .main-jp { font-size: 2.2rem; font-weight: bold; color: #fff; }
+        .lcd-upper-gray .sub-en { font-size: 1.1rem; color: #bbb; }
 
         /* ヘッダー（項目名） */
         .lcd-header {
             display: flex;
-            border-bottom: 2px solid #3e4453;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
+            background: #1a1a1a;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
         }
-        .h-col { font-size: 0.85rem; color: #abb2bf; text-align: center; }
+        .h-col { font-size: 0.9rem; color: #aaa; text-align: center; font-weight: bold; }
 
-        /* データ行 */
-        .lcd-row {
+        /* データ表示エリア（LED風オレンジが基本） */
+        .lcd-main-row {
             display: flex;
-            height: 90px;
+            height: 120px;
             align-items: center;
-            background: rgba(255,255,255,0.05);
-            margin-bottom: 8px;
-            border-radius: 2px;
+            padding: 0 10px;
         }
 
-        /* 各列の幅とデザイン */
+        /* 各パーツのデザイン */
         .col-type { width: 20%; display: flex; justify-content: center; }
         .type-box { 
-            padding: 10px 20px; border-radius: 4px; font-weight: bold; font-size: 1.6rem; color: #fff;
-            min-width: 120px; text-align: center;
+            font-size: 2.2rem; 
+            font-weight: bold; 
+            color: #ff9d00; /* オレンジLED風 */
+            letter-spacing: 4px;
         }
-        .type-s { background: #e0245e; } /* 急行風の赤 */
-        .type-a { background: #1d9bf0; } /* 快速風の青 */
 
-        .col-wait { width: 20%; font-size: 2.8rem; color: #fff; text-align: center; font-weight: 500; }
-        .col-time { width: 20%; font-size: 2.8rem; color: #fff; text-align: center; font-weight: 500; }
-        .col-id   { width: 40%; font-size: 3.5rem; color: #f9d849; text-align: center; font-family: 'Consolas', monospace; }
+        .col-wait { width: 20%; font-size: 3.5rem; color: #ff9d00; text-align: center; font-weight: bold; }
+        .col-time { width: 20%; font-size: 3.5rem; text-align: center; font-weight: bold; transition: color 0.5s; }
+        .col-id   { width: 40%; font-size: 4.5rem; color: #ff9d00; text-align: center; font-family: 'Consolas', monospace; }
+
+        /* 待ち時間の混雑色 */
+        .time-normal { color: #00ff00; }  /* 緑 */
+        .time-crowded { color: #ff9d00; } /* オレンジ */
+        .time-heavy { color: #ff3300; }   /* 赤 */
 
         /* 下部テロップエリア */
         .lcd-footer {
-            margin-top: 10px;
             background: #000;
-            height: 50px;
+            height: 60px;
             display: flex;
             align-items: center;
-            border: 1px solid #333;
+            border-top: 2px solid #222;
         }
-        marquee { font-size: 1.6rem; color: #ff9d00; font-weight: bold; }
+        marquee { font-size: 1.8rem; color: #ff9d00; font-weight: bold; }
 
-        /* 整理券ボタン（中央下） */
+        /* 整理券ボタン */
         .btn-issue {
-            margin-top: 50px;
-            display: block;
-            width: 300px;
-            padding: 18px;
+            margin-top: 40px;
+            width: 320px;
+            padding: 20px;
             background: #008542;
             color: #fff;
             text-align: center;
             text-decoration: none;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,133,66,0.3);
-            transition: 0.3s;
+            border-radius: 60px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-        .btn-issue:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,133,66,0.4); }
     </style>
 </head>
 <body>
 
-    <a href="staff.html" class="admin-link">システム管理</a>
-
-    <div class="display-title">
-        <span class="main-jp">今度の発車は</span>
-        <span class="sub-en">Next Train</span>
-    </div>
+    <a href="staff.html" class="admin-link">⚙管理</a>
 
     <div class="lcd-board">
+        <div class="lcd-upper-gray">
+            <span class="main-jp">今度の発車は</span>
+            <span class="sub-en">Next Train</span>
+        </div>
+
         <div class="lcd-header">
             <div class="h-col" style="width: 20%;">種別</div>
             <div class="h-col" style="width: 20%;">待ち組数</div>
@@ -133,12 +134,12 @@
             <div class="h-col" style="width: 40%;">ただいまの呼出番号</div>
         </div>
 
-        <div class="lcd-row">
+        <div class="lcd-main-row">
             <div class="col-type">
-                <div class="type-box type-s">先発</div>
+                <div class="type-box">体験</div>
             </div>
-            <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1rem;">組</small></div>
-            <div class="col-time"><span id="wait-time">0</span><small style="font-size:1rem;">分</small></div>
+            <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1.2rem; margin-left:5px;">組</small></div>
+            <div class="col-time" id="time-display"><span id="wait-time">0</span><small style="font-size:1.2rem; margin-left:5px;">分</small></div>
             <div class="col-id" id="calling-now">---</div>
         </div>
 
@@ -159,10 +160,25 @@
 
                 // 待ち組数計算
                 const waitList = data.filter(d => d.status === 'resep');
-                document.getElementById('wait-count').innerText = waitList.length;
-                document.getElementById('wait-time').innerText = waitList.length * 5;
+                const count = waitList.length;
+                const minutes = count * 5;
 
-                // 呼出番号（最新の1つを表示）
+                document.getElementById('wait-count').innerText = count;
+                document.getElementById('wait-time').innerText = minutes;
+
+                // 待ち時間の色の条件分岐
+                const timeEl = document.getElementById('time-display');
+                timeEl.classList.remove('time-normal', 'time-crowded', 'time-heavy');
+                
+                if (minutes >= 30) {
+                    timeEl.classList.add('time-heavy'); // 30分以上で赤
+                } else if (minutes >= 15) {
+                    timeEl.classList.add('time-crowded'); // 15分以上でオレンジ
+                } else {
+                    timeEl.classList.add('time-normal'); // それ以外は緑
+                }
+
+                // 呼出番号
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
                 document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
 
@@ -174,7 +190,7 @@
                 }
 
             } catch (e) {
-                console.error("Fetch error:", e);
+                console.error("Update error:", e);
             }
         }
 
