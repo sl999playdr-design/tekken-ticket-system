@@ -9,11 +9,11 @@
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
             background-color: #f0f8ff; color: #333;
-            /* 固定エリアの高さ（ヘッダー+メニュー）に合わせて調整 */
             padding-top: 150px; 
+            overflow-x: hidden; /* 横揺れ防止 */
         }
 
-        /* --- ヘッダー・ナビ固定（前回確定デザイン） --- */
+        /* --- 固定ヘッダー・ナビ（デザイン維持） --- */
         .fixed-top-container {
             position: fixed;
             top: 0; left: 0; width: 100%;
@@ -35,7 +35,7 @@
         .nav-button:hover { opacity: 0.8; }
         .nav-button img { width: 100%; height: auto; display: block; }
 
-        /* --- メインコンテンツ：交互レイアウト --- */
+        /* --- メインコンテンツ --- */
         .container {
             max-width: 1000px;
             margin: 40px auto;
@@ -46,56 +46,49 @@
             display: flex;
             align-items: center;
             gap: 40px;
-            margin-bottom: 60px;
-            background: transparent; /* フレームなし */
+            margin-bottom: 100px; /* 間隔を少し広めに */
         }
 
-        /* 2段目は左右を入れ替える */
-        .section-row.reverse {
-            flex-direction: row-reverse;
-        }
+        .section-row.reverse { flex-direction: row-reverse; }
 
-        .text-content {
-            flex: 1;
-            line-height: 1.8;
-        }
-
+        .text-content { flex: 1; }
         .text-content h2 {
-            color: #c0392b;
-            font-size: 1.6rem;
-            border-left: 6px solid #c0392b;
-            padding-left: 15px;
-            margin-bottom: 15px;
+            color: #c0392b; font-size: 1.6rem;
+            border-left: 6px solid #c0392b; padding-left: 15px; margin-bottom: 15px;
         }
+        .text-content p { line-height: 1.8; font-size: 1.05rem; }
 
-        .image-content {
-            flex: 1;
-        }
-
+        .image-content { flex: 1; }
         .image-content img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px; /* 画像の角を少しだけ丸くして柔らかい印象に（不要なら0に） */
-            display: block;
+            width: 100%; height: auto; border-radius: 8px; display: block;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        /* スマホ対応：縦に並べる */
+        /* --- フェードイン演出用のCSS --- */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px); /* 30px下に下げておく */
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            visibility: hidden;
+        }
+
+        /* JavaScriptでこのクラスがつくと動き出す */
+        .fade-in.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
         @media (max-width: 768px) {
             body { padding-top: 110px; }
-            .section-row, .section-row.reverse {
-                flex-direction: column;
-                gap: 20px;
-            }
-            .image-content { width: 100%; }
+            .section-row, .section-row.reverse { flex-direction: column; gap: 30px; }
         }
     </style>
 </head>
 <body>
 
 <div class="fixed-top-container">
-    <header>
-        <img src="header-img.png" alt="鉄研ヘッダー">
-    </header>
+    <header><img src="header-img.png" alt="鉄研ヘッダー"></header>
     <nav class="navigation-section">
         <div class="button-grid">
             <a href="index.html" class="nav-button"><img src="aboutus.png" alt="概要"></a>
@@ -108,28 +101,43 @@
 </div>
 
 <main class="container">
-    <section class="section-row">
+    <section class="section-row fade-in">
         <div class="text-content">
             <h2>名古屋中高 鉄道研究部へようこそ</h2>
             <p>私たちは「夢にむけて、出発進行！」を合言葉に、日々鉄道の魅力を探求しています。週に一度の部会では、鉄道知識の共有からイベントの企画まで、部員主導で活発な議論を行っています。</p>
-            <p>初心者からベテランの鉄道ファンまで、誰もが楽しめる環境を大切にしています。</p>
         </div>
         <div class="image-content">
             <img src="intro-image.jpg" alt="部活動の様子">
         </div>
     </section>
 
-    <section class="section-row reverse">
+    <section class="section-row reverse fade-in">
         <div class="text-content">
             <h2>文化祭・説明会での展示活動</h2>
             <p>当部の目玉は、精巧に作り込まれた鉄道模型ジオラマの展示です。自分たちの手で作り上げた風景の中を列車が走る姿は、多くの方々からご好評をいただいています。</p>
-            <p>「ジオラマ運転体験」では、実際にコントローラーを握って模型を動かす体験も提供しており、子供たちに大人気です。</p>
         </div>
         <div class="image-content">
             <img src="diorama-image.jpg" alt="ジオラマ展示">
         </div>
     </section>
 </main>
+
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, {
+        threshold: 0.1 // 10%見えたら実行
+    });
+
+    // fade-inクラスを持つ要素をすべて監視対象にする
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+</script>
 
 </body>
 </html>
