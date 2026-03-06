@@ -14,7 +14,7 @@
             overflow-x: hidden;
         }
 
-        /* --- 固定ヘッダー・ナビ（既存デザイン） --- */
+        /* --- 固定ヘッダー・ナビ --- */
         .fixed-top-container {
             position: fixed; top: 0; left: 0; width: 100%; z-index: 5000;
             background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -33,63 +33,38 @@
         .nav-button:hover { opacity: 0.8; }
         .nav-button img { width: 100%; height: auto; display: block; }
 
-        /* --- 【新規】右端の収納式言語メニュー --- */
+        /* --- 収納式言語メニュー（紺色） --- */
         .language-sidebar {
             position: fixed;
-            top: 200px; /* 右端ちょっと上 */
-            right: -120px; /* 初期状態は隠しておく（ボタンだけ出す） */
+            top: 200px;
+            right: -150px; 
             display: flex;
             align-items: center;
             z-index: 6000;
             transition: right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
+        .language-sidebar.is-open { right: 0; }
 
-        /* 開いている時の状態 */
-        .language-sidebar.is-open {
-            right: 0;
-        }
-
-        /* 切り替えボタン（タブ） */
         .lang-tab {
-            width: 45px;
-            height: 100px;
-            background-color: #c0392b; /* 鉄研カラー */
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border-radius: 8px 0 0 8px;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-            writing-mode: vertical-rl; /* 縦書き */
-            font-size: 14px;
-            letter-spacing: 2px;
-            font-weight: bold;
+            width: 45px; height: 140px;
+            background-color: #001f3f; /* 紺色 */
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 8px 0 0 8px;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+            writing-mode: vertical-rl; font-size: 13px; font-weight: bold;
         }
 
-        /* 言語リスト本体 */
         .lang-menu {
-            width: 120px;
-            background-color: #fff;
-            border: 2px solid #c0392b;
-            border-right: none;
-            padding: 10px 0;
-            box-shadow: -2px 2px 10px rgba(0,0,0,0.1);
+            width: 150px; background-color: #001f3f; /* 紺色 */
+            padding: 10px 0; box-shadow: -2px 2px 15px rgba(0,0,0,0.2);
         }
-
-        .lang-menu a {
-            display: block;
-            padding: 12px 20px;
-            text-decoration: none;
-            color: #333;
-            font-size: 15px;
-            transition: background 0.2s;
+        .lang-menu button {
+            width: 100%; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 12px 25px; text-align: left; font-size: 15px;
+            cursor: pointer; transition: background 0.3s;
         }
-
-        .lang-menu a:hover {
-            background-color: #fceae8;
-            color: #c0392b;
-        }
+        .lang-menu button:hover { background-color: #003366; color: #ffda44; }
+        .lang-menu button:last-child { border-bottom: none; }
 
         /* --- メインコンテンツ --- */
         .container { max-width: 1100px; margin: 80px auto; padding: 0 30px; }
@@ -111,19 +86,18 @@
         @media (max-width: 768px) {
             body { padding-top: 110px; }
             .section-row { margin-bottom: 120px; gap: 40px; flex-direction: column !important; }
-            .language-sidebar { top: auto; bottom: 20px; } /* スマホでは邪魔にならないよう下に */
         }
     </style>
 </head>
 <body>
 
 <div class="language-sidebar" id="langSidebar">
-    <div class="lang-tab" onclick="toggleLang()">LANGUAGE ◀</div>
+    <div class="lang-tab" onclick="toggleLang()">LANGUAGES ◀</div>
     <div class="lang-menu">
-        <a href="#">日本語</a>
-        <a href="#">English</a>
-        <a href="#">Deutsch</a>
-        <a href="#">Français</a>
+        <button onclick="changeLang('ja')">日本語</button>
+        <button onclick="changeLang('en')">English</button>
+        <button onclick="changeLang('zh')">简体中文</button>
+        <button onclick="changeLang('ko')">한국어</button>
     </div>
 </div>
 
@@ -143,42 +117,66 @@
 <main class="container">
     <section class="section-row fade-in">
         <div class="text-content">
-            <h2>名古屋中高 鉄道研究部へようこそ</h2>
-            <p>私たちは「夢にむけて、出発進行！」を合言葉に、日々鉄道の魅力を探求しています。週に一度の部会では、鉄道知識の共有からイベントの企画まで、部員主導で活発な議論を行っています。</p>
+            <h2 id="title1">名古屋中高 鉄道研究部へようこそ</h2>
+            <p id="desc1">私たちは「夢にむけて、出発進行！」を合言葉に、日々鉄道の魅力を探求しています。週に一度の部会では、鉄道知識の共有からイベントの企画まで、部員主導で活発な議論を行っています。</p>
         </div>
         <div class="image-content"><img src="intro-image.jpg" alt="部活動の様子"></div>
     </section>
 
     <section class="section-row reverse fade-in">
         <div class="text-content">
-            <h2>文化祭・説明会での展示活動</h2>
-            <p>当部の活動の集大成は、精巧に作り込まれた大型鉄道模型ジオラマの展示です。実際の風景を忠実に再現した情景の中を、様々な列車が走行します。</p>
+            <h2 id="title2">文化祭・説明会での展示活動</h2>
+            <p id="desc2">当部の活動の集大成は、精巧に作り込まれた大型鉄道模型ジオラマの展示です。実際の風景を忠実に再現した情景の中を、様々な列車が走行します。</p>
         </div>
         <div class="image-content"><img src="diorama-image.jpg" alt="ジオラマ展示"></div>
     </section>
 </main>
 
 <script>
-    // 言語メニューの開閉
-    function toggleLang() {
-        const sidebar = document.getElementById('langSidebar');
-        const tab = document.querySelector('.lang-tab');
-        sidebar.classList.toggle('is-open');
-        
-        // ボタンの矢印向きを変える演出
-        if (sidebar.classList.contains('is-open')) {
-            tab.innerText = 'LANGUAGE ▶';
-        } else {
-            tab.innerText = 'LANGUAGE ◀';
+    // 翻訳データ
+    const translations = {
+        ja: {
+            title1: "名古屋中高 鉄道研究部へようこそ",
+            desc1: "私たちは「夢にむけて、出発進行！」を合言葉に、日々鉄道の魅力を探求しています。週に一度の部会では、鉄道知識の共有からイベントの企画まで、部員主導で活発な議論を行っています。",
+            title2: "文化祭・説明会での展示活動",
+            desc2: "当部の活動の集大成は、精巧に作り込まれた大型鉄道模型ジオラマの展示です。実際の風景を忠実に再現した情景の中を、様々な列車が走行します。"
+        },
+        en: {
+            title1: "Welcome to Nagoya J&S High School Railway Club",
+            desc1: "Under the motto 'Full speed ahead toward your dreams!', we explore the fascination of railways every day. In our weekly meetings, members lead lively discussions on everything from sharing railway knowledge to planning events.",
+            title2: "Exhibitions at School Festivals",
+            desc2: "The highlight of our activities is the exhibition of elaborate, large-scale model railway dioramas. Various trains run through scenes that faithfully recreate real landscapes."
+        },
+        zh: {
+            title1: "欢迎来到名古屋中高铁路研究部",
+            desc1: "我们以“朝着梦想，出发前进！”为口号，每天都在探索铁路的魅力。在每周一次的部会上，部员们会主导进行从分享铁路知识到策划活动的活跃讨论。",
+            title2: "文化祭与说明会的展示活动",
+            desc2: "我们活动的集大成之作是制作精良的大型铁路模型场景展示。各种列车在忠实再现真实风景的场景中穿梭。"
+        },
+        ko: {
+            title1: "나고야 중고등학교 철도연구부에 오신 것을 환영합니다",
+            desc1: "우리는 '꿈을 향해, 출발 진행!'을 슬로건으로 매일 철도의 매력을 탐구하고 있습니다. 매주 한 번 열리는 부회에서는 철도 지식 공유부터 이벤트 기획까지 부원 주도로 활발한 토론이 이루어집니다.",
+            title2: "문화제 및 설명회 전시 활동",
+            desc2: "당 부 활동의 집대성은 정교하게 제작된 대형 철도 모형 디오라마 전시입니다. 실제 풍경을 충실히 재현한 정경 속을 다양한 열차가 주행합니다."
         }
-    }
-
-    // リロード時にトップへ
-    window.onbeforeunload = function () {
-        window.scrollTo(0, 0);
     };
 
-    // フェードイン
+    // 言語切り替え関数
+    function changeLang(lang) {
+        document.getElementById('title1').innerText = translations[lang].title1;
+        document.getElementById('desc1').innerText = translations[lang].desc1;
+        document.getElementById('title2').innerText = translations[lang].title2;
+        document.getElementById('desc2').innerText = translations[lang].desc2;
+        toggleLang(); // メニューを閉じる
+    }
+
+    function toggleLang() {
+        const sidebar = document.getElementById('langSidebar');
+        sidebar.classList.toggle('is-open');
+    }
+
+    window.onbeforeunload = function () { window.scrollTo(0, 0); };
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
