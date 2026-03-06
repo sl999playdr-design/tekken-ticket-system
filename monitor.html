@@ -3,204 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>運行情報表示器 - N-Scale Station</title>
+    <title>運行情報表示器 - LCD Monitor</title>
     <style>
+        /* サイト全体：白背景 */
         body {
             background-color: #ffffff;
-            font-family: "Helvetica Neue", Arial, sans-serif;
+            color: #333;
+            font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 20px;
-        }
-
-        /* 外枠：筐体 */
-        .display-case {
-            width: 95vw;
-            max-width: 900px;
-            background: #222;
-            border-radius: 10px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            min-height: 100vh;
             position: relative;
-            overflow: hidden;
-            padding-bottom: 10px;
         }
 
-        /* 筐体上部のグリーンライン */
-        .line-accent {
-            height: 30px;
-            background: #008542; /* 南海グリーン風 */
-            margin-top: 40px;
-            width: 100%;
-        }
-
-        /* 右上の番線表示風ボックス */
-        .platform-number {
+        /* 右上の管理ボタン（日本語） */
+        .admin-link {
             position: absolute;
-            top: 10px;
+            top: 15px;
             right: 20px;
-            background: #555;
-            color: #ccc;
-            width: 60px;
-            height: 60px;
-            text-align: center;
-            line-height: 60px;
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-
-        /* 1段目：フラップ表示部 */
-        .flap-area {
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
-            background: #111;
-        }
-
-        .col { display: flex; flex-direction: column; align-items: center; }
-        .label-en { font-size: 0.6rem; color: #888; margin-top: 2px; }
-        .label-jp { font-size: 1rem; color: #ff3333; font-weight: bold; margin-bottom: 5px; } /* 先発風の赤文字 */
-
-        /* フラップデザイン */
-        .flap-container { display: flex; gap: 3px; }
-        .flap {
-            background: #1a1a1a;
-            color: #ddd;
-            width: 50px;
-            height: 80px;
-            line-height: 80px;
-            text-align: center;
-            font-size: 3.5rem;
-            font-weight: bold;
+            text-decoration: none;
+            color: #666;
+            border: 1px solid #ccc;
+            padding: 5px 12px;
+            font-size: 0.85rem;
             border-radius: 4px;
-            position: relative;
-            background-image: linear-gradient(to bottom, #222 49%, #000 50%, #222 51%);
+            transition: 0.2s;
         }
-        .flip { animation: flap-anim 0.3s ease-in; }
-        @keyframes flap-anim { 
-            0% { transform: rotateX(0deg); }
-            50% { transform: rotateX(90deg); background: #333; }
-            100% { transform: rotateX(0deg); }
+        .admin-link:hover { background: #f0f0f0; }
+
+        /* 発車標の上の文字 */
+        .display-title {
+            margin-top: 60px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .display-title .main-jp { font-size: 1.8rem; font-weight: bold; color: #1a1a1a; display: block; }
+        .display-title .sub-en { font-size: 0.9rem; color: #666; display: block; }
+
+        /* LCD発車標本体（小田急風） */
+        .lcd-board {
+            width: 95vw;
+            max-width: 1000px;
+            background: #1a1c23; /* 深い紺・黒 */
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            overflow: hidden;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
-        /* 2段目：LEDテロップ */
-        .led-area {
+        /* ヘッダー（項目名） */
+        .lcd-header {
+            display: flex;
+            border-bottom: 2px solid #3e4453;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .h-col { font-size: 0.85rem; color: #abb2bf; text-align: center; }
+
+        /* データ行 */
+        .lcd-row {
+            display: flex;
+            height: 90px;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 8px;
+            border-radius: 2px;
+        }
+
+        /* 各列の幅とデザイン */
+        .col-type { width: 20%; display: flex; justify-content: center; }
+        .type-box { 
+            padding: 10px 20px; border-radius: 4px; font-weight: bold; font-size: 1.6rem; color: #fff;
+            min-width: 120px; text-align: center;
+        }
+        .type-s { background: #e0245e; } /* 急行風の赤 */
+        .type-a { background: #1d9bf0; } /* 快速風の青 */
+
+        .col-wait { width: 20%; font-size: 2.8rem; color: #fff; text-align: center; font-weight: 500; }
+        .col-time { width: 20%; font-size: 2.8rem; color: #fff; text-align: center; font-weight: 500; }
+        .col-id   { width: 40%; font-size: 3.5rem; color: #f9d849; text-align: center; font-family: 'Consolas', monospace; }
+
+        /* 下部テロップエリア */
+        .lcd-footer {
+            margin-top: 10px;
             background: #000;
-            margin: 10px 20px;
-            height: 60px;
+            height: 50px;
             display: flex;
             align-items: center;
-            border: 2px solid #333;
+            border: 1px solid #333;
         }
-        marquee { font-size: 1.8rem; color: #ff8000; font-weight: bold; }
+        marquee { font-size: 1.6rem; color: #ff9d00; font-weight: bold; }
 
-        /* 整理券発行ボタン */
+        /* 整理券ボタン（中央下） */
         .btn-issue {
-            margin-top: 40px;
-            width: 80%;
-            max-width: 500px;
-            padding: 20px;
+            margin-top: 50px;
+            display: block;
+            width: 300px;
+            padding: 18px;
             background: #008542;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #005a2d;
+            color: #fff;
             text-align: center;
             text-decoration: none;
-            display: inline-block;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,133,66,0.3);
+            transition: 0.3s;
         }
-        .btn-issue:active { transform: translateY(3px); box-shadow: none; }
-
-        /* 小さな管理ボタン */
-        .btn-staff {
-            margin-top: 30px;
-            font-size: 0.7rem;
-            color: #aaa;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            padding: 5px 10px;
-        }
+        .btn-issue:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,133,66,0.4); }
     </style>
 </head>
 <body>
 
-    <div class="display-case">
-        <div class="platform-number">4</div>
-        <div class="line-accent"></div>
-        
-        <div class="flap-area">
-            <div class="col">
-                <div class="label-jp">待ち組数</div>
-                <div class="flap-container" id="wait-count-container">
-                    <div class="flap">0</div><div class="flap">0</div>
-                </div>
-                <div class="label-en">Waiting List</div>
-            </div>
-            <div class="col">
-                <div class="label-jp">待ち時間</div>
-                <div class="flap-container" id="wait-time-container">
-                    <div class="flap">0</div><div class="flap">0</div>
-                </div>
-                <div class="label-en">Est. Time</div>
-            </div>
-            <div class="col">
-                <div class="label-jp">呼出中</div>
-                <div class="flap-container" id="calling-container">
-                    <div class="flap">-</div><div class="flap">-</div><div class="flap">-</div><div class="flap">-</div>
-                </div>
-                <div class="label-en">Now Calling</div>
-            </div>
+    <a href="staff.html" class="admin-link">システム管理</a>
+
+    <div class="display-title">
+        <span class="main-jp">今度の発車は</span>
+        <span class="sub-en">Next Train</span>
+    </div>
+
+    <div class="lcd-board">
+        <div class="lcd-header">
+            <div class="h-col" style="width: 20%;">種別</div>
+            <div class="h-col" style="width: 20%;">待ち組数</div>
+            <div class="h-col" style="width: 20%;">目安時間</div>
+            <div class="h-col" style="width: 40%;">ただいまの呼出番号</div>
         </div>
 
-        <div class="led-area">
-            <marquee id="telop-text" scrollamount="8">運行システム接続中...</marquee>
+        <div class="lcd-row">
+            <div class="col-type">
+                <div class="type-box type-s">先発</div>
+            </div>
+            <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1rem;">組</small></div>
+            <div class="col-time"><span id="wait-time">0</span><small style="font-size:1rem;">分</small></div>
+            <div class="col-id" id="calling-now">---</div>
+        </div>
+
+        <div class="lcd-footer">
+            <marquee id="telop-text" scrollamount="10">運行システムに接続しています...</marquee>
         </div>
     </div>
 
-    <a href="entry.html" class="btn-issue">整理券を発行する<br><span style="font-size: 0.9rem; font-weight: normal;">Get Your Ticket Here</span></a>
-
-    <a href="staff.html" class="btn-staff">SYSTEM MANAGEMENT</a>
+    <a href="entry.html" class="btn-issue">整理券を発行する</a>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
-
-        function updateFlaps(containerId, newValue) {
-            const container = document.getElementById(containerId);
-            const flaps = container.querySelectorAll('.flap');
-            const newChars = newValue.toString().padStart(flaps.length, '0').split('');
-
-            newChars.forEach((char, i) => {
-                if (flaps[i] && flaps[i].innerText !== char) {
-                    flaps[i].classList.remove('flip');
-                    void flaps[i].offsetWidth;
-                    flaps[i].innerText = char;
-                    flaps[i].classList.add('flip');
-                }
-            });
-        }
 
         async function updateMonitor() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
 
-                const waitCount = data.filter(d => d.status === 'resep').length;
-                updateFlaps('wait-count-container', waitCount);
-                updateFlaps('wait-time-container', waitCount * 5);
+                // 待ち組数計算
+                const waitList = data.filter(d => d.status === 'resep');
+                document.getElementById('wait-count').innerText = waitList.length;
+                document.getElementById('wait-time').innerText = waitList.length * 5;
 
+                // 呼出番号（最新の1つを表示）
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
-                const latestCall = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "----";
-                updateFlaps('calling-container', latestCall);
+                document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
 
+                // テロップ取得
                 const mRes = await fetch(API_URL + "?sheet=master");
                 const mData = await mRes.json();
-                if (mData.telop) document.getElementById('telop-text').innerText = mData.telop;
+                if (mData.telop) {
+                    document.getElementById('telop-text').innerText = mData.telop;
+                }
 
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error("Fetch error:", e);
+            }
         }
 
         setInterval(updateMonitor, 10000);
