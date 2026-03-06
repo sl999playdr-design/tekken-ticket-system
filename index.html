@@ -9,11 +9,10 @@
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, sans-serif;
             background-color: #f0f8ff; color: #333;
-            /* 固定エリアの高さに合わせて調整 */
-            padding-top: 170px; 
+            /* 固定エリアの高さ。画像が横長なので少し低めに設定 */
+            padding-top: 150px; 
         }
 
-        /* --- ヘッダー・ナビ固定コンテナ --- */
         .fixed-top-container {
             position: fixed;
             top: 0; left: 0; width: 100%;
@@ -22,24 +21,22 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        header {
-            line-height: 0;
-        }
+        header { line-height: 0; }
         header img { width: 100%; height: auto; display: block; }
 
-        /* --- ナビゲーション（額縁フレームデザイン） --- */
+        /* --- ナビゲーション（横長画像に最適化） --- */
         .navigation-section {
             display: flex;
             justify-content: center;
             background-color: #fff;
-            padding: 10px 0; /* 上下の余白 */
+            padding: 8px 0;
         }
 
         .button-grid {
             display: flex;
-            width: 98%; /* 画面端に少し余裕を持たせる（好みで100%でもOK） */
-            max-width: 1200px; 
-            gap: 8px; /* フレーム同士の隙間 */
+            width: 98%; /* 画面の端まで広く使う */
+            max-width: 1400px; 
+            gap: 6px; /* フレーム同士の隙間を少しタイトに */
         }
 
         .nav-button {
@@ -49,34 +46,34 @@
             justify-content: center;
             text-decoration: none;
             
-            /* --- フレームの設定 --- */
-            border: 1.5px solid #333; /* 「細すぎない」絶妙な太さの黒枠 */
+            /* フレームの設定：細すぎず太すぎない2px */
+            border: 2px solid #333; 
             background-color: #fff;
-            aspect-ratio: 2.5 / 1; /* フレームの形を少しゆったりめに */
             
-            /* 画像とフレームの間の隙間を作る */
-            padding: 8px; 
+            /* 画像との隙間（ここを調整して「額縁感」を出します） */
+            padding: 6px; 
             
+            /* 角は丸めない（直角） */
+            border-radius: 0;
             box-sizing: border-box;
             transition: all 0.2s ease;
         }
 
         .nav-button:hover {
-            background-color: #f9f9f9;
-            border-color: #c0392b; /* ホバー時に鉄研カラーの赤に */
+            background-color: #f0f0f0;
+            border-color: #c0392b; /* ホバー時に鉄研の赤に */
         }
 
         .nav-button img {
             width: 100%;
-            height: 100%;
-            /* フレーム内での画像の見え方を調整（隙間を維持して全体表示） */
-            object-fit: contain; 
+            height: auto;
+            /* 横長比率（3.7:1）を維持して表示 */
             display: block;
         }
 
         /* --- メインコンテンツ --- */
         .container { 
-            max-width: 800px; margin: 40px auto; padding: 20px;
+            max-width: 800px; margin: 30px auto; padding: 20px;
         }
         .welcome-section {
             background: #fff; padding: 35px; border-radius: 12px;
@@ -86,14 +83,12 @@
             margin-top: 0; color: #c0392b; font-size: 1.4rem;
             border-left: 5px solid #c0392b; padding-left: 15px; margin-bottom: 20px;
         }
-        .catchphrase {
-            font-weight: bold; color: #c0392b; font-size: 1.5rem; display: block; text-align: center; margin: 25px 0;
-        }
 
+        /* スマホ対応：横長5つ並びは厳しいので2列またはスクロールを検討 */
         @media (max-width: 768px) {
-            body { padding-top: 130px; }
+            body { padding-top: 120px; }
             .button-grid { gap: 4px; }
-            .nav-button { padding: 4px; border-width: 1px; }
+            .nav-button { padding: 3px; border-width: 1px; }
         }
     </style>
 </head>
@@ -106,21 +101,11 @@
 
     <nav class="navigation-section">
         <div class="button-grid">
-            <a href="index.html" class="nav-button">
-                <img src="aboutus.png" alt="概要">
-            </a>
-            <a href="#" class="nav-button">
-                <img src="notifications.png" alt="お知らせ">
-            </a>
-            <a href="#" class="nav-button">
-                <img src="katsudou.png" alt="活動">
-            </a>
-            <a href="#" class="nav-button">
-                <img src="medias.png" alt="作品">
-            </a>
-            <a href="monitor.html" class="nav-button">
-                <img src="modeltrain.png" alt="運転体験">
-            </a>
+            <a href="index.html" class="nav-button"><img src="aboutus.png" alt="概要"></a>
+            <a href="#" class="nav-button"><img src="notifications.png" alt="お知らせ"></a>
+            <a href="#" class="nav-button"><img src="katsudou.png" alt="活動"></a>
+            <a href="#" class="nav-button"><img src="medias.png" alt="作品"></a>
+            <a href="monitor.html" class="nav-button"><img src="modeltrain.png" alt="運転体験"></a>
         </div>
     </nav>
 </div>
@@ -128,11 +113,7 @@
 <main class="container">
     <article class="welcome-section">
         <h2>名古屋中高 鉄道研究部ポータルへようこそ！</h2>
-        <p>本サイトでは、当部活動の最新情報やイベント情報を発信しています。鉄道模型展示の詳細は、メニューの<strong>「ジオラマ運転体験」</strong>より特設サイトへお越しください。</p>
-        
-        <span class="catchphrase">「夢」にむけて、出発進行！</span>
-
-        <p>私たちは週に一度の部会を通じて部員同士の交流を深め、部のさらなる発展を目指して話し合っています。また、学校説明会や文化祭では鉄道ジオラマを展示しており、お越しいただいた皆様に運転体験を楽しんでいただけるよう準備を整えています。</p>
+        <p>本サイトでは、当部活動の最新情報やイベント情報を発信しています。</p>
     </article>
 </main>
 
