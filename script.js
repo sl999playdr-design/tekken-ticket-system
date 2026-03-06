@@ -16,3 +16,10 @@ async function postToSheet(payload) {
         return await response.json();
     } catch (e) { return { result: 'error' }; }
 }
+
+async function fetchMasterData() {
+    // GAS側でシート名を指定して取得できるようにURLパラメータを付与
+    const response = await fetch(API_URL + "?sheet=master"); 
+    const data = await response.json();
+    return data; // GAS側で A列の配列 ['E5系', 'E235系', ...] を返すようにしてください
+}
