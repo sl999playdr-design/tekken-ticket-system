@@ -53,15 +53,14 @@
         .lcd-upper-gray .main-jp { font-size: 2.4rem; font-weight: bold; color: #fff; }
         .lcd-upper-gray .sub-en { font-size: 1.2rem; color: #bbb; }
 
-        /* --- LED表示エリア（ここだけに網を連ねる） --- */
+        /* --- LED表示エリア（ここだけに網を1枚置く） --- */
         .led-display-zone {
             position: relative;
             background: #000;
-            /* 網がはみ出さないようにクリップ */
-            overflow: hidden; 
+            overflow: hidden;
         }
 
-        /* 網掛け：擬似要素を使って表示部全体に画像を連ねる */
+        /* 網掛け：画像を1枚だけ配置 */
         .led-display-zone::after {
             content: "";
             position: absolute;
@@ -69,14 +68,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* amikake.png を 50px 単位でリピート */
+            /* amikake.png を1枚だけ配置し、エリアにフィットさせる */
             background-image: url('amikake.png');
-            background-repeat: repeat;
-            background-size: 50px 50px;
-            /* 文字の上にかぶせるが、透明度で調整 */
-            opacity: 0.4; 
+            background-repeat: no-repeat; /* 繰り返さない */
+            background-size: cover;      /* エリア全体を覆うように拡大縮小 */
+            opacity: 0.4;
             z-index: 10;
-            pointer-events: none; /* 下の文字クリックなどを邪魔しない */
+            pointer-events: none;
         }
 
         /* ヘッダー */
@@ -197,9 +195,15 @@
 
                 const mRes = await fetch(API_URL + "?sheet=master");
                 const mData = await mRes.json();
-                if (mData.telop) document.getElementById('telop-text').innerText = mData.telop;
-            } catch (e) { console.error(e); }
+                if (mData.telop) {
+                    document.getElementById('telop-text').innerText = mData.telop;
+                }
+
+            } catch (e) {
+                console.error("Fetch error:", e);
+            }
         }
+
         setInterval(updateMonitor, 10000);
         updateMonitor();
     </script>
