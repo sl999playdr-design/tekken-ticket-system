@@ -9,27 +9,26 @@
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, sans-serif;
             background-color: #f0f8ff; color: #333;
-            /* 固定ヘッダーの高さ分、コンテンツを下げる */
+            /* ヘッダーとナビの高さ分（約140px）余白を確保 */
             padding-top: 140px; 
         }
 
-        /* --- ヘッダーとメニューを画面上部に固定 --- */
+        /* --- ヘッダー・ナビ固定コンテナ --- */
         .fixed-top-container {
             position: fixed;
             top: 0; left: 0; width: 100%;
             z-index: 5000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: #fff;
         }
 
         header {
-            background-color: #fff; line-height: 0;
+            line-height: 0;
         }
         header img { width: 100%; height: auto; display: block; }
 
-        /* --- ナビゲーション（横並びボタン） --- */
+        /* --- ナビゲーション（枠なしスタイル） --- */
         .navigation-section {
-            background-color: #fff;
-            border-bottom: 2px solid #ddd;
             padding: 10px 0;
             display: flex;
             justify-content: center;
@@ -46,8 +45,8 @@
         .nav-button {
             flex: 1;
             aspect-ratio: 3 / 1;
-            background-color: #f8f8f8;
-            border: 1px solid #ccc;
+            background-color: #f8f8f8; /* 枠の代わりに背景色で境界を出す */
+            border: none; /* 枠組みを削除 */
             border-radius: 8px;
             display: flex;
             flex-direction: column;
@@ -55,24 +54,24 @@
             align-items: center;
             text-decoration: none;
             color: #333;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
+        /* マウスを乗せた時の動作（枠の代わりに背景で反応） */
         .nav-button:hover {
-            background-color: #eee;
-            border-color: #c0392b;
+            background-color: #e0e0e0;
             transform: translateY(-2px);
         }
 
         .nav-button img {
-            width: 40%;
+            width: 35%; /* ボタンサイズに合わせて微調整 */
             height: auto;
             object-fit: contain;
             margin-bottom: 4px;
         }
 
         .nav-button span {
-            font-size: clamp(0.6rem, 1.5vw, 0.9rem);
+            font-size: clamp(0.6rem, 1.4vw, 0.85rem);
             font-weight: bold;
             white-space: nowrap;
         }
@@ -96,6 +95,7 @@
         @media (max-width: 600px) {
             body { padding-top: 100px; }
             .button-grid { gap: 5px; }
+            .nav-button { border-radius: 4px; }
         }
     </style>
 </head>
@@ -109,11 +109,11 @@
     <nav class="navigation-section">
         <div class="button-grid">
             <a href="index.html" class="nav-button">
-                <img src="description.png" alt="概要">
+                <img src="aboutus.png" alt="概要">
                 <span>概要</span>
             </a>
             <a href="#" class="nav-button">
-                <img src="notification.png" alt="お知らせ">
+                <img src="notifications.png" alt="お知らせ">
                 <span>お知らせ</span>
             </a>
             <a href="#" class="nav-button">
@@ -121,11 +121,11 @@
                 <span>活動</span>
             </a>
             <a href="#" class="nav-button">
-                <img src="media.png" alt="作品">
+                <img src="medias.png" alt="作品">
                 <span>作品</span>
             </a>
             <a href="monitor.html" class="nav-button">
-                <img src="N-gage.png" alt="運転体験">
+                <img src="modeltrain.png" alt="運転体験">
                 <span>運転体験</span>
             </a>
         </div>
