@@ -20,10 +20,7 @@
         <div class="form-group">
             <label style="font-weight:bold; display:block; margin-bottom:10px;">🚆 運転する車両</label>
             <select id="v-select" class="huge-select">
-                <option value="E5系 はやぶさ">E5系 はやぶさ</option>
-                <option value="E235系 山手線">E235系 山手線</option>
-                <option value="923形 ドクターイエロー">923形 ドクターイエロー</option>
-                <option value="N700S のぞみ">N700S のぞみ</option>
+                <option value="">車両リスト読込中...</option>
             </select>
         </div>
 
@@ -45,27 +42,64 @@
 
     <script src="script.js"></script>
     <script>
+        // --- ページ読み込み時にマスターデータを取得 ---
+        async function loadMasterData() {
+            const vSelect = document.getElementById('v-select');
+            const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
+
+            try {
+                // sheet=master を指定して車両リストを取得
+                const response = await fetch(`${API_URL}?sheet=master`);
+                const data = await response.json();
+                
+                if (data && data.vehicles && data.vehicles.length > 0) {
+                    vSelect.innerHTML = ''; // 読込中メッセージをクリア
+                    data.vehicles.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v;
+                        opt.textContent = v;
+                        vSelect.appendChild(opt);
+                    });
+                } else {
+                    vSelect.innerHTML = '<option value="">利用可能な車両がありません</option>';
+                }
+            } catch (e) {
+                console.error("Master Load Error:", e);
+                vSelect.innerHTML = '<option value="">リストの取得に失敗しました</option>';
+            }
+        }
+
+        // ページロード時に実行
+        window.addEventListener('load', loadMasterData);
+
+        // --- 整理券発行処理 ---
         async function issue() {
             const b = document.getElementById('btn'); 
             const v = document.getElementById('v-select').value;
             const t = document.querySelector('input[name="t"]:checked').value;
+            const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
 
-            // ボタン無効化
+            if (!v) {
+                alert("車両を選択してください。");
+                return;
+            }
+
             b.disabled = true; 
             b.innerText = "通信中...";
 
             try {
-                const res = await postToSheet({ action: 'issue', type: t, vehicle: v });
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: 'issue', type: t, vehicle: v })
+                });
+                const res = await response.json();
                 
                 if(res.result === 'success') {
-                    // 【重要】ブラウザのメモリに番号と車両を保存する
                     localStorage.setItem('my_ticket_id', res.id);
                     localStorage.setItem('my_ticket_v', v);
-                    
-                    // 整理券表示画面へ移動
                     location.href = `issued.html?id=${res.id}&v=${encodeURIComponent(v)}`;
                 } else {
-                    alert("発行に失敗しました。通信環境を確認してください。");
+                    alert("発行に失敗しました。");
                     b.disabled = false;
                     b.innerText = "整理券を発行する";
                 }
