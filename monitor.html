@@ -5,110 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>運行情報表示器 - Station Monitor</title>
     <style>
-        /* 鉄道掲示板風の黒背景 */
+        /* サイト全体は白基調 */
         body {
-            background-color: #000;
-            color: #fff;
-            font-family: "MS UI Gothic", "Meiryo", sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ヘッダータイトル（オプション） */
+        .page-header {
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 40px;
+        }
+
+        /* 灰色（メタリック）の発車標フレーム */
+        .station-board {
+            width: 90vw;
+            max-width: 1000px;
+            background: #2d2d2d; /* 濃い灰色 */
+            border: 8px solid #555; /* 外枠の灰色 */
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             overflow: hidden;
         }
 
-        /* 全体を囲むフレーム */
-        .station-board {
-            width: 95vw;
-            margin: 5vh auto;
-            border: 4px solid #444;
-            background: #000;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        /* 1段目：発車標メインエリア */
+        /* 1段目：メイン表示エリア */
         .display-row-top {
             display: flex;
-            border-bottom: 3px solid #333;
-            height: 150px;
+            border-bottom: 4px solid #444;
+            height: 180px;
             align-items: center;
-            text-align: center;
         }
 
-        /* 各列の定義 */
         .col {
             height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border-right: 2px solid #333;
+            text-align: center;
+            border-right: 2px solid #444;
         }
+        
         .label {
-            font-size: 1rem;
-            color: #ccc;
-            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
         }
+
+        /* 各列の色設定（高輝度LED風） */
+        .col-wait-count { width: 20%; color: #33ff33; } /* 緑 */
+        .col-wait-time { width: 25%; color: #ffcc00; }  /* 黄/オレンジ */
+        .col-calling { width: 55%; color: #ff3333; border-right: none; } /* 赤 */
+
         .value {
+            font-family: 'Courier New', Courier, monospace; /* ドット風フォント */
             font-weight: bold;
             line-height: 1;
         }
-
-        /* 1列目：待ち組数（緑LED風） */
-        .col-wait-count { width: 20%; color: #00ff00; }
-        .col-wait-count .value { font-size: 3.5rem; }
-
-        /* 2列目：待ち時間（オレンジLED風） */
-        .col-wait-time { width: 25%; color: #ff9900; }
-        .col-wait-time .value { font-size: 3.5rem; }
-
-        /* 3列目：呼出番号（赤LED風） */
-        .col-calling { width: 55%; color: #ff3300; border-right: none; }
-        .col-calling .value { font-size: 4rem; letter-spacing: 5px; }
+        .col-wait-count .value { font-size: 4rem; }
+        .col-wait-time .value { font-size: 4rem; }
+        .col-calling .value { font-size: 4.5rem; letter-spacing: 2px; }
 
         /* 2段目：テロップエリア */
         .display-row-bottom {
             height: 80px;
-            background: #000;
+            background: #1a1a1a;
             display: flex;
             align-items: center;
-            overflow: hidden;
         }
 
         marquee {
             font-size: 2.5rem;
-            color: #ff9900; /* オレンジ */
+            color: #ffcc00;
             font-weight: bold;
         }
 
-        /* 管理用ボタン（隠し要素風） */
+        /* 補助テキスト */
+        .unit { font-size: 1.2rem; margin-left: 5px; color: #888; }
+
+        /* 隠しボタン */
         .admin-trigger {
             position: fixed;
-            top: 0;
+            bottom: 0;
             right: 0;
-            width: 50px;
-            height: 50px;
-            cursor: default;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            opacity: 0.1;
         }
     </style>
 </head>
 <body>
 
+    <header class="page-header">
+        <h1 style="margin:0; font-size: 1.5rem; color: #555;">Nゲージ運転体験 運行案内</h1>
+    </header>
+
     <div class="station-board">
         <div class="display-row-top">
             <div class="col col-wait-count">
-                <div class="label">待ち組数</div>
-                <div id="wait-count" class="value">0</div>
+                <div class="label">WAITING</div>
+                <div class="value"><span id="wait-count">0</span><span class="unit">組</span></div>
             </div>
             <div class="col col-wait-time">
-                <div class="label">待ち時間(分)</div>
-                <div id="wait-time" class="value">約0</div>
+                <div class="label">TIME</div>
+                <div class="value"><span id="wait-time">0</span><span class="unit">分</span></div>
             </div>
             <div class="col col-calling">
-                <div class="label">ただいまのお呼出し</div>
+                <div class="label">NOW CALLING</div>
                 <div id="calling-now" class="value">---</div>
             </div>
         </div>
 
         <div class="display-row-bottom">
-            <marquee id="telop-text" scrollamount="10">運行情報を取得中...</marquee>
+            <marquee id="telop-text" scrollamount="12">運行情報を取得中...</marquee>
         </div>
     </div>
 
@@ -123,15 +144,15 @@
                 const response = await fetch(API_URL);
                 const data = await response.json();
 
-                // 待ち組数：statusが 'resep' のものをカウント
+                // 待ち組数（ステータスが 'resep' のもの）
                 const waitList = data.filter(d => d.status === 'resep');
                 document.getElementById('wait-count').innerText = waitList.length;
 
-                // 待ち時間（計算）：1組あたり5分と仮定（ここはお好みで調整してください）
+                // 待ち時間（1組5分計算）
                 const waitMinutes = waitList.length * 5;
-                document.getElementById('wait-time').innerText = `約${waitMinutes}`;
+                document.getElementById('wait-time').innerText = waitMinutes;
 
-                // 呼出番号：statusが 'call' のものを抽出
+                // 呼出番号（ステータスが 'call' のもの）
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
                 document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds.join(' ') : "---";
 
