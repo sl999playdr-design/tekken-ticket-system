@@ -39,24 +39,11 @@
         .section-row.reverse { flex-direction: row-reverse; }
 
         .text-content { flex: 1.3; }
-        
-        /* タイトル設定：タイプライター用に少し調整 */
         .text-content h2 {
             color: #c0392b; font-size: 2.2rem;
             border-left: 8px solid #c0392b; padding-left: 20px; 
-            margin-bottom: 30px; min-height: 1.3em; /* ガタつき防止 */
+            margin-bottom: 30px; min-height: 1.3em;
         }
-
-        /* タイプライターのカーソル演出（任意） */
-        .typewriter::after {
-            content: '|';
-            animation: blink 0.7s infinite;
-            margin-left: 5px;
-            color: #c0392b;
-        }
-        .typewriter.done::after { display: none; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
         .text-content p { line-height: 2; font-size: 1.3rem; margin-bottom: 1.8em; }
 
         .image-content { flex: 1; }
@@ -65,19 +52,23 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.12);
         }
 
-        /* 全体のフェードイン */
+        /* --- フェードイン演出 --- */
         .fade-in {
-            opacity: 0; transform: translateY(50px);
-            transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
             visibility: hidden;
         }
-        .fade-in.is-visible { opacity: 1; transform: translateY(0); visibility: visible; }
+        /* 画面内に入った時 */
+        .fade-in.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
 
         @media (max-width: 768px) {
             body { padding-top: 110px; }
             .section-row { margin-bottom: 120px; gap: 40px; flex-direction: column !important; }
-            .text-content h2 { font-size: 1.8rem; }
-            .text-content p { font-size: 1.15rem; }
         }
     </style>
 </head>
@@ -99,57 +90,63 @@
 <main class="container">
     <section class="section-row fade-in">
         <div class="text-content">
-            <h2 class="typewriter-target">名古屋中高 鉄研ポータルへようこそ！</h2>
-            <p>私たちは日本の中心、名古屋で日々鉄道の魅力を探求しています。週に一度の部会では、鉄道知識の共有からイベントの企画まで、部員主導で活発な議論を行っています。</p>
+            <h2 class="typewriter-target" data-text="名古屋中高 鉄道研究部へようこそ">名古屋中高 鉄道研究部へようこそ</h2>
+            <p>私たちは「夢にむけて、出発進行！」を合言葉に、日々鉄道の魅力を探求しています。週に一度の部会では、鉄道知識の共有からイベントの企画まで、部員主導で活発な議論を行っています。</p>
         </div>
         <div class="image-content"><img src="intro-image.jpg" alt="部活動の様子"></div>
     </section>
 
     <section class="section-row reverse fade-in">
         <div class="text-content">
-            <h2 class="typewriter-target">文化祭・説明会での模型展示</h2>
-            <p>我が部の集大成は、部員一同で製作する大型鉄道模型ジオラマの展示です。オープンキャンパスや文化祭では模型の運転体験を行っております。日本の山々やビルの立ち並ぶ都心のを駆け抜ける鉄道模型を、ぜひお楽しみ下さい。</p>
+            <h2 class="typewriter-target" data-text="文化祭・説明会での展示活動">文化祭・説明会での展示活動</h2>
+            <p>当部の活動の集大成は、精巧に作り込まれた大型鉄道模型ジオラマの展示です。実際の風景を忠実に再現した情景の中を、様々な列車が走行します。</p>
         </div>
         <div class="image-content"><img src="diorama-image.jpg" alt="ジオラマ展示"></div>
     </section>
 </main>
 
 <script>
-    // タイプライター関数の定義
-    function typeWriter(element) {
-        const text = element.innerText;
+    // タイプライター関数の修正版
+    function startTypeWriter(element) {
+        const fullText = element.getAttribute('data-text');
         element.innerText = '';
-        element.classList.add('typewriter');
         let i = 0;
-        const speed = 100; // 1文字あたりの速度（ミリ秒）
+        const speed = 30; // 高速タイピング
 
         function type() {
-            if (i < text.length) {
-                element.innerHTML += text.charAt(i);
+            if (i < fullText.length) {
+                element.innerHTML += fullText.charAt(i);
                 i++;
-                setTimeout(type, speed);
-            } else {
-                element.classList.add('done');
+                // 実行中に画面外に出た場合のキャンセル処理は簡易化のため継続
+                element.typingTimeout = setTimeout(type, speed);
             }
         }
         type();
     }
 
-    // スクロール監視
+    function resetTypeWriter(element) {
+        clearTimeout(element.typingTimeout);
+        element.innerText = ''; // テキストを消去
+    }
+
+    // スクロール監視の設定
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            const title = entry.target.querySelector('.typewriter-target');
+            
             if (entry.isIntersecting) {
-                // セクションを表示
+                // 画面内に入った時
                 entry.target.classList.add('is-visible');
-                
-                // タイトルのタイプライターを開始（一度きり）
-                const title = entry.target.querySelector('.typewriter-target');
-                if (title && !title.classList.contains('typewriter')) {
-                    typeWriter(title);
-                }
+                if (title) startTypeWriter(title);
+            } else {
+                // 画面外に出た時
+                entry.target.classList.remove('is-visible');
+                if (title) resetTypeWriter(title);
             }
         });
-    }, { threshold: 0.2 });
+    }, { 
+        threshold: 0.1 // 10%見えたら反応
+    });
 
     document.querySelectorAll('.fade-in').forEach(el => { observer.observe(el); });
 </script>
