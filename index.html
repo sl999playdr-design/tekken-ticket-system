@@ -39,11 +39,27 @@
         .section-row.reverse { flex-direction: row-reverse; }
 
         .text-content { flex: 1.3; }
+        
+        /* 【新しいタイトル演出】 */
         .text-content h2 {
-            color: #c0392b; font-size: 2.2rem;
-            border-left: 8px solid #c0392b; padding-left: 20px; 
-            margin-bottom: 30px; min-height: 1.3em;
+            color: #c0392b; 
+            font-size: 2.2rem;
+            border-left: 8px solid #c0392b; 
+            padding-left: 20px; 
+            margin-bottom: 30px;
+            
+            /* 初期状態：左にズレて透明 */
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); /* 加速感のある動き */
         }
+
+        /* 画面に入った時のタイトルの動き */
+        .is-visible .text-content h2 {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         .text-content p { line-height: 2; font-size: 1.3rem; margin-bottom: 1.8em; }
 
         .image-content { flex: 1; }
@@ -52,14 +68,13 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.12);
         }
 
-        /* --- フェードイン演出 --- */
+        /* セクション全体のフェードイン（画像や本文用） */
         .fade-in {
             opacity: 0;
-            transform: translateY(50px);
+            transform: translateY(40px);
             transition: opacity 1s ease-out, transform 1s ease-out;
             visibility: hidden;
         }
-        /* 画面内に入った時 */
         .fade-in.is-visible {
             opacity: 1;
             transform: translateY(0);
@@ -90,7 +105,7 @@
 <main class="container">
     <section class="section-row fade-in">
         <div class="text-content">
-            <h2 class="typewriter-target" data-text="名古屋中高 鉄道研究部へようこそ">名古屋中高 鉄道研究部へようこそ</h2>
+            <h2>名古屋中高 鉄道研究部へようこそ</h2>
             <p>私たちは「夢にむけて、出発進行！」を合言葉に、日々鉄道の魅力を探求しています。週に一度の部会では、鉄道知識の共有からイベントの企画まで、部員主導で活発な議論を行っています。</p>
         </div>
         <div class="image-content"><img src="intro-image.jpg" alt="部活動の様子"></div>
@@ -98,7 +113,7 @@
 
     <section class="section-row reverse fade-in">
         <div class="text-content">
-            <h2 class="typewriter-target" data-text="文化祭・説明会での展示活動">文化祭・説明会での展示活動</h2>
+            <h2>文化祭・説明会での展示活動</h2>
             <p>当部の活動の集大成は、精巧に作り込まれた大型鉄道模型ジオラマの展示です。実際の風景を忠実に再現した情景の中を、様々な列車が走行します。</p>
         </div>
         <div class="image-content"><img src="diorama-image.jpg" alt="ジオラマ展示"></div>
@@ -106,46 +121,19 @@
 </main>
 
 <script>
-    // タイプライター関数の修正版
-    function startTypeWriter(element) {
-        const fullText = element.getAttribute('data-text');
-        element.innerText = '';
-        let i = 0;
-        const speed = 30; // 高速タイピング
-
-        function type() {
-            if (i < fullText.length) {
-                element.innerHTML += fullText.charAt(i);
-                i++;
-                // 実行中に画面外に出た場合のキャンセル処理は簡易化のため継続
-                element.typingTimeout = setTimeout(type, speed);
-            }
-        }
-        type();
-    }
-
-    function resetTypeWriter(element) {
-        clearTimeout(element.typingTimeout);
-        element.innerText = ''; // テキストを消去
-    }
-
     // スクロール監視の設定
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            const title = entry.target.querySelector('.typewriter-target');
-            
             if (entry.isIntersecting) {
                 // 画面内に入った時
                 entry.target.classList.add('is-visible');
-                if (title) startTypeWriter(title);
             } else {
-                // 画面外に出た時
+                // 画面外に出た時（リセット）
                 entry.target.classList.remove('is-visible');
-                if (title) resetTypeWriter(title);
             }
         });
     }, { 
-        threshold: 0.1 // 10%見えたら反応
+        threshold: 0.15 
     });
 
     document.querySelectorAll('.fade-in').forEach(el => { observer.observe(el); });
