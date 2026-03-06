@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S情報統合管理システム</title>
+    <title>情報統合管理システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body { background: #222; color: #ddd; font-family: monospace; margin: 0; }
@@ -102,11 +102,11 @@
         const timeText = `${diffMin}分${diffSec}秒`;
         let className = "time-green";
 
-        if (diffMin >= 1) {
+        if (diffMin >= 15) {
             className = "time-emergency";
-        } else if (diffMin >= 0.5) {
+        } else if (diffMin >= 10) {
             className = "time-red";
-        } else if (diffMin >= 0.25) {
+        } else if (diffMin >= 5) {
             className = "time-yellow";
         }
 
