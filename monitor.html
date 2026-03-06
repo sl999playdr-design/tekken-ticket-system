@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>名古屋鉄研模型特設サイト</title>
+    <title>運行情報表示器 - LED Monitor</title>
     <style>
         body {
             background-color: #ffffff;
@@ -17,7 +17,7 @@
             position: relative;
         }
 
-        /* 右上の管理ボタン */
+        /* ⚙管理ボタン */
         .admin-link {
             position: absolute;
             top: 15px;
@@ -28,23 +28,21 @@
             padding: 5px 12px;
             font-size: 0.85rem;
             border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
         /* LCD発車標本体 */
         .lcd-board {
             width: 95vw;
             max-width: 1000px;
-            background: #000; /* 全体的に黒 */
+            background: #000;
             border-radius: 8px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             overflow: hidden;
             margin-top: 50px;
+            position: relative; /* 網掛けの基準点 */
         }
 
-        /* 発車標の上側グレーエリア */
+        /* グレーの上部エリア */
         .lcd-upper-gray {
             background: #3c3f41;
             padding: 20px 30px;
@@ -56,64 +54,48 @@
         .lcd-upper-gray .main-jp { font-size: 2.2rem; font-weight: bold; color: #fff; }
         .lcd-upper-gray .sub-en { font-size: 1.1rem; color: #bbb; }
 
-        /* ヘッダー（項目名） */
-        .lcd-header {
-            display: flex;
-            background: #1a1a1a;
-            padding: 8px 0;
-            border-bottom: 1px solid #333;
+        /* LED表示エリア（網掛けを適用する範囲） */
+        .led-display-container {
+            position: relative;
+            background: #000;
         }
+
+        /* 網掛けレイヤー (amikake.png) */
+        .led-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('amikake.png');
+            background-repeat: repeat;
+            background-size: 4px; /* つぶつぶの大きさに合わせて調整してください */
+            pointer-events: none; /* 下の文字選択などを邪魔しない */
+            z-index: 10;
+            opacity: 0.4; /* 網の濃さを調整（0.3〜0.6くらいがおすすめ） */
+        }
+
+        /* 各種表示項目 */
+        .lcd-header { display: flex; padding: 10px 0; border-bottom: 1px solid #222; }
         .h-col { font-size: 0.9rem; color: #aaa; text-align: center; font-weight: bold; }
 
-        /* データ表示エリア（LED風オレンジが基本） */
-        .lcd-main-row {
-            display: flex;
-            height: 120px;
-            align-items: center;
-            padding: 0 10px;
-        }
-
-        /* 各パーツのデザイン */
+        .lcd-main-row { display: flex; height: 120px; align-items: center; padding: 0 10px; }
         .col-type { width: 20%; display: flex; justify-content: center; }
-        .type-box { 
-            font-size: 2.2rem; 
-            font-weight: bold; 
-            color: #ff9d00; /* オレンジLED風 */
-            letter-spacing: 4px;
-        }
-
+        .type-box { font-size: 2.2rem; font-weight: bold; color: #ff9d00; letter-spacing: 4px; }
         .col-wait { width: 20%; font-size: 3.5rem; color: #ff9d00; text-align: center; font-weight: bold; }
-        .col-time { width: 20%; font-size: 3.5rem; text-align: center; font-weight: bold; transition: color 0.5s; }
+        .col-time { width: 20%; font-size: 3.5rem; text-align: center; font-weight: bold; }
         .col-id   { width: 40%; font-size: 4.5rem; color: #ff9d00; text-align: center; font-family: 'Consolas', monospace; }
 
-        /* 待ち時間の混雑色 */
-        .time-normal { color: #00ff00; }  /* 緑 */
-        .time-crowded { color: #ff9d00; } /* オレンジ */
-        .time-heavy { color: #ff3300; }   /* 赤 */
+        .time-normal { color: #00ff00; }
+        .time-crowded { color: #ff9d00; }
+        .time-heavy { color: #ff3300; }
 
-        /* 下部テロップエリア */
-        .lcd-footer {
-            background: #000;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            border-top: 2px solid #222;
-        }
+        .lcd-footer { height: 60px; display: flex; align-items: center; border-top: 2px solid #222; }
         marquee { font-size: 1.8rem; color: #ff9d00; font-weight: bold; }
 
-        /* 整理券ボタン */
         .btn-issue {
-            margin-top: 40px;
-            width: 320px;
-            padding: 20px;
-            background: #008542;
-            color: #fff;
-            text-align: center;
-            text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border-radius: 60px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-top: 40px; width: 320px; padding: 20px; background: #008542; color: #fff;
+            text-align: center; text-decoration: none; font-size: 1.5rem; font-weight: bold; border-radius: 60px;
         }
     </style>
 </head>
@@ -127,38 +109,36 @@
             <span class="sub-en">Next Train</span>
         </div>
 
-        <div class="lcd-header">
-            <div class="h-col" style="width: 20%;">種別</div>
-            <div class="h-col" style="width: 20%;">待ち組数</div>
-            <div class="h-col" style="width: 20%;">目安時間</div>
-            <div class="h-col" style="width: 40%;">ただいまの呼出番号</div>
-        </div>
-
-        <div class="lcd-main-row">
-            <div class="col-type">
-                <div class="type-box">体験</div>
+        <div class="led-display-container">
+            <div class="led-mask"></div> <div class="lcd-header">
+                <div class="h-col" style="width: 20%;">種別</div>
+                <div class="h-col" style="width: 20%;">待ち組数</div>
+                <div class="h-col" style="width: 20%;">目安時間</div>
+                <div class="h-col" style="width: 40%;">ただいまの呼出番号</div>
             </div>
-            <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1.2rem; margin-left:5px;">組</small></div>
-            <div class="col-time" id="time-display"><span id="wait-time">0</span><small style="font-size:1.2rem; margin-left:5px;">分</small></div>
-            <div class="col-id" id="calling-now">---</div>
-        </div>
 
-        <div class="lcd-footer">
-            <marquee id="telop-text" scrollamount="10">通信中です...</marquee>
+            <div class="lcd-main-row">
+                <div class="col-type"><div class="type-box">体験</div></div>
+                <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1.2rem;">組</small></div>
+                <div class="col-time" id="time-display"><span id="wait-time">0</span><small style="font-size:1.2rem;">分</small></div>
+                <div class="col-id" id="calling-now">---</div>
+            </div>
+
+            <div class="lcd-footer">
+                <marquee id="telop-text" scrollamount="10">運行情報を取得中...</marquee>
+            </div>
         </div>
     </div>
 
     <a href="entry.html" class="btn-issue">整理券を発行する</a>
 
     <script>
+        // API処理は以前と同様
         const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
-
         async function updateMonitor() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
-
-                // 待ち組数計算
                 const waitList = data.filter(d => d.status === 'resep');
                 const count = waitList.length;
                 const minutes = count * 5;
@@ -166,34 +146,20 @@
                 document.getElementById('wait-count').innerText = count;
                 document.getElementById('wait-time').innerText = minutes;
 
-                // 待ち時間の色の条件分岐
                 const timeEl = document.getElementById('time-display');
                 timeEl.classList.remove('time-normal', 'time-crowded', 'time-heavy');
-                
-                if (minutes >= 30) {
-                    timeEl.classList.add('time-heavy'); // 30分以上で赤
-                } else if (minutes >= 15) {
-                    timeEl.classList.add('time-crowded'); // 15分以上でオレンジ
-                } else {
-                    timeEl.classList.add('time-normal'); // それ以外は緑
-                }
+                if (minutes >= 30) timeEl.classList.add('time-heavy');
+                else if (minutes >= 15) timeEl.classList.add('time-crowded');
+                else timeEl.classList.add('time-normal');
 
-                // 呼出番号
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
                 document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
 
-                // テロップ取得
                 const mRes = await fetch(API_URL + "?sheet=master");
                 const mData = await mRes.json();
-                if (mData.telop) {
-                    document.getElementById('telop-text').innerText = mData.telop;
-                }
-
-            } catch (e) {
-                console.error("Update error:", e);
-            }
+                if (mData.telop) document.getElementById('telop-text').innerText = mData.telop;
+            } catch (e) { console.error(e); }
         }
-
         setInterval(updateMonitor, 10000);
         updateMonitor();
     </script>
