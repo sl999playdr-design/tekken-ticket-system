@@ -14,7 +14,6 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            position: relative;
         }
 
         /* ⚙管理ボタン */
@@ -29,10 +28,9 @@
             font-size: 0.85rem;
             border-radius: 4px;
             background: #fff;
-            z-index: 100;
         }
 
-        /* 発車標本体 */
+        /* 発車標筐体 */
         .lcd-board {
             width: 95vw;
             max-width: 1000px;
@@ -43,7 +41,7 @@
             margin-top: 60px;
         }
 
-        /* 上部グレーエリア（網掛けなし） */
+        /* 上部グレーエリア（網掛け対象外） */
         .lcd-upper-gray {
             background: #3c3f41;
             padding: 25px 35px;
@@ -55,42 +53,42 @@
         .lcd-upper-gray .main-jp { font-size: 2.4rem; font-weight: bold; color: #fff; }
         .lcd-upper-gray .sub-en { font-size: 1.2rem; color: #bbb; }
 
-        /* LED表示エリア本体 */
-        .led-inner-container {
+        /* --- LED表示エリア（ここだけに網を連ねる） --- */
+        .led-display-zone {
             position: relative;
-            background: #111; /* 真っ黒より少し明るくして網を見えやすく */
-            overflow: hidden;
+            background: #000;
+            /* 網がはみ出さないようにクリップ */
+            overflow: hidden; 
         }
 
-        /* 網掛け：サイズを50pxに拡大し、文字の背後に配置 */
-        .led-mask {
+        /* 網掛け：擬似要素を使って表示部全体に画像を連ねる */
+        .led-display-zone::after {
+            content: "";
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            /* amikake.png を 50px 単位でリピート */
             background-image: url('amikake.png');
             background-repeat: repeat;
-            background-size: 50px; /* ご指定の50px */
-            pointer-events: none;
-            z-index: 1; /* 文字より後ろに */
-            opacity: 0.5;
+            background-size: 50px 50px;
+            /* 文字の上にかぶせるが、透明度で調整 */
+            opacity: 0.4; 
+            z-index: 10;
+            pointer-events: none; /* 下の文字クリックなどを邪魔しない */
         }
 
-        /* コンテンツレイヤー：網より前に出す */
-        .led-content {
-            position: relative;
-            z-index: 5; /* 網(z-index:1)より前に */
-        }
-
+        /* ヘッダー */
         .lcd-header {
             display: flex;
-            background: rgba(0, 0, 0, 0.6);
+            background: #111;
             padding: 10px 0;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #222;
         }
-        .h-col { font-size: 0.95rem; color: #888; text-align: center; font-weight: bold; }
+        .h-col { font-size: 0.95rem; color: #888; text-align: center; font-weight: bold; flex-shrink: 0; }
 
+        /* メインデータ行 */
         .lcd-main-row {
             display: flex;
             height: 140px;
@@ -98,38 +96,33 @@
             padding: 0 10px;
         }
 
-        /* LED文字共通：強力な光彩（text-shadow）で視認性確保 */
-        .led-text {
-            font-weight: bold;
-            line-height: 1;
-        }
-
         .col-type { width: 20%; display: flex; justify-content: center; }
-        .type-box { 
-            font-size: 2.5rem; 
-            color: #ff9d00; 
-            letter-spacing: 4px;
-            text-shadow: 0 0 15px #ff9d00, 0 0 5px #fff; 
+        .type-box { font-size: 2.5rem; color: #ff9d00; font-weight: bold; letter-spacing: 4px; }
+
+        .col-wait { width: 20%; font-size: 3.8rem; color: #ff9d00; text-align: center; font-weight: bold; }
+        .col-time { width: 20%; font-size: 3.8rem; text-align: center; font-weight: bold; }
+        .col-id   { width: 40%; font-size: 4.8rem; color: #ff9d00; text-align: center; font-family: 'Consolas', monospace; font-weight: bold; }
+
+        /* 待ち時間の3段階カラー */
+        .time-normal { color: #00ff00; }
+        .time-crowded { color: #ff9d00; }
+        .time-heavy { color: #ff3300; }
+
+        /* 共通：文字の視認性を上げるための光彩 */
+        .type-box, .col-wait, .col-time, .col-id, marquee {
+            text-shadow: 0 0 10px currentColor;
         }
 
-        .col-wait { width: 20%; font-size: 3.8rem; color: #ff9d00; text-align: center; text-shadow: 0 0 15px #ff9d00; }
-        .col-time { width: 20%; font-size: 3.8rem; text-align: center; }
-        .col-id   { width: 40%; font-size: 4.8rem; color: #ff9d00; text-align: center; font-family: 'Consolas', monospace; text-shadow: 0 0 20px #ff9d00; }
-
-        /* 待ち時間の色設定 */
-        .time-normal { color: #33ff33; text-shadow: 0 0 15px #33ff33, 0 0 5px #fff; }
-        .time-crowded { color: #ff9d00; text-shadow: 0 0 15px #ff9d00, 0 0 5px #fff; }
-        .time-heavy { color: #ff3300; text-shadow: 0 0 15px #ff3300, 0 0 5px #fff; }
-
+        /* 下部テロップ */
         .lcd-footer {
             height: 70px;
             display: flex;
             align-items: center;
-            background: rgba(0,0,0,0.8);
             border-top: 2px solid #222;
         }
-        marquee { font-size: 2rem; color: #ff9d00; font-weight: bold; text-shadow: 0 0 10px #ff9d00; }
+        marquee { font-size: 2.1rem; color: #ff9d00; font-weight: bold; }
 
+        /* 整理券ボタン */
         .btn-issue {
             margin-top: 50px;
             display: block;
@@ -142,10 +135,8 @@
             font-size: 1.6rem;
             font-weight: bold;
             border-radius: 60px;
-            box-shadow: 0 8px 25px rgba(0,133,66,0.4);
-            transition: 0.2s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
-        .btn-issue:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -158,27 +149,23 @@
             <span class="sub-en">Next Train</span>
         </div>
 
-        <div class="led-inner-container">
-            <div class="led-mask"></div>
+        <div class="led-display-zone">
+            <div class="lcd-header">
+                <div class="h-col" style="width: 20%;">種別</div>
+                <div class="h-col" style="width: 20%;">待ち組数</div>
+                <div class="h-col" style="width: 20%;">目安時間</div>
+                <div class="h-col" style="width: 40%;">ただいまの呼出番号</div>
+            </div>
 
-            <div class="led-content">
-                <div class="lcd-header">
-                    <div class="h-col" style="width: 20%;">種別</div>
-                    <div class="h-col" style="width: 20%;">待ち組数</div>
-                    <div class="h-col" style="width: 20%;">目安時間</div>
-                    <div class="h-col" style="width: 40%;">ただいまの呼出番号</div>
-                </div>
+            <div class="lcd-main-row">
+                <div class="col-type"><div class="type-box">体験</div></div>
+                <div class="col-wait"><span id="wait-count">0</span><small style="font-size:1.2rem; margin-left:5px;">組</small></div>
+                <div class="col-time" id="time-display"><span id="wait-time">0</span><small style="font-size:1.2rem; margin-left:5px;">分</small></div>
+                <div class="col-id" id="calling-now">---</div>
+            </div>
 
-                <div class="lcd-main-row">
-                    <div class="col-type"><div class="led-text type-box">体験</div></div>
-                    <div class="col-wait led-text"><span id="wait-count">0</span><small style="font-size:1.2rem;">組</small></div>
-                    <div class="col-time led-text" id="time-display"><span id="wait-time">0</span><small style="font-size:1.2rem;">分</small></div>
-                    <div class="col-id led-text" id="calling-now">---</div>
-                </div>
-
-                <div class="lcd-footer">
-                    <marquee id="telop-text" scrollamount="12">運行情報を取得中...</marquee>
-                </div>
+            <div class="lcd-footer">
+                <marquee id="telop-text" scrollamount="12">運行情報を取得中...</marquee>
             </div>
         </div>
     </div>
