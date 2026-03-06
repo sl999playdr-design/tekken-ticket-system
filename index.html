@@ -9,8 +9,8 @@
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, sans-serif;
             background-color: #f0f8ff; color: #333;
-            /* 固定エリアの高さ。画像が横長なので少し低めに設定 */
-            padding-top: 150px; 
+            /* 固定エリアの高さに合わせて調整 */
+            padding-top: 140px; 
         }
 
         .fixed-top-container {
@@ -24,19 +24,19 @@
         header { line-height: 0; }
         header img { width: 100%; height: auto; display: block; }
 
-        /* --- ナビゲーション（横長画像に最適化） --- */
+        /* --- ナビゲーション（極狭フレーム設定） --- */
         .navigation-section {
             display: flex;
             justify-content: center;
             background-color: #fff;
-            padding: 8px 0;
+            padding: 5px 0; /* 上下の外側の余白を最小に */
         }
 
         .button-grid {
             display: flex;
-            width: 98%; /* 画面の端まで広く使う */
-            max-width: 1400px; 
-            gap: 6px; /* フレーム同士の隙間を少しタイトに */
+            width: 100%; /* 画面いっぱいまで広げる */
+            gap: 1px;    /* フレームとフレームの間の隙間を1px（極細）に */
+            justify-content: center;
         }
 
         .nav-button {
@@ -46,28 +46,24 @@
             justify-content: center;
             text-decoration: none;
             
-            /* フレームの設定：細すぎず太すぎない2px */
-            border: 2px solid #333; 
+            /* フレームの線（黒・2px） */
+            border: 2px solid #000; 
             background-color: #fff;
             
-            /* 画像との隙間（ここを調整して「額縁感」を出します） */
-            padding: 6px; 
+            /* 画像とフレームの間の空間を「2px」まで削る */
+            padding: 2px; 
             
-            /* 角は丸めない（直角） */
-            border-radius: 0;
             box-sizing: border-box;
-            transition: all 0.2s ease;
+            transition: background-color 0.2s;
         }
 
         .nav-button:hover {
             background-color: #f0f0f0;
-            border-color: #c0392b; /* ホバー時に鉄研の赤に */
         }
 
         .nav-button img {
             width: 100%;
             height: auto;
-            /* 横長比率（3.7:1）を維持して表示 */
             display: block;
         }
 
@@ -84,11 +80,9 @@
             border-left: 5px solid #c0392b; padding-left: 15px; margin-bottom: 20px;
         }
 
-        /* スマホ対応：横長5つ並びは厳しいので2列またはスクロールを検討 */
         @media (max-width: 768px) {
-            body { padding-top: 120px; }
-            .button-grid { gap: 4px; }
-            .nav-button { padding: 3px; border-width: 1px; }
+            body { padding-top: 100px; }
+            .nav-button { padding: 1px; border-width: 1px; }
         }
     </style>
 </head>
