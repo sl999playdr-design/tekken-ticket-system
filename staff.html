@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STAFF ONLY - 運行管理</title>
+    <title>S情報統合管理システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body { background: #222; color: #ddd; font-family: monospace; margin: 0; }
@@ -26,15 +26,13 @@
         .row-calling { background: #221100; color: #ff9900; font-weight: bold; }
         .row-ended { color: #555; }
 
-        /* --- 経過時間のアラート設定 --- */
-        .time-green { color: #00ff00; font-weight: bold; } /* 5分未満 */
-        .time-yellow { color: #ffff00; font-weight: bold; } /* 10分未満 */
-        .time-red { color: #ff0000; font-weight: bold; }   /* 15分未満 */
+        /* --- 経過時間のアラートスタイル --- */
+        .time-green { color: #00ff00; font-weight: bold; }
+        .time-yellow { color: #ffff00; font-weight: bold; }
+        .time-red { color: #ff0000; font-weight: bold; }
         
-        /* 15分以上：黒背景と赤文字で激しく点滅 */
+        /* 15分以上：背景黒・文字赤で激しく反転点滅 */
         .time-emergency {
-            background: #000 !important;
-            color: #ff0000 !important;
             font-weight: bold;
             animation: emergency-blink 0.5s step-end infinite;
         }
@@ -58,48 +56,59 @@
 
 <div class="staff-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-weight: bold;">[ SYSTEM TERMINAL - STAFF ONLY ]</span>
+        <span style="font-weight: bold;">[ 情報統合管理システム ]</span>
         <button onclick="location.href='monitor.html'" style="font-size: 0.7rem;">EXIT</button>
     </div>
 
     <div class="section">
-        <div class="section-title">QUICK ISSUE (新規発行)</div>
+        <div class="section-title">整理券新規発行</div>
         <div class="issue-form">
-            <select id="v-select"><option value="">読込中...</option></select>
-            <select id="t-select"><option value="S">特別(S)</option><option value="A">普通(A)</option></select>
-            <button id="issue-btn" onclick="staffIssue()" style="background: #004400;">発行実行</button>
+            <select id="v-select"><option value="">センターと通信中...</option></select>
+            <select id="t-select"><option value="S">上級(S)</option><option value="A">普通(A)</option></select>
+            <button id="issue-btn" onclick="staffIssue()" style="background: #004400;">発行</button>
         </div>
     </div>
 
     <div class="section">
-        <div class="section-title">CUSTOMER DATA (経過時間管理)</div>
+        <div class="section-title">整理券データ</div>
         <div id="list-container"></div>
     </div>
 </div>
 
 <div id="loading-overlay">
     <div class="loading-spinner"></div>
-    <div style="color:#f1c40f; margin-top:10px;">DATA UPDATING...</div>
+    <div style="color:#f1c40f; margin-top:50px; letter-spacing: 2px;">通信中...</div>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
 
-    // 経過時間を計算してクラスを返す
+    /**
+     * 経過時間を計算して表示用テキストとCSSクラスを返す
+     */
     function getTimeStyle(dateStr) {
         if (!dateStr) return { text: "--:--", className: "" };
+        
         const now = new Date();
         const start = new Date(dateStr);
         const diffMs = now - start;
+        
+        // 異常な日付（未来など）の場合は計算しない
+        if (diffMs < 0) return { text: "0分0秒", className: "time-green" };
+
         const diffMin = Math.floor(diffMs / 60000);
         const diffSec = Math.floor((diffMs % 60000) / 1000);
         
         const timeText = `${diffMin}分${diffSec}秒`;
         let className = "time-green";
 
-        if (diffMin >= 15) className = "time-emergency";
-        else if (diffMin >= 10) className = "time-red";
-        else if (diffMin >= 5) className = "time-yellow";
+        if (diffMin >= 1) {
+            className = "time-emergency";
+        } else if (diffMin >= 0.5) {
+            className = "time-red";
+        } else if (diffMin >= 0.25) {
+            className = "time-yellow";
+        }
 
         return { text: timeText, className: className };
     }
@@ -117,7 +126,7 @@
                     select.appendChild(opt);
                 });
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Master load error:", e); }
     }
 
     async function refresh() {
@@ -125,7 +134,9 @@
             const response = await fetch(API_URL);
             const data = await response.json();
             const container = document.getElementById('list-container');
-            const allData = data.reverse(); 
+            
+            // 最新の発行分を上に表示
+            const allData = [...data].reverse(); 
 
             let html = `<table class="admin-table">
                 <thead>
@@ -140,7 +151,9 @@
                 <tbody>`;
 
             allData.forEach(d => {
-                const timeInfo = (d.status !== 'end') ? getTimeStyle(d.受付時間) : { text: "完了", className: "" };
+                // スプレッドシートのヘッダー名 'reception' に合わせて取得
+                const timeInfo = (d.status !== 'end') ? getTimeStyle(d.reception) : { text: "完了", className: "" };
+                
                 let actionBtn = "";
                 let rowClass = d.status === 'call' ? 'row-calling' : (d.status === 'end' ? 'row-ended' : '');
 
@@ -163,30 +176,48 @@
 
             html += `</tbody></table>`;
             container.innerHTML = html;
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Refresh error:", e); }
     }
 
     async function staffIssue() {
         const v = document.getElementById('v-select').value;
         const t = document.getElementById('t-select').value;
-        if(!v) return;
+        if(!v) { alert("車両を選択してください"); return; }
+        
         showLoading(true);
-        await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'issue', type: t, vehicle: v }) });
-        refresh();
+        try {
+            await fetch(API_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ action: 'issue', type: t, vehicle: v }) 
+            });
+            await refresh();
+        } catch (e) { alert("通信エラーが発生しました"); }
         showLoading(false);
     }
 
     async function upd(id, s) {
         showLoading(true);
-        await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'update', id: id, status: s }) });
-        refresh();
+        try {
+            await fetch(API_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ action: 'update', id: id, status: s }) 
+            });
+            await refresh();
+        } catch (e) { alert("更新エラーが発生しました"); }
         showLoading(false);
     }
 
-    function showLoading(show) { document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
+    function showLoading(show) { 
+        document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; 
+    }
 
-    window.addEventListener('load', () => { loadMaster(); refresh(); });
-    // 経過時間をリアルタイムに見せるため、5秒おきにリフレッシュ
+    // 初期化
+    window.addEventListener('load', () => { 
+        loadMaster(); 
+        refresh(); 
+    });
+
+    // 5秒おきに表示を更新（経過時間のカウントアップを反映）
     setInterval(refresh, 5000);
 </script>
 </body>
