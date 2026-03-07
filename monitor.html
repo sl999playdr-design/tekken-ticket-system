@@ -5,55 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鉄道研究部 運転体験モニター</title>
     <style>
-        /* --- ポータル(index.html)と共通のベーススタイル --- */
         body {
             margin: 0; padding: 0;
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
             background-color: #f0f8ff; color: #333;
-            padding-top: 180px; /* ヘッダー固定分の余白 */
+            /* 画像の高さに合わせて調整。メニューがない分、少し詰めました */
+            padding-top: 130px; 
             display: flex;
             flex-direction: column;
             align-items: center;
             overflow-x: hidden;
         }
 
-        /* --- 固定ヘッダー・ナビ（index.htmlから移植） --- */
+        /* --- 固定ヘッダー（画像のみ） --- */
         .fixed-top-container {
             position: fixed; top: 0; left: 0; width: 100%; z-index: 5000;
             background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            line-height: 0;
         }
-        header { line-height: 0; }
-        header img { width: 100%; height: auto; display: block; max-width: 100%; }
-        .navigation-section { display: flex; justify-content: center; background-color: #000; padding: 0; }
-        .button-grid { display: flex; width: 100%; gap: 0; max-width: 1100px; }
-        .nav-button {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            text-decoration: none; background-color: #fff;
-            border: 5px solid #000; padding: 0; margin-left: -5px;
-            box-sizing: border-box; line-height: 0; transition: opacity 0.2s;
+        header img {
+            width: 100%; height: auto; display: block;
+            max-width: 900px; /* index.htmlのヘッダーサイズ感に合わせる */
+            margin: 0 auto;
         }
-        .nav-button:first-child { margin-left: 0; }
-        .nav-button:hover { opacity: 0.8; }
-        .nav-button img { width: 100%; height: auto; display: block; }
 
-        /* --- 管理ボタン（右上に配置） --- */
+        /* 🏠 戻るボタン（ヘッダーと重ならない位置に配置） */
+        .home-link {
+            position: fixed; top: 15px; left: 15px; text-decoration: none;
+            color: #333; border: 1px solid #ccc; padding: 6px 12px;
+            font-size: 0.8rem; border-radius: 4px; background: white; z-index: 6000;
+        }
+
+        /* ⚙ 管理ボタン */
         .admin-link {
-            position: fixed; top: 20px; right: 20px; text-decoration: none;
-            color: #333; border: 1px solid #ccc; padding: 8px 16px;
-            font-size: 0.8rem; border-radius: 4px; background: rgba(255,255,255,0.8); z-index: 6000;
-            cursor: pointer; font-family: sans-serif;
+            position: fixed; top: 15px; right: 15px; text-decoration: none;
+            color: #333; border: 1px solid #ccc; padding: 6px 12px;
+            font-size: 0.8rem; border-radius: 4px; background: white; z-index: 6000;
+            cursor: pointer;
         }
 
-        /* --- 電光掲示板(モニター)本体 --- */
+        /* --- 表示器本体 --- */
         .lcd-board {
-            position: relative; 
-            width: 90%; 
-            max-width: 900px; 
-            aspect-ratio: 16 / 9;
-            background-image: url('hassyahyou.png'); 
-            background-size: contain;
-            background-repeat: no-repeat;
-            margin-bottom: 30px;
+            position: relative; width: 90%; max-width: 900px; aspect-ratio: 16 / 9;
+            background-image: url('hassyahyou.png'); background-size: contain;
+            background-repeat: no-repeat; margin-bottom: 30px;
         }
 
         /* 網掛けマスク */
@@ -68,7 +63,7 @@
             z-index: 101; pointer-events: none;
         }
 
-        /* LED表示内容 */
+        /* LED表示 */
         .led-item {
             position: absolute; font-family: serif; font-weight: 900;
             display: flex; align-items: baseline; justify-content: center; z-index: 50;
@@ -81,47 +76,26 @@
         .pos-telop { position: absolute; bottom: 25%; left: 6.8%; width: 86.6%; height: 80px; display: flex; align-items: center; z-index: 40; }
         marquee { width: 100%; font-size: 2.8rem; color: #ff8800; text-shadow: 0 0 8px rgba(255, 136, 0, 0.5); }
 
-        /* --- 下部ボタンエリア --- */
+        /* --- ボタンエリア --- */
         .button-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 50px;
+            display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 50px;
         }
 
-        /* 紺色の「整理券確認」ボタン */
         #my-ticket-btn {
-            display: none; 
-            padding: 15px 40px;
-            background: #001f3f; 
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #000;
+            display: none; padding: 15px 40px; background: #001f3f; color: #fff;
+            text-decoration: none; font-size: 1.2rem; font-weight: bold;
+            border-radius: 50px; box-shadow: 0 4px 0 #000;
         }
 
-        /* 緑色の「整理券発行」ボタン */
         .btn-issue {
-            padding: 20px 60px;
-            background: #008542;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.8rem;
-            font-weight: bold;
-            border-radius: 50px;
-            box-shadow: 0 6px 0 #005a2d;
-            transition: transform 0.1s;
+            padding: 20px 60px; background: #008542; color: #fff;
+            text-decoration: none; font-size: 1.8rem; font-weight: bold;
+            border-radius: 50px; box-shadow: 0 6px 0 #005a2d;
         }
-        .btn-issue:active { transform: translateY(4px); box-shadow: 0 2px 0 #005a2d; }
 
         @media (max-width: 768px) {
-            body { padding-top: 120px; }
-            .lcd-board { width: 95%; margin-top: 20px; }
+            body { padding-top: 100px; }
+            .lcd-board { width: 95%; }
             .pos-time, .pos-wait { font-size: 2rem; }
             .pos-calling { font-size: 2.5rem; }
             marquee { font-size: 1.5rem; }
@@ -131,19 +105,11 @@
 <body>
 
 <div class="fixed-top-container">
-    <header><img src="header-img.png" alt="鉄研ヘッダー"></header>
-    <nav class="navigation-section">
-        <div class="button-grid">
-            <a href="index.html" class="nav-button"><img src="aboutus.png" alt="概要"></a>
-            <a href="#" class="nav-button"><img src="notifications.png" alt="お知らせ"></a>
-            <a href="#" class="nav-button"><img src="katsudou.png" alt="活動"></a>
-            <a href="#" class="nav-button"><img src="medias.png" alt="作品"></a>
-            <a href="monitor.html" class="nav-button"><img src="modeltrain.png" alt="運転体験"></a>
-        </div>
-    </nav>
+    <header><img src="mokeiheader.png" alt="鉄研模型ヘッダー"></header>
 </div>
 
-<div class="admin-link" onclick="goToAdmin()">⚙ Staff Only</div>
+<a href="index.html" class="home-link">⬅ 戻る</a>
+<div class="admin-link" onclick="goToAdmin()">⚙ Staff</div>
 
 <div class="lcd-board">
     <div class="mask-upper"></div>
@@ -152,7 +118,7 @@
     <div class="led-item pos-wait"><span id="wait-count">0</span><small>組</small></div>
     <div class="led-item pos-calling" id="calling-now">---</div>
     <div class="pos-telop">
-        <marquee id="telop-text" scrollamount="10">☆鉄道研究部 運転シミュレータ体験へようこそ☆</marquee>
+        <marquee id="telop-text" scrollamount="10">☆鉄道研究部 運転体験へようこそ☆</marquee>
     </div>
 </div>
 
@@ -164,7 +130,6 @@
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
 
-    // 整理券ボタンの表示制御
     function updateTicketButtonVisibility() {
         const myNum = localStorage.getItem('my_ticket_id');
         const btn = document.getElementById('my-ticket-btn');
@@ -182,7 +147,6 @@
             const response = await fetch(API_URL);
             const data = await response.json();
 
-            // 運営リセット時の処理
             if (!data || data.length === 0) {
                 localStorage.removeItem('my_ticket_id');
                 localStorage.removeItem('my_ticket_v');
@@ -201,15 +165,11 @@
             if (mData.telop) document.getElementById('telop-text').innerText = mData.telop;
 
             updateTicketButtonVisibility();
-        } catch (e) { 
-            console.error("データ更新失敗:", e); 
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // 初回読み込み
     updateTicketButtonVisibility();
     updateMonitor();
-    // 10秒おきに自動更新
     setInterval(updateMonitor, 10000);
 </script>
 
