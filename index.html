@@ -3,176 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鉄研模型特設サイト</title>
+    <title>鉄道研究部 ポータルサイト</title>
     <style>
         body {
-            background-color: #f0f0f0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            font-family: serif;
-            font-weight: 900;
+            margin: 0; padding: 0;
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+            font-size: 18px; 
+            background-color: #f0f8ff; color: #333;
+            padding-top: 160px; 
+            overflow-x: hidden;
         }
 
-        /* 🖼 ヘッダー設定（index.htmlと同様） */
-        .header-img {
-            width: 100%;
-            max-width: 900px;
-            height: auto;
-            display: block;
-            margin-bottom: 0;
+        /* --- 固定ヘッダー・ナビ --- */
+        .fixed-top-container {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 5000;
+            background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
+        header { line-height: 0; }
+        header img { width: 100%; height: auto; display: block; }
+        .navigation-section { display: flex; justify-content: center; background-color: #000; padding: 0; }
+        .button-grid { display: flex; width: 100%; gap: 0; }
+        .nav-button {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; background-color: #fff;
+            border: 5px solid #000; padding: 0; margin-left: -5px;
+            box-sizing: border-box; line-height: 0; transition: opacity 0.2s;
+        }
+        .nav-button:first-child { margin-left: 0; }
+        .nav-button:hover { opacity: 0.8; }
+        .nav-button img { width: 100%; height: auto; display: block; }
 
-        /* 🏠 左上の戻るボタン */
-        .home-link {
-            position: fixed; top: 20px; left: 20px; text-decoration: none;
-            color: #333; border: 1px solid #ccc; padding: 8px 16px;
-            font-size: 0.9rem; border-radius: 4px; background: white; z-index: 1000;
+        /* --- 収納式言語メニュー（紺色・国旗付き） --- */
+        .language-sidebar {
+            position: fixed; top: 180px; right: -180px; 
+            display: flex; align-items: center; z-index: 6000;
+            transition: right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
+        .language-sidebar.is-open { right: 0; }
+        .lang-tab {
+            width: 45px; height: 160px; background-color: #001f3f; 
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 8px 0 0 8px;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+            writing-mode: vertical-rl; font-size: 13px; font-weight: bold;
+        }
+        .lang-menu { width: 180px; background-color: #001f3f; padding: 10px 0; border-radius: 0 0 0 8px; }
+        .lang-menu button {
+            width: 100%; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 10px 20px; text-align: left; font-size: 14px;
+            cursor: pointer; transition: background 0.3s; display: flex; align-items: center; gap: 10px;
+        }
+        .lang-menu button:hover { background-color: #003366; color: #ffda44; }
 
-        /* ⚙ 管理ボタン */
-        .admin-link {
-            position: fixed; top: 20px; right: 20px; text-decoration: none;
-            color: #333; border: 1px solid #ccc; padding: 8px 16px;
-            font-size: 0.9rem; border-radius: 4px; background: white; z-index: 1000;
-            cursor: pointer;
-        }
+        /* --- メインコンテンツ --- */
+        .container { max-width: 1100px; margin: 80px auto; padding: 0 30px; }
+        .section-row { display: flex; align-items: center; gap: 70px; margin-bottom: 180px; }
+        .section-row.reverse { flex-direction: row-reverse; }
+        .text-content { flex: 1.3; }
+        .text-content h2 { color: #c0392b; font-size: 2.1rem; border-left: 8px solid #c0392b; padding-left: 20px; margin-bottom: 25px; }
+        .text-content p { line-height: 1.8; font-size: 1.2rem; margin-bottom: 1.5em; text-align: justify; }
+        .image-content { flex: 1; }
+        .image-content img { width: 100%; height: auto; border-radius: 4px; display: block; box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
 
-        /* --- 表示器本体 --- */
-        .lcd-board {
-            position: relative; width: 900px; aspect-ratio: 16 / 9;
-            background-image: url('hassyahyou.png'); background-size: contain;
-            background-repeat: no-repeat;
-            margin-top: 10px; /* ヘッダーとの隙間を調整 */
+        /* フェードイン演出 */
+        .fade-in {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+            visibility: hidden;
         }
-        .mask-upper {
-            position: absolute; top: 41%; left: 6%; width: 88.5%; height: 80px;
-            background-image: url('amikake.png'); background-size: 100% 100%;
-            z-index: 100; pointer-events: none;
-        }
-        .mask-lower {
-            position: absolute; top: 59.5%; left: 6%; width: 88.5%; height: 80px;
-            background-image: url('amikake.png'); background-size: 100% 100%;
-            z-index: 101; pointer-events: none;
-        }
+        .fade-in.is-visible { opacity: 1; transform: translateY(0); visibility: visible; }
 
-        .led-item {
-            position: absolute; font-family: serif; font-weight: 900;
-            display: flex; align-items: baseline; justify-content: center; z-index: 50;
-        }
-        small { font-size: 0.9rem; margin-left: 2px; }
-
-        .pos-time { top: 40%; left: 9%; width: 150px; color: #00ff44; font-size: 3.8rem; text-shadow: 0 0 8px rgba(0, 255, 68, 0.6); }
-        .pos-wait { top: 40%; left: 30%; width: 150px; color: #ff8800; font-size: 3.8rem; text-shadow: 0 0 8px rgba(255, 136, 0, 0.6); }
-        .pos-calling { top: 37%; left: 54%; width: 280px; color: #ffcc00; font-size: 4.8rem; text-shadow: 0 0 10px rgba(255, 204, 0, 0.6); letter-spacing: -2px; }
-        .pos-telop { position: absolute; bottom: 25%; left: 6.8%; width: 86.6%; height: 80px; display: flex; align-items: center; z-index: 40; }
-        marquee { width: 100%; font-size: 2.8rem; color: #ff8800; text-shadow: 0 0 8px rgba(255, 136, 0, 0.5); }
-
-        /* --- ボタンエリア --- */
-        .button-container {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        #my-ticket-btn {
-            display: none; 
-            padding: 12px 40px;
-            background: #001f3f;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: 900;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #001021;
-        }
-
-        .btn-issue {
-            padding: 18px 60px;
-            background: #008542;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.6rem;
-            font-weight: 900;
-            border-radius: 50px;
-            box-shadow: 0 5px 0 #005a2d;
-            font-family: sans-serif;
+        @media (max-width: 768px) {
+            body { padding-top: 110px; }
+            .section-row { margin-bottom: 100px; gap: 30px; flex-direction: column !important; }
+            .text-content h2 { font-size: 1.6rem; }
+            .language-sidebar { top: auto; bottom: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="home-link">⬅ 戻る</a>
-    <div class="admin-link" onclick="goToAdmin()">⚙ 管理者用</div>
+<div class="language-sidebar" id="langSidebar">
+    <div class="lang-tab" onclick="toggleLang()">LANGUAGES ◀</div>
+    <div class="lang-menu">
+        <button onclick="changeLang('ja')"><span>🇯🇵</span> 日本語</button>
+        <button onclick="changeLang('en')"><span>🇺🇸</span> English</button>
+        <button onclick="changeLang('zh')"><span>🇨🇳</span> 简体中文</button>
+        <button onclick="changeLang('ko')"><span>🇰🇷</span> 한국어</button>
+        <button onclick="changeLang('de')"><span>🇩🇪</span> Deutsch</button>
+        <button onclick="changeLang('vi')"><span>🇻🇳</span> Tiếng Việt</button>
+    </div>
+</div>
 
-    <img src="mokeiheader.png" alt="鉄研模型特設サイト" class="header-img">
-
-    <div class="lcd-board">
-        <div class="mask-upper"></div>
-        <div class="mask-lower"></div>
-        <div class="led-item pos-time"><span id="wait-time">0</span><small>分</small></div>
-        <div class="led-item pos-wait"><span id="wait-count">0</span><small>組</small></div>
-        <div class="led-item pos-calling" id="calling-now">---</div>
-        <div class="pos-telop">
-            <marquee id="telop-text" scrollamount="12">☆鉄道研究部 模型展示特設サイトへようこそ☆</marquee>
+<div class="fixed-top-container">
+    <header><img src="header-img.png" alt="鉄研ヘッダー"></header>
+    <nav class="navigation-section">
+        <div class="button-grid">
+            <a href="index.html" class="nav-button"><img src="aboutus.png" alt="概要"></a>
+            <a href="#" class="nav-button"><img src="notifications.png" alt="お知らせ"></a>
+            <a href="#" class="nav-button"><img src="katsudou.png" alt="活動"></a>
+            <a href="#" class="nav-button"><img src="medias.png" alt="作品"></a>
+            <a href="monitor.html" class="nav-button"><img src="modeltrain.png" alt="運転体験"></a>
         </div>
-    </div>
+    </nav>
+</div>
 
-    <div class="button-container">
-        <a href="issued.html" id="my-ticket-btn">自分の整理券を表示する</a>
-        <a href="entry.html" class="btn-issue">整理券を発行する</a>
-    </div>
+<main class="container">
+    <section class="section-row fade-in">
+        <div class="text-content">
+            <h2 id="t1">ようこそ！名古屋中高 鉄研ポータルへ</h2>
+            <p id="d1">鉄道好きの皆さん、こんにちは！私たちは名古屋中学校・高等学校 鉄道研究部です。私たちは週に一回の部会で、さまざまな意見交換をしたり、次のイベントについて議論を交わしたりしています。鉄道に詳しくない人でも大歓迎な、自由で居心地の良い雰囲気づくりを心がけています。</p>
+        </div>
+        <div class="image-content"><img src="intro-image.jpg" alt="部活動の様子"></div>
+    </section>
 
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
+    <section class="section-row reverse fade-in">
+        <div class="text-content">
+            <h2 id="t2">部自慢の鉄道模型</h2>
+            <p id="d2">鉄研の一番の目玉は、なんといっても部員たちが協力して作り上げる「大型鉄道模型」です！個人では製作が難しい、巨大かつリアルなジオラマは、校内外問わず多くの人を惹きつけています。オープンキャンパスや文化祭では、来場者の方に向けた模型の運転体験も行っていますので、ぜひ遊びに来てください！</p>
+        </div>
+        <div class="image-content"><img src="diorama-image.jpg" alt="ジオラマ展示"></div>
+    </section>
 
-        function updateTicketButtonVisibility() {
-            const myNum = localStorage.getItem('my_ticket_id');
-            const btn = document.getElementById('my-ticket-btn');
-            btn.style.display = myNum ? 'block' : 'none';
+    <section class="section-row fade-in">
+        <div class="text-content">
+            <h2 id="t3">部活ならではの貴重な体験！</h2>
+            <p id="d3">私たちは学校内だけでなく、校外での活動も積極的に行っています。過去にはバスの車庫見学をさせていただいたり、鉄道車両を丸々一両貸し切って乗車したりと、部活動だからこそ実現できる貴重な体験が盛りだくさんです！</p>
+        </div>
+        <div class="image-content"><img src="outside-image.jpg" alt="校外活動の様子"></div>
+    </section>
+
+    <section class="section-row reverse fade-in">
+        <div class="text-content">
+            <h2 id="t4">最先端のデジタルコンテンツ制作</h2>
+            <p id="d4">私たちは、模型制作のようなアナログな活動だけでなく、デジタルコンテンツにも精通しています！文化祭では、部員有志が撮影・編集したハイクオリティな鉄道プロモーションビデオを放映しています。また、模型運転体験の整理券システムや、今ご覧いただいているこのポータルサイトも、部員の手によって一から制作されたものです！</p>
+        </div>
+        <div class="image-content"><img src="digital-image.jpg" alt="デジタル活動"></div>
+    </section>
+
+    <section class="section-row fade-in">
+        <div class="text-content">
+            <h2 id="t5">鉄研に眠る貴重な資料とお宝たち</h2>
+            <p id="d5">我が部の部室には、長い歴史の中で集まった貴重な資料がたくさん眠っています。実際に使われていた方向幕やつり革などの鉄道部品をはじめ、本物の駅名看板、さらには今はなき列車の写真や鉄道雑誌など、当時の空気感をそのままに保管されています。これらの貴重な歴史を受け継ぎ、未来へとつないでいくことも、私たちの活動の一つです。</p>
+        </div>
+        <div class="image-content"><img src="archive-image.jpg" alt="貴重な資料"></div>
+    </section>
+</main>
+
+<script>
+    const translations = {
+        ja: {
+            t1: "ようこそ！名古屋中高 鉄研ポータルへ",
+            d1: "鉄道好きの皆さん、こんにちは！私たちは名古屋中学校・高等学校 鉄道研究部です。私たちは週に一回の部会で、さまざまな意見交換をしたり、次のイベントについて議論を交わしたりしています。鉄道に詳しくない人でも大歓迎な、自由で居心地の良い雰囲気づくりを心がけています。",
+            t2: "部自慢の鉄道模型",
+            d2: "鉄研の一番の目玉は、なんといっても部員たちが協力して作り上げる「大型鉄道模型」です！個人では製作が難しい、巨大かつリアルなジオラマは、校内外問わず多くの人を惹きつけています。オープンキャンパスや文化祭では、来場者の方に向けた模型の運転体験も行っていますので、ぜひ遊びに来てください！",
+            t3: "部活ならではの貴重な体験！",
+            d3: "私たちは学校内だけでなく、校外での活動も積極的に行っています。過去にはバスの車庫見学をさせていただいたり、鉄道車両を丸々一両貸し切って乗車したりと、部活動だからこそ実現できる貴重な体験が盛りだくさんです！",
+            t4: "最先端のデジタルコンテンツ制作",
+            d4: "私たちは、模型制作のようなアナログな活動だけでなく、デジタルコンテンツにも精通しています！文化祭では、部員有志が撮影・編集したハイクオリティな鉄道プロモーションビデオを放映しています。また、模型運転体験の整理券システムや、今ご覧いただいているこのポータルサイトも、部員の手によって一から制作されたものです！",
+            t5: "鉄研に眠る貴重な資料とお宝たち",
+            d5: "我が部の部室には、長い歴史の中で集まった貴重な資料がたくさん眠っています。実際に使われていた方向幕やつり革などの鉄道部品をはじめ、本物の駅名看板、さらには今はなき列車の写真や鉄道雑誌など、当時の空気感をそのままに保管されています。これらの貴重な歴史を受け継ぎ、未来へとつないでいくことも、私たちの活動の一つです。"
+        },
+        en: {
+            t1: "Welcome to Nagoya J&S High School Railway Portal",
+            d1: "Hello to all railway fans! We are the Nagoya J&S High School Railway Research Club. We meet weekly to exchange ideas and plan future events. We aim to create a welcoming, free atmosphere for everyone, even those new to railways.",
+            t2: "Our Pride: Large-scale Model Trains",
+            d2: "The highlight of our club is the large-scale model railway dioramas we build together! These massive, realistic dioramas attract many visitors. We offer hands-on driving experiences during open campuses and festivals, so please come visit!",
+            t3: "Unique Off-campus Experiences!",
+            d3: "We enjoy many activities outside of school. From visiting bus depots to chartering an entire train car, we have unique experiences only possible through our club activities!",
+            t4: "Advanced Digital Content Creation",
+            d4: "Beyond models, we excel in digital content! We screen high-quality railway PVs edited by members. We also developed our own ticketing system for driving experiences and even built this portal site from scratch!",
+            t5: "Treasures and Rare Archives",
+            d5: "Our clubroom houses many rare archives collected over a long history. From railway parts like rollsigns and straps to authentic station signs and vintage magazines, we preserve the atmosphere of the past to pass it on to the future."
+        },
+        zh: {
+            t1: "欢迎来到名古屋中高铁路门户网站",
+            d1: "各位铁路爱好者，大家好！我们是名古屋初高中铁路研究部。我们每周开会一次，交换意见并策划活动。即使不了解铁路的人也大受欢迎，我们努力营造一个自由且舒适的氛围。",
+            t2: "引以为傲的铁路模型",
+            d2: "铁路部最大的亮点莫过于部员们共同制作的大型铁路模型！这些逼真且巨大的场景，吸引了校内外的众多目光。在校园开放日和文化祭中，我们还提供模型驾驶体验活动，欢迎前来参加！",
+            t3: "社团特有的珍贵体验！",
+            d3: "我们不仅在校内活动，还积极参加校外活动。从参观巴士车库到包下整节火车车厢，这些只有在社团才能实现的珍贵体验正等着你！",
+            t4: "尖端的数字内容制作",
+            d4: "除了模型制作，我们也精通数字内容！文化祭期间会放映部员编辑的高质量铁路PV。此外，驾驶体验的预约系统以及您正在浏览的这个网站，都是由部员亲手制作的！",
+            t5: "沉睡在铁路部的珍贵资料",
+            d5: "部室里保存着许多具有历史价值的珍贵资料。包括实际使用过的方向幕、吊环等零件，真实的站牌，以及珍贵的旧照片和杂志。传承这些历史也是我们的重要活动之一。"
+        },
+        ko: {
+            t1: "나고야 중고 철도연구부 포털에 오신 것을 환영합니다",
+            d1: "철도를 사랑하는 여러분, 안녕하세요! 저희는 나고야 중학교·고등학교 철도연구부입니다. 매주 한 번 부회를 통해 의견을 나누고 다음 행사를 기획합니다. 철도를 잘 모르는 분들도 언제나 환영하는 자유로운 분위기를 지향합니다.",
+            t2: "저희 부의 자랑, 대형 철도 모형",
+            d2: "철도연구부의 가장 큰 볼거리는 부원들이 협력해 만든 대형 철도 모형입니다! 거대하고 사실적인 디오라마는 많은 사람들을 매료시키고 있습니다. 오픈 캠퍼스와 축제 때는 운전 체험도 진행하니 꼭 놀러 오세요!",
+            t3: "동아리만의 특별한 대외 활동!",
+            d3: "교내뿐만 아니라 교외 활동도 활발히 하고 있습니다. 버스 차고지 견학이나 열차 한 칸을 통째로 대절해 탑승하는 등, 철도연구부이기에 가능한 귀중한 체험이 가득합니다!",
+            t4: "최첨단 디지털 콘텐츠 제작",
+            d4: "저희는 아날로그 활동뿐만 아니라 디지털 콘텐츠에도 정통합니다! 문화제에서는 부원이 제작한 고화질 철도 PV를 방영하며, 운전 체험 예약 시스템과 이 사이트 역시 부원들이 직접 만들었습니다!",
+            t5: "부실에 잠든 귀중한 자료와 보물들",
+            d5: "긴 역사 속에서 수집된 귀중한 자료들이 보관되어 있습니다. 실제 사용된 방향막, 손잡이 등의 부품부터 역 명판, 희귀 잡지까지 당시의 분위기를 그대로 간직하고 있습니다. 이 역사를 미래로 잇는 것 또한 저희의 활동입니다."
+        },
+        de: {
+            t1: "Willkommen beim Nagoya Eisenbahn-Club Portal",
+            d1: "Hallo an alle Eisenbahnfans! Wir sind der Eisenbahn-Club der Nagoya J&S High School. Wir treffen uns wöchentlich, um Ideen auszutauschen und Events zu planen. Bei uns ist jeder willkommen!",
+            t2: "Stolz des Clubs: Großmodelle",
+            d2: "Das Highlight sind unsere riesigen, realistischen Dioramen! Wir bauen sie gemeinsam und ziehen viele Besucher an. Bei Festen bieten wir sogar Fahrsimulationen an.",
+            t3: "Einzigartige Erlebnisse!",
+            d3: "Wir sind auch außerhalb der Schule aktiv, z.B. bei Depot-Besichtigungen oder der Charterung eines kompletten Zugwaggons – ein Erlebnis, das nur unser Club bietet!",
+            t4: "Digitale Content-Erstellung",
+            d4: "Wir sind Experten für digitale Inhalte! Wir produzieren hochwertige Videos und haben sogar unser eigenes Ticketsystem und diese Website selbst entwickelt.",
+            t5: "Historische Schätze und Archive",
+            d5: "In unserem Clubraum lagern seltene Fundstücke: Original-Rollbandanzeigen, Bahnhofsschilder und alte Magazine. Wir bewahren diese Geschichte für die Zukunft."
+        },
+        vi: {
+            t1: "Chào mừng đến với Cổng thông tin CLB Đường sắt Nagoya",
+            d1: "Xin chào các bạn yêu đường sắt! Chúng tôi là CLB Nghiên cứu Đường sắt Trung học Nagoya. Chúng tôi họp hàng tuần để trao đổi ý tưởng và lập kế hoạch cho các sự kiện sắp tới.",
+            t2: "Niềm tự hào: Mô hình đường sắt lớn",
+            d2: "Điểm nhấn của CLB là những mô hình sa bàn đường sắt khổng lồ và chân thực! Chúng tôi cũng tổ chức trải nghiệm lái tàu mô hình trong các ngày hội trường.",
+            t3: "Trải nghiệm ngoại khóa độc đáo!",
+            d3: "Chúng tôi có nhiều hoạt động ngoài trường như tham quan nhà ga xe buýt hoặc thuê trọn gói một toa tàu hỏa – những trải nghiệm chỉ có tại CLB đường sắt!",
+            t4: "Sáng tạo nội dung số tiên tiến",
+            d4: "Chúng tôi giỏi cả về kỹ thuật số! CLB tự sản xuất các video quảng bá đường sắt chất lượng cao, hệ thống đặt vé trải nghiệm và cả trang web này!",
+            t5: "Kho báu và tài liệu quý giá",
+            d5: "Phòng sinh hoạt của CLB lưu giữ nhiều hiện vật lịch sử như biển báo nhà ga, bảng tên tàu và tạp chí xưa. Chúng tôi gìn giữ những giá trị này cho thế hệ mai sau."
         }
+    };
 
-        function goToAdmin() {
-            const pass = prompt("パスワードを入力してください");
-            if (pass === "0000") { window.location.href = "staff.html"; }
-            else if (pass !== null) { alert("パスワードが違います"); }
+    function changeLang(lang) {
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById(`t${i}`).innerText = translations[lang][`t${i}`];
+            document.getElementById(`d${i}`).innerText = translations[lang][`d${i}`];
         }
+        toggleLang();
+    }
 
-        async function updateMonitor() {
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
+    function toggleLang() {
+        document.getElementById('langSidebar').classList.toggle('is-open');
+    }
 
-                if (!data || data.length === 0) {
-                    localStorage.removeItem('my_ticket_id');
-                    localStorage.removeItem('my_ticket_v');
-                }
+    window.onbeforeunload = function () { window.scrollTo(0, 0); };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.fade-in').forEach(el => { observer.observe(el); });
+</script>
 
-                const waitList = data.filter(d => d.status === 'resep');
-                const count = waitList.length;
-                document.getElementById('wait-count').innerText = count;
-                document.getElementById('wait-time').innerText = count * 5;
-                
-                const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
-                document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
-                
-                const mRes = await fetch(API_URL + "?sheet=master");
-                const mData = await mRes.json();
-                if (mData.telop) document.getElementById('telop-text').innerText = mData.telop;
-
-                updateTicketButtonVisibility();
-            } catch (e) { console.error("更新失敗:", e); }
-        }
-
-        updateTicketButtonVisibility();
-        updateMonitor();
-        setInterval(updateMonitor, 10000);
-    </script>
 </body>
 </html>
