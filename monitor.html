@@ -12,7 +12,6 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            /* 汎用的な明朝体指定。serifは全デバイス共通のキーワードです */
             font-family: serif;
             font-weight: 900;
         }
@@ -58,7 +57,7 @@
             pointer-events: none;
         }
 
-        /* --- 網掛け2枚目（下段専用：ご提示の59.5%に設定） --- */
+        /* --- 網掛け2枚目（下段専用） --- */
         .mask-lower-final {
             position: absolute;
             top: 59.5%; 
@@ -72,12 +71,12 @@
             pointer-events: none;
         }
 
-        /* --- 文字コンテンツ --- */
+        /* --- 文字コンテンツ全体 --- */
         .led-content-wrapper {
             position: absolute;
-            top: 38.5%;
-            left: 6.8%;
-            width: 86.6%;
+            top: 36%; /* 38.5%から36%へ：全体を少し上へ */
+            left: 5%; /* 6.8%から5%へ：全体を少し左へ */
+            width: 88%; /* 左に寄せた分、幅を少し広げて調整 */
             height: 52%;
             z-index: 50; 
         }
@@ -86,9 +85,10 @@
             display: flex;
             height: 45%;
             align-items: center;
+            justify-content: flex-start; /* 左寄せを確実にする */
         }
 
-        /* 下段（テロップ）の位置：ご提示の25%に設定 */
+        /* 下段（テロップ）の位置 */
         .lower-row {
             position: absolute;
             bottom: 25%; 
@@ -99,15 +99,15 @@
         }
 
         .led-text {
-            /* 文字部分も明朝体で統一 */
             font-family: serif;
             font-weight: 900;
             text-align: center;
         }
 
-        .col-time { width: 33%; color: #00ff66; font-size: 5rem; }
-        .col-wait { width: 34%; color: #ffcc00; font-size: 5rem; }
-        .col-id   { width: 33%; color: #ffff00; font-size: 6rem; letter-spacing: -2px; }
+        /* 各列の幅とフォントサイズ */
+        .col-time { width: 32%; color: #00ff66; font-size: 5rem; }
+        .col-wait { width: 32%; color: #ffcc00; font-size: 5rem; }
+        .col-id   { width: 36%; color: #ffff00; font-size: 6rem; letter-spacing: -2px; }
 
         small { font-size: 1.2rem; margin-left: 4px; }
 
@@ -128,7 +128,6 @@
             font-weight: 900;
             border-radius: 50px;
             box-shadow: 0 5px 0 #005a2d;
-            /* ボタンは読みやすさのため標準のゴシックにしています */
             font-family: sans-serif;
         }
     </style>
