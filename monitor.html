@@ -1,28 +1,192 @@
-/* --- 網掛け（amikake.png） --- */
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鉄研模型特設サイト</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@900&family=Inter:wght@900&display=swap');
+
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        /* ⚙ 管理ボタン：右上固定 */
+        .admin-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            background: white;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* --- 表示器本体 --- */
+        .lcd-board {
+            position: relative;
+            width: 900px;
+            aspect-ratio: 16 / 9;
+            background-image: url('hassyahyou.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-top: 40px;
+        }
+
+        /* --- 網掛け（amikake.png） --- */
         .led-mask-custom {
             position: absolute;
-            /* 若干左下に移動 (topを増やし、leftを減らす) */
-            top: 37.5%; /* 36.5% -> 37.5% (下へ) */
-            left: 6.8%; /* 7.2% -> 6.8% (左へ) */
-            width: 86.5%; /* 左にずらした分、幅を少し調整 */
+            /* 若干左下へ調整 */
+            top: 37.5%; 
+            left: 6.8%;
+            width: 86.5%; /* 左に寄せた分、幅を微調整 */
             height: 52%; 
             
             background-image: url('amikake.png');
             background-repeat: no-repeat;
+            
+            /* 縦を80pxに潰し、横を100%に引き伸ばす */
             background-size: 100% 80px; 
             background-position: center top; 
             
             opacity: 1.0; 
-            z-index: 100;
+            z-index: 100; /* 文字より手前 */
             pointer-events: none;
         }
 
-        /* --- 文字コンテンツ（網掛けと座標を合わせる） --- */
+        /* --- 文字コンテンツ（網掛けと座標を同期） --- */
         .led-content-wrapper {
             position: absolute;
-            top: 37.5%; /* 36.5% -> 37.5% (下へ) */
-            left: 6.8%; /* 7.2% -> 6.8% (左へ) */
+            top: 37.5%;
+            left: 6.8%;
             width: 85.6%;
             height: 52%;
-            z-index: 50; 
+            z-index: 50; /* 網の下 */
         }
+
+        /* 上段（待ち時間・組数・番号） */
+        .upper-row {
+            display: flex;
+            height: 45%;
+            align-items: center;
+        }
+
+        /* 下段（テロップ） */
+        .lower-row {
+            position: absolute;
+            bottom: 5%;
+            width: 100%;
+            height: 40%;
+            display: flex;
+            align-items: center;
+        }
+
+        .led-text {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        /* LED発色設定 */
+        .col-time { width: 33%; color: #00ff66; font-size: 5rem; }
+        .col-wait { width: 34%; color: #ffcc00; font-size: 5rem; }
+        .col-id   { width: 33%; color: #ffff00; font-size: 6rem; letter-spacing: -2px; }
+
+        small { font-size: 1.2rem; margin-left: 4px; }
+
+        marquee {
+            width: 100%;
+            font-size: 2.8rem;
+            color: #ffcc00;
+            font-weight: 900;
+        }
+
+        /* 整理券発行ボタン */
+        .btn-issue {
+            margin-top: 30px;
+            padding: 18px 60px;
+            background: #008542;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.6rem;
+            font-weight: 900;
+            border-radius: 50px;
+            box-shadow: 0 5px 0 #005a2d;
+            transition: 0.1s;
+        }
+        .btn-issue:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="staff.html" class="admin-link">⚙ 管理ボタン</a>
+
+    <div class="lcd-board">
+        <div class="led-mask-custom"></div>
+
+        <div class="led-content-wrapper">
+            <div class="upper-row">
+                <div class="led-text col-time"><span id="wait-time">0</span><small>分</small></div>
+                <div class="led-text col-wait"><span id="wait-count">0</span><small>組</small></div>
+                <div class="led-text col-id" id="calling-now">---</div>
+            </div>
+            <div class="lower-row">
+                <marquee id="telop-text" scrollamount="12">☆鉄道研究部 模型展示特設サイトへようこそ☆</marquee>
+            </div>
+        </div>
+    </div>
+
+    <a href="entry.html" class="btn-issue">整理券を発行する</a>
+
+    <script>
+        // GASのウェブアプリURL
+        const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
+
+        async function updateMonitor() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                // 待ち状態の組数を集計
+                const waitList = data.filter(d => d.status === 'resep');
+                const count = waitList.length;
+                const minutes = count * 5; // 1組5分計算（適宜調整）
+
+                document.getElementById('wait-count').innerText = count;
+                document.getElementById('wait-time').innerText = minutes;
+
+                // 現在呼び出し中の最新のIDを取得
+                const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
+                document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
+
+                // テロップ更新（スプレッドシートのmasterシートから取得想定）
+                const mRes = await fetch(API_URL + "?sheet=master");
+                const mData = await mRes.json();
+                if (mData.telop) {
+                    document.getElementById('telop-text').innerText = mData.telop;
+                }
+            } catch (e) {
+                console.error("データの取得に失敗しました:", e);
+            }
+        }
+
+        // 10秒ごとに更新
+        setInterval(updateMonitor, 10000);
+        updateMonitor();
+    </script>
+</body>
+</html>
