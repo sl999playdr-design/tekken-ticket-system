@@ -45,42 +45,44 @@
         }
 
         /* --- 網掛け（amikake.png） --- */
-        /* サイズを変えず、黒枠のエリアの左上に1枚だけ置く設定 */
-        .led-mask-single {
+        .led-mask-custom {
             position: absolute;
-            /* 黒枠の座標（画像に合わせて微調整してください） */
+            /* 黒枠の座標 */
             top: 36.5%; 
             left: 7.2%;
-            /* 枠の範囲だけ表示（画像がはみ出す場合は隠す） */
+            /* 枠の範囲 */
             width: 85.6%;
             height: 52%; 
             
             background-image: url('amikake.png');
-            background-repeat: no-repeat; /* 繰り返さない */
-            background-size: auto;       /* サイズを変えない（元のピクセルのまま） */
-            opacity: 1.0;                 /* 透明度0（不透明） */
-            z-index: 100;                 /* 最前面 */
+            background-repeat: no-repeat;
+            
+            /* 【ここがポイント】縦を短く、横を長く引き伸ばす設定 */
+            /* 100% 100% と指定することで、親要素（黒枠）のサイズに強制的に合わせます */
+            background-size: 100% 90%; /* 横は100%いっぱい、縦は少し短めの90% */
+            background-position: center top; /* 上詰めで配置 */
+            
+            opacity: 1.0; 
+            z-index: 100; /* 最前面 */
             pointer-events: none;
         }
 
-        /* 文字コンテンツエリア */
+        /* コンテンツエリア */
         .led-content-wrapper {
             position: absolute;
             top: 36.5%;
             left: 7.2%;
             width: 85.6%;
             height: 52%;
-            z-index: 50; /* 網（100）の下 */
+            z-index: 50; 
         }
 
-        /* 上段データ */
         .upper-row {
             display: flex;
             height: 45%;
             align-items: center;
         }
 
-        /* 下段テロップ */
         .lower-row {
             position: absolute;
             bottom: 5%;
@@ -127,7 +129,7 @@
     <a href="staff.html" class="admin-link">⚙ 管理ボタン</a>
 
     <div class="lcd-board">
-        <div class="led-mask-single"></div>
+        <div class="led-mask-custom"></div>
 
         <div class="led-content-wrapper">
             <div class="upper-row">
@@ -144,23 +146,18 @@
     <a href="entry.html" class="btn-issue">整理券を発行する</a>
 
     <script>
+        // API更新スクリプト（前回と同じ）
         const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
-
         async function updateMonitor() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
-                
                 const waitList = data.filter(d => d.status === 'resep');
                 const count = waitList.length;
-                const minutes = count * 5;
-
                 document.getElementById('wait-count').innerText = count;
-                document.getElementById('wait-time').innerText = minutes;
-
+                document.getElementById('wait-time').innerText = count * 5;
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
                 document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
-
                 const mRes = await fetch(API_URL + "?sheet=master");
                 const mData = await mRes.json();
                 if (mData.telop) document.getElementById('telop-text').innerText = mData.telop;
