@@ -43,7 +43,7 @@
             margin-top: 40px;
         }
 
-        /* --- 網掛け1枚目（上段専用） --- */
+        /* --- 網掛け設定 --- */
         .mask-upper-final {
             position: absolute;
             top: 41%; 
@@ -57,10 +57,9 @@
             pointer-events: none;
         }
 
-        /* --- 網掛け2枚目（下段専用） --- */
         .mask-lower-final {
             position: absolute;
-            top: 59.5%; 
+            top: 59.5%; /* 位置固定 */
             left: 6%;
             width: 88.5%;
             height: 80px;
@@ -74,9 +73,9 @@
         /* --- 文字コンテンツ全体 --- */
         .led-content-wrapper {
             position: absolute;
-            top: 36%; /* 38.5%から36%へ：全体を少し上へ */
-            left: 5%; /* 6.8%から5%へ：全体を少し左へ */
-            width: 88%; /* 左に寄せた分、幅を少し広げて調整 */
+            top: 36%; 
+            left: 4%; /* さらに左へ寄せて 4% */
+            width: 88%; 
             height: 52%;
             z-index: 50; 
         }
@@ -85,10 +84,9 @@
             display: flex;
             height: 45%;
             align-items: center;
-            justify-content: flex-start; /* 左寄せを確実にする */
         }
 
-        /* 下段（テロップ）の位置 */
+        /* 下段（テロップ）の位置固定 */
         .lower-row {
             position: absolute;
             bottom: 25%; 
@@ -104,18 +102,37 @@
             text-align: center;
         }
 
-        /* 各列の幅とフォントサイズ */
-        .col-time { width: 32%; color: #00ff66; font-size: 5rem; }
-        .col-wait { width: 32%; color: #ffcc00; font-size: 5rem; }
-        .col-id   { width: 36%; color: #ffff00; font-size: 6rem; letter-spacing: -2px; }
+        /* 色と文字サイズ、グロー（text-shadow）の設定 
+           緑: #00ff44 / 深いオレンジ: #ff8800 / 黄色: #ffcc00
+        */
+        .col-time { 
+            width: 30%; 
+            color: #00ff44; 
+            font-size: 4rem; /* 小さめに調整 */
+            text-shadow: 0 0 8px rgba(0, 255, 68, 0.6);
+        }
+        .col-wait { 
+            width: 30%; 
+            color: #ff8800; /* 深いオレンジに変更 */
+            font-size: 4rem; /* 小さめに調整 */
+            text-shadow: 0 0 8px rgba(255, 136, 0, 0.6);
+        }
+        .col-id { 
+            width: 40%; 
+            color: #ffcc00; 
+            font-size: 5rem; /* 小さめに調整 */
+            letter-spacing: -2px; 
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+        }
 
-        small { font-size: 1.2rem; margin-left: 4px; }
+        small { font-size: 1rem; margin-left: 4px; }
 
         marquee {
             width: 100%;
             font-size: 2.8rem;
-            color: #ffcc00;
+            color: #ff8800; /* テロップも深いオレンジに統一 */
             font-weight: 900;
+            text-shadow: 0 0 8px rgba(255, 136, 0, 0.5);
         }
 
         .btn-issue {
