@@ -5,181 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>鉄研模型特設サイト</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Noto+Sans+JP:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@900&family=Inter:wght@900&display=swap');
 
         body {
-            background-color: #ffffff;
-            color: #333;
-            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f0f0f0;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            font-family: 'Noto Sans JP', sans-serif;
         }
 
-        .admin-link {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            text-decoration: none;
-            color: #666;
-            border: 1px solid #ccc;
-            padding: 5px 12px;
-            font-size: 0.85rem;
-            border-radius: 4px;
-            background: #fff;
-            z-index: 100;
-        }
-
+        /* --- 表示器本体（hassyahyou.png を背景に） --- */
         .lcd-board {
-            width: 95vw;
-            max-width: 1000px;
-            background: #000;
-            border-radius: 4px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            overflow: hidden;
-            margin-top: 60px;
-            border: 8px solid #222;
-        }
-
-        .lcd-upper-gray {
-            background: #333638;
-            padding: 15px 25px;
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
-            border-bottom: 4px solid #000;
-        }
-        .lcd-upper-gray .main-jp { font-size: 1.8rem; font-weight: 900; color: #fff; letter-spacing: 2px; }
-        .lcd-upper-gray .sub-en { font-size: 0.9rem; color: #aaa; }
-
-        /* --- LED表示エリア --- */
-        .led-display-zone {
             position: relative;
-            background: #050505;
+            width: 1000px;  /* 作成された画像の横幅に合わせてください */
+            height: 563px; /* 作成された画像の縦幅に合わせてください */
+            background-image: url('hassyahyou.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-top: 50px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        /* --- LED表示部：黒枠の座標に合わせてここを調整 --- */
+        .led-display-zone {
+            position: absolute;
+            /* ↓ ここを表示機の「黒い部分」の左上の座標に合わせます */
+            top: 232px;  
+            left: 55px;  
+            /* ↓ ここを表示機の「黒い部分」のサイズに合わせます */
+            width: 890px;
+            height: 300px;
             overflow: hidden;
         }
 
-        /* 網目（サイズを5pxに縮小） */
-        .led-grid-bg {
+        /* 網掛けレイヤー（黒枠と同じサイズの画像） */
+        .led-mask {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            /* 5px単位の細かいドット網 */
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-            background-size: 5px 5px;
-            z-index: 1;
+            background-image: url('amikake.jpeg');
+            background-size: 100% 100%;
+            opacity: 0.6; /* お好みで濃さを調整してください */
+            z-index: 10;
+            pointer-events: none;
         }
 
-        /* 文字コンテンツ（最前面） */
+        /* コンテンツ（網掛けのさらに前面に出す） */
         .led-content {
             position: relative;
-            z-index: 10; /* 網目(1)より確実に前 */
+            z-index: 20; 
             width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
-        .lcd-header {
+        /* 数字・データの行 */
+        .data-row {
             display: flex;
-            background: rgba(30, 30, 30, 0.4);
-            padding: 8px 0;
-            border-bottom: 1px solid #222;
-        }
-        .h-col { 
-            font-size: 0.85rem; 
-            color: #bbb; /* 文字をより明るく */
-            text-align: center; 
-            font-weight: 900;
-        }
-
-        .lcd-main-row {
-            display: flex;
-            height: 120px;
+            height: 180px; /* 位置に合わせて微調整 */
             align-items: center;
-            padding: 0 10px;
+            justify-content: space-around;
         }
 
         .led-text {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
             font-weight: 900;
+            text-align: center;
         }
 
-        .col-type { width: 20%; display: flex; justify-content: center; }
-        .type-box { 
-            font-size: 2rem; 
-            color: #ff9d00; 
-            border: 2px solid #ff9d00; 
-            padding: 2px 8px;
-            background: rgba(0, 0, 0, 0.6);
-        }
-        
-        .col-wait { width: 20%; font-size: 3.5rem; color: #ff9d00; text-align: center; }
-        .col-time { width: 20%; font-size: 3.5rem; text-align: center; }
-        .col-id   { width: 40%; font-size: 5rem; color: #ffca00; text-align: center; font-family: 'Inter', sans-serif; }
+        /* 各色の設定 */
+        .col-time { width: 33%; color: #00ff44; font-size: 5.5rem; }
+        .col-wait { width: 34%; color: #ff9d00; font-size: 5.5rem; }
+        .col-id   { width: 33%; color: #ffca00; font-size: 6.5rem; }
 
-        .time-normal { color: #00ff44; }
-        .time-crowded { color: #ff9d00; }
-        .time-heavy { color: #ff2200; }
+        small { font-size: 1.5rem; margin-left: 5px; }
 
-        .lcd-footer {
-            height: 55px;
+        /* テロップ行 */
+        .telop-row {
+            flex-grow: 1;
             display: flex;
             align-items: center;
-            background: rgba(0,0,0,0.5);
-            border-top: 2px solid #222;
+            padding-bottom: 20px;
         }
-        marquee { font-size: 1.8rem; color: #ff9d00; font-weight: 900; }
 
+        marquee {
+            font-size: 2.2rem;
+            color: #ff9d00;
+            font-weight: 900;
+        }
+
+        /* 整理券ボタン（表示器の外） */
         .btn-issue {
-            margin-top: 50px;
-            display: block;
-            width: 340px;
-            padding: 20px;
+            margin-top: 40px;
+            padding: 18px 50px;
             background: #008542;
             color: #fff;
-            text-align: center;
             text-decoration: none;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 900;
-            border-radius: 4px;
+            border-radius: 8px;
             box-shadow: 0 4px 0 #005a2d;
         }
     </style>
 </head>
 <body>
 
-    <a href="staff.html" class="admin-link">⚙管理</a>
-
     <div class="lcd-board">
-        <div class="lcd-upper-gray">
-            <span class="main-jp">今度の発車は</span>
-            <span class="sub-en">Next Train</span>
-        </div>
-
         <div class="led-display-zone">
-            <div class="led-grid-bg"></div>
+            <div class="led-mask"></div>
 
             <div class="led-content">
-                <div class="lcd-header">
-                    <div class="h-col" style="width: 20%;">種別</div>
-                    <div class="h-col" style="width: 20%;">待ち組数</div>
-                    <div class="h-col" style="width: 20%;">目安時間</div>
-                    <div class="h-col" style="width: 40%;">呼出番号</div>
+                <div class="data-row">
+                    <div class="led-text col-time" id="time-display">
+                        <span id="wait-time">0</span><small>分</small>
+                    </div>
+                    <div class="led-text col-wait">
+                        <span id="wait-count">0</span><small>組</small>
+                    </div>
+                    <div class="led-text col-id" id="calling-now">---</div>
                 </div>
-
-                <div class="lcd-main-row">
-                    <div class="col-type"><div class="led-text type-box">体験</div></div>
-                    <div class="col-wait led-text"><span id="wait-count">0</span><small style="font-size:1rem; margin-left:4px;">組</small></div>
-                    <div class="col-time led-text" id="time-display"><span id="wait-time">0</span><small style="font-size:1rem; margin-left:4px;">分</small></div>
-                    <div class="col-id led-text" id="calling-now">---</div>
-                </div>
-
-                <div class="lcd-footer">
-                    <marquee id="telop-text" scrollamount="10">運行情報を取得中...</marquee>
+                
+                <div class="telop-row">
+                    <marquee id="telop-text" scrollamount="12">運行情報を取得中...</marquee>
                 </div>
             </div>
         </div>
@@ -201,12 +154,6 @@
 
                 document.getElementById('wait-count').innerText = count;
                 document.getElementById('wait-time').innerText = minutes;
-
-                const timeEl = document.getElementById('time-display');
-                timeEl.classList.remove('time-normal', 'time-crowded', 'time-heavy');
-                if (minutes >= 30) timeEl.classList.add('time-heavy');
-                else if (minutes >= 15) timeEl.classList.add('time-crowded');
-                else timeEl.classList.add('time-normal');
 
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
                 document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
