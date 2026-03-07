@@ -50,25 +50,25 @@
             top: 41%; 
             left: 6%;
             width: 88.5%;
-            height: 80px; /* 縦幅を固定 */
+            height: 80px;
             background-image: url('amikake.png');
             background-repeat: no-repeat;
-            background-size: 100% 100%; /* この要素（80px）いっぱいに広げる */
+            background-size: 100% 100%;
             z-index: 100;
             pointer-events: none;
         }
 
-        /* --- 網掛け2枚目（下段専用） --- */
+        /* --- 網掛け2枚目（下段専用：位置を上に調整） --- */
         .mask-lower-final {
             position: absolute;
-            top: 68%; /* 上段とは違う位置 */
+            top: 64%; /* 68%から64%へ引き上げ */
             left: 6%;
             width: 88.5%;
-            height: 80px; /* 縦幅を固定 */
+            height: 80px;
             background-image: url('amikake.png');
             background-repeat: no-repeat;
             background-size: 100% 100%;
-            z-index: 101; /* 重なってもいいように少し変えています */
+            z-index: 101;
             pointer-events: none;
         }
 
