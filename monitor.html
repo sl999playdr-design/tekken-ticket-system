@@ -16,25 +16,11 @@
             font-weight: 900;
         }
 
-        /* 🏠 左上のボタン類 */
-        .top-left-nav {
-            position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 1000;
-        }
-
-        .nav-btn {
-            text-decoration: none; color: #333; border: 1px solid #ccc; 
-            padding: 8px 16px; font-size: 0.9rem; border-radius: 4px; 
-            background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            cursor: pointer; font-family: sans-serif;
-        }
-
-        /* 🎫 自分の整理券ボタン（最初は隠しておく） */
-        #my-ticket-btn {
-            display: none;
-            background: #ff8800;
-            color: white;
-            border: none;
-            font-weight: bold;
+        /* 🏠 左上の戻るボタン */
+        .home-link {
+            position: fixed; top: 20px; left: 20px; text-decoration: none;
+            color: #333; border: 1px solid #ccc; padding: 8px 16px;
+            font-size: 0.9rem; border-radius: 4px; background: white; z-index: 1000;
         }
 
         /* ⚙ 管理ボタン */
@@ -42,11 +28,10 @@
             position: fixed; top: 20px; right: 20px; text-decoration: none;
             color: #333; border: 1px solid #ccc; padding: 8px 16px;
             font-size: 0.9rem; border-radius: 4px; background: white; z-index: 1000;
-            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-family: sans-serif;
+            cursor: pointer;
         }
 
-        /* --- 表示器本体 (数値は一切変えていません) --- */
+        /* --- 表示器本体 --- */
         .lcd-board {
             position: relative; width: 900px; aspect-ratio: 16 / 9;
             background-image: url('hassyahyou.png'); background-size: contain;
@@ -62,6 +47,8 @@
             background-image: url('amikake.png'); background-size: 100% 100%;
             z-index: 101; pointer-events: none;
         }
+
+        /* --- LED文字の基本設定 --- */
         .led-item {
             position: absolute; font-family: serif; font-weight: 900;
             display: flex; align-items: baseline; justify-content: center; z-index: 50;
@@ -74,21 +61,47 @@
         .pos-telop { position: absolute; bottom: 25%; left: 6.8%; width: 86.6%; height: 80px; display: flex; align-items: center; z-index: 40; }
         marquee { width: 100%; font-size: 2.8rem; color: #ff8800; text-shadow: 0 0 8px rgba(255, 136, 0, 0.5); }
 
+        /* --- ボタンエリア --- */
+        .button-container {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* 🎫 自分の整理券を確認（紺色） */
+        #my-ticket-btn {
+            display: none; /* 初期状態は非表示 */
+            padding: 12px 40px;
+            background: #001f3f; /* 紺色 */
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #001021;
+        }
+
+        /* 🟢 整理券を発行する */
         .btn-issue {
-            margin-top: 30px; padding: 18px 60px; background: #008542;
-            color: #fff; text-decoration: none; font-size: 1.6rem;
-            font-weight: 900; border-radius: 50px; box-shadow: 0 5px 0 #005a2d;
+            padding: 18px 60px;
+            background: #008542;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.6rem;
+            font-weight: 900;
+            border-radius: 50px;
+            box-shadow: 0 5px 0 #005a2d;
             font-family: sans-serif;
         }
     </style>
 </head>
 <body>
 
-    <div class="top-left-nav">
-        <a href="index.html" class="nav-btn">⬅ 戻る</a>
-        <button id="my-ticket-btn" class="nav-btn" onclick="showMyTicket()">🎫 自分の整理券</button>
-    </div>
-
+    <a href="index.html" class="home-link">⬅ 戻る</a>
     <div class="admin-link" onclick="goToAdmin()">⚙ 管理者用</div>
 
     <div class="lcd-board">
@@ -102,33 +115,27 @@
         </div>
     </div>
 
-    <a href="entry.html" class="btn-issue">整理券を発行する</a>
+    <div class="button-container">
+        <a href="issued.html" id="my-ticket-btn">自分の整理券を表示する</a>
+        <a href="entry.html" class="btn-issue">整理券を発行する</a>
+    </div>
 
     <script>
-        // --- 自分の整理券を確認する機能 ---
-        function checkMyTicket() {
+        // --- 自分の整理券データの有無を確認 ---
+        function checkTicketStatus() {
             const myNum = localStorage.getItem('my_ticket_id');
             const btn = document.getElementById('my-ticket-btn');
             if (myNum) {
-                btn.style.display = 'block'; // 番号があればボタンを表示
+                btn.style.display = 'block'; // 番号があれば紺色ボタンを表示
             }
         }
 
-        function showMyTicket() {
-            const myNum = localStorage.getItem('my_ticket_id');
-            if (myNum) {
-                alert("あなたの整理券番号は【 " + myNum + " 】です。\nお呼び出しまでそのままお待ちください。");
-            }
-        }
-
-        // --- パスワード処理 ---
         function goToAdmin() {
             const pass = prompt("パスワードを入力してください");
             if (pass === "0000") { window.location.href = "staff.html"; }
             else if (pass !== null) { alert("パスワードが違います"); }
         }
 
-        // --- データ更新処理 ---
         const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
         async function updateMonitor() {
             try {
@@ -147,8 +154,7 @@
             } catch (e) { console.error("更新失敗:", e); }
         }
 
-        // 起動時のチェック
-        checkMyTicket();
+        checkTicketStatus();
         setInterval(updateMonitor, 10000);
         updateMonitor();
     </script>
