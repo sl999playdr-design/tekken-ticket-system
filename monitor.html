@@ -44,28 +44,31 @@
             margin-top: 40px;
         }
 
-        /* --- 網掛け（amikake.png） --- */
-        .led-mask-custom {
+        /* --- 網掛け共通設定 --- */
+        .led-mask-common {
             position: absolute;
-            /* 37.5%からさらに下へ、7.2%からさらに左へ、幅を1%追加 */
-            top: 41%; 
             left: 6%;
-            width: 88.5%; 
-            height: 52%; 
-            
+            width: 88.5%;
             background-image: url('amikake.png');
             background-repeat: no-repeat;
-            
-            /* 縦を80pxに固定し、横を引き伸ばす */
-            background-size: 100% 80px; 
-            background-position: center top; 
-            
-            opacity: 1.0; 
-            z-index: 100; /* 最前面 */
+            background-size: 100% 80px;
+            background-position: center top;
+            opacity: 1.0;
+            z-index: 100;
             pointer-events: none;
         }
 
-        /* --- 文字コンテンツ（網掛けと座標を完全同期） --- */
+        /* 一段目の網 */
+        .led-mask-upper {
+            top: 41%;
+        }
+
+        /* 二段目の網 (単純に下に移動) */
+        .led-mask-lower {
+            top: 68.5%; /* 位置は画像に合わせて微調整してください */
+        }
+
+        /* --- 文字コンテンツ --- */
         .led-content-wrapper {
             position: absolute;
             top: 38.5%;
@@ -75,14 +78,12 @@
             z-index: 50; 
         }
 
-        /* 上段（データ） */
         .upper-row {
             display: flex;
             height: 45%;
             align-items: center;
         }
 
-        /* 下段（テロップ） */
         .lower-row {
             position: absolute;
             bottom: 5%;
@@ -111,7 +112,6 @@
             font-weight: 900;
         }
 
-        /* 整理券発行ボタン */
         .btn-issue {
             margin-top: 30px;
             padding: 18px 60px;
@@ -135,7 +135,8 @@
     <a href="staff.html" class="admin-link">⚙ 管理ボタン</a>
 
     <div class="lcd-board">
-        <div class="led-mask-custom"></div>
+        <div class="led-mask-common led-mask-upper"></div>
+        <div class="led-mask-common led-mask-lower"></div>
 
         <div class="led-content-wrapper">
             <div class="upper-row">
