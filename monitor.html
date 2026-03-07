@@ -47,35 +47,35 @@
         /* --- 網掛け（amikake.png） --- */
         .led-mask-custom {
             position: absolute;
-            /* 若干左下へ調整 */
-            top: 37.5%; 
+            /* 37.5%からさらに下へ、7.2%からさらに左へ、幅を1%追加 */
+            top: 38.5%; 
             left: 6.8%;
-            width: 86.5%; /* 左に寄せた分、幅を微調整 */
+            width: 86.6%; 
             height: 52%; 
             
             background-image: url('amikake.png');
             background-repeat: no-repeat;
             
-            /* 縦を80pxに潰し、横を100%に引き伸ばす */
+            /* 縦を80pxに固定し、横を引き伸ばす */
             background-size: 100% 80px; 
             background-position: center top; 
             
             opacity: 1.0; 
-            z-index: 100; /* 文字より手前 */
+            z-index: 100; /* 最前面 */
             pointer-events: none;
         }
 
-        /* --- 文字コンテンツ（網掛けと座標を同期） --- */
+        /* --- 文字コンテンツ（網掛けと座標を完全同期） --- */
         .led-content-wrapper {
             position: absolute;
-            top: 37.5%;
+            top: 38.5%;
             left: 6.8%;
-            width: 85.6%;
+            width: 86.6%;
             height: 52%;
-            z-index: 50; /* 網の下 */
+            z-index: 50; 
         }
 
-        /* 上段（待ち時間・組数・番号） */
+        /* 上段（データ） */
         .upper-row {
             display: flex;
             height: 45%;
@@ -98,7 +98,6 @@
             text-align: center;
         }
 
-        /* LED発色設定 */
         .col-time { width: 33%; color: #00ff66; font-size: 5rem; }
         .col-wait { width: 34%; color: #ffcc00; font-size: 5rem; }
         .col-id   { width: 33%; color: #ffff00; font-size: 6rem; letter-spacing: -2px; }
@@ -153,7 +152,6 @@
     <a href="entry.html" class="btn-issue">整理券を発行する</a>
 
     <script>
-        // GASのウェブアプリURL
         const API_URL = "https://script.google.com/macros/s/AKfycbwlzBgQoST_MLC8nvPeJSMQBHnIFouiEB8MI6N2s-oObA0HP-X_txcevkIv8q7UFpfLJQ/exec";
 
         async function updateMonitor() {
@@ -161,30 +159,26 @@
                 const response = await fetch(API_URL);
                 const data = await response.json();
                 
-                // 待ち状態の組数を集計
                 const waitList = data.filter(d => d.status === 'resep');
                 const count = waitList.length;
-                const minutes = count * 5; // 1組5分計算（適宜調整）
+                const minutes = count * 5;
 
                 document.getElementById('wait-count').innerText = count;
                 document.getElementById('wait-time').innerText = minutes;
 
-                // 現在呼び出し中の最新のIDを取得
                 const callingIds = data.filter(d => d.status === 'call').map(d => d.id);
                 document.getElementById('calling-now').innerText = callingIds.length > 0 ? callingIds[callingIds.length - 1] : "---";
 
-                // テロップ更新（スプレッドシートのmasterシートから取得想定）
                 const mRes = await fetch(API_URL + "?sheet=master");
                 const mData = await mRes.json();
                 if (mData.telop) {
                     document.getElementById('telop-text').innerText = mData.telop;
                 }
             } catch (e) {
-                console.error("データの取得に失敗しました:", e);
+                console.error("更新失敗:", e);
             }
         }
 
-        // 10秒ごとに更新
         setInterval(updateMonitor, 10000);
         updateMonitor();
     </script>
